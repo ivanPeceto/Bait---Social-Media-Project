@@ -17,10 +17,4 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-<<<<<<< HEAD
-=======
-// Force Laravel to search .env on the root folder
-$app->useEnvironmentPath(dirname(__DIR__, 2));
-
->>>>>>> 4d5abedd59629e8e3868b54bce5fddae5285d0eb
 $app->handleRequest(Request::capture());
