@@ -32,31 +32,31 @@ class AuthController extends Controller
     }
 
     public function login(LoginRequest $request) {
-        if (!$token = auth('api')->attempt($request->validated())) {
+        if (!$token = $this->guard->attempt($request->validated())) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
         return response()->json([
-            'user'  => new UserResource(auth('api')->user()),
+            'user'  => new UserResource($this->guard->user()),
             'token' => $token,
             'type'  => 'bearer',
-            'ttl'   => $this->guard->factory()->getTT(),
+            'ttl'   => $this->guard->factory()->getTTL(),
         ]);
     }
 
     public function me() {
-        return new UserResource(auth('api')->user());
+        return new UserResource($this->guard->user());
     }
 
     public function refresh() {
         return response()->json([
             'token' => $this->guard->refresh(),
             'type'  => 'bearer',
-            'ttl'   => $this->guard->factory()->getTT(),
+            'ttl'   => $this->guard->factory()->getTTL(),
         ]);
     }
 
     public function logout() {
-        auth('api')->logout();
+        $this->guard->logout();
         return response()->json(['message' => 'Logged out']);
     }
 }

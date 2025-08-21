@@ -11,7 +11,7 @@ class ChangePasswordRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -19,10 +19,17 @@ class ChangePasswordRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
+    public function rules(): array {
         return [
-            //
+            'current_password' => ['required','string'],
+            'new_password'     => ['required','string','min:8','confirmed'],
         ];
+    }
+    public function withValidator($validator) {
+        $validator->after(function($v){
+            if (!\Hash::check($this->input('current_password'), $this->user()->password)) {
+                $v->errors()->add('current_password', 'Current password is incorrect.');
+            }
+        });
     }
 }

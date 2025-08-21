@@ -11,7 +11,7 @@ class UpdateProfileRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -19,10 +19,11 @@ class UpdateProfileRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
-        return [
-            //
-        ];
-    }
+    public function rules(): array {
+    return [
+        'username' => ['sometimes','string','min:3','max:30','alpha_dash',"unique:users,username,{$this->user()->id}"],
+        'name'   => ['sometimes','string','max:120'],
+        'email'  => ['sometimes','email',"unique:users,email,{$this->user()->id}"],
+    ];
+}
 }
