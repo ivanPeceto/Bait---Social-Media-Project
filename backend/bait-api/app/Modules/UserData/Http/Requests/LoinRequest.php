@@ -4,16 +4,8 @@ namespace App\Modules\UserData\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoinRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -22,7 +14,7 @@ class LoinRequest extends FormRequest
     public function rules(): array {
     return [
         'email'    => ['required','email'],
-        'password' => ['required','string'],
+        'password' => ['required','string','min:8'],
     ];
     }
 }

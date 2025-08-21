@@ -8,20 +8,26 @@ use App\Modules\UserData\Services\AuthService;
 use App\Modules\UserData\Http\Requests\LoginRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTFactory;
+use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 
 class AuthController extends Controller
 {
-    public function __construct(private AuthService $auth) {}
+    private $guard;
+
+    public function __construct(private AuthService $auth) {
+         /** @var JWTGuard $guard */ //Eliminates ugly intelephense problem >:(
+        $this->guard = auth('api');
+    }
 
     public function register(RegisterRequest $request) {
         $user = $this->auth->register($request->validated());
         $token = JWTAuth::fromUser($user);
+        
         return response()->json([
             'user'  => new UserResource($user),
             'token' => $token,
             'type'  => 'bearer',
-            'ttl'   => auth('api')->factory()->getTTL(),
+            'ttl'   => $this->guard->factory()->getTTL(),
         ], 201);
     }
 
@@ -33,7 +39,7 @@ class AuthController extends Controller
             'user'  => new UserResource(auth('api')->user()),
             'token' => $token,
             'type'  => 'bearer',
-            'ttl'   => auth('api')->factory()->getTTL(),
+            'ttl'   => $this->guard->factory()->getTT(),
         ]);
     }
 
@@ -43,9 +49,9 @@ class AuthController extends Controller
 
     public function refresh() {
         return response()->json([
-            'token' => auth('api')->refresh(),
+            'token' => $this->guard->refresh(),
             'type'  => 'bearer',
-            'ttl'   => auth('api')->factory()->getTTL(),
+            'ttl'   => $this->guard->factory()->getTT(),
         ]);
     }
 
