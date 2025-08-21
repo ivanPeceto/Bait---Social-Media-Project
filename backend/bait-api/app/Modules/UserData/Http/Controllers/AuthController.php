@@ -3,12 +3,12 @@
 namespace App\Modules\UserData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\UserData\Services\AuthService;
 use App\Modules\UserData\Http\Requests\RegisterRequest;
+use App\Modules\UserData\Services\AuthService;
 use App\Modules\UserData\Http\Requests\LoginRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
-use Illuminate\Http\Request;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTFactory;
 
 class AuthController extends Controller
 {
@@ -21,7 +21,7 @@ class AuthController extends Controller
             'user'  => new UserResource($user),
             'token' => $token,
             'type'  => 'bearer',
-            'ttl'   => auth('api')->factory()->getTTL(), // minutos
+            'ttl'   => auth('api')->factory()->getTTL(),
         ], 201);
     }
 
