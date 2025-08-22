@@ -1,0 +1,44 @@
+version: "3.9"
+
+app:
+  backend:
+    build:
+      context: ./backend/bait-api
+      dockerfile: Dockerfile
+    container_name: bait-backend
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - ./vendor:/var/www/vendor
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+
+  mysql:
+    image: mysql:8.0
+    container_name: bait-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    env_file:
+      - .env
+
+# To add later: vistualization for de db
+#  phpmyadmin:
+#    image: phpmyadmin/phpmyadmin
+
+
+volumes:
+  mysql_data:
+
