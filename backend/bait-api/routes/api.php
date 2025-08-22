@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\UserData\Http\Controllers\AuthController;
 use App\Modules\UserData\Http\Controllers\ProfileController;
+use App\Modules\UserData\Http\Controllers\UserRoleController;
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
@@ -18,4 +19,12 @@ Route::middleware('auth:api')->prefix('profile')->group(function () {
     Route::put('/password',    [ProfileController::class, 'changePassword']);
     Route::post('/avatar',     [ProfileController::class, 'updateAvatar']);
     Route::post('/banner',     [ProfileController::class, 'updateBanner']);
+});
+
+Route::prefix('roles')->group(function () {
+    Route::get('/', [UserRoleController::class, 'index']);
+    Route::get('/', [UserRoleController::class, 'create']);
+    Route::get('/{role}', [UserRoleController::class, 'update']);
+    Route::get('/{role}', [UserRoleController::class, 'destroy']);
+
 });
