@@ -1,6 +1,6 @@
 version: "3.9"
 
-app:
+services:
   backend:
     build:
       context: ./backend/bait-api
@@ -9,15 +9,13 @@ app:
     restart: unless-stopped
     working_dir: /var/www
     volumes:
-      - .:/var/www
-      - ./vendor:/var/www/vendor
+      - ./backend/bait-api:/var/www
+      - ./.env:/var/www/.env
     ports:
       - "8000:8000"
     depends_on:
       - mysql
-    env_file:
-      - .env
-
+      
   mysql:
     image: mysql:8.0
     container_name: bait-mysql
