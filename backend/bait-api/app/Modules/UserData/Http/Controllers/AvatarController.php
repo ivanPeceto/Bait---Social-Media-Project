@@ -19,4 +19,9 @@ class AvatarController extends Controller {
 
         return new AvatarResource($avatar);
     }
+
+    public function show($id){
+        $avatar = Avatar::findOrFail($id);
+        return new AvatarResource($avatar);
+    }
 }
