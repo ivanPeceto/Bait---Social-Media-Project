@@ -17,7 +17,7 @@ class AvatarUploadRequest extends FormRequest
 
     public function authorize(): bool
     {
-        // Aquí podrías validar si el user está logueado
+        //To add: Is user logged in?
         return $this->guard->check();
     }
 
