@@ -1,0 +1,109 @@
+Table user_roles {
+  id bigint [pk, increment]
+  name_user_roles varchar(50) [not null, unique]
+}
+
+Table user_states {
+  id bigint [pk, increment]
+  name_user_states varchar(50) [not null, unique]
+}
+
+Table avatars {
+  id bigint [pk, increment]
+  url_avatars varchar(255) [not null]
+}
+
+Table banners {
+  id bigint [pk, increment]
+  url_banners varchar(255) [not null]
+}
+
+Table users {
+  id bigint [pk, increment]
+  name_users varchar(100) [not null]
+  email_users varchar(100) [not null, unique]
+  password_users varchar(255) [not null]
+  created_at_users datetime [not null]
+  updated_at_users datetime
+  user_role_id bigint [ref: > user_roles.id]
+  user_state_id bigint [ref: > user_states.id]
+  avatar_id bigint [ref: > avatars.id]
+  banner_id bigint [ref: > banners.id]
+}
+
+Table posts {
+  id bigint [pk, increment]
+  content_posts text [not null]
+  created_at_posts datetime [not null]
+  updated_at_posts datetime
+  user_id bigint [ref: > users.id]
+}
+
+Table multimedia_contents {
+  id bigint [pk, increment]
+  url_multimedia_contents varchar(255) [not null]
+  type_multimedia_contents varchar(50) [not null]
+  post_id bigint [ref: > posts.id]
+}
+
+Table comments {
+  id bigint [pk, increment]
+  content_comments text [not null]
+  created_at_comments datetime [not null]
+  user_id bigint [ref: > users.id]
+  post_id bigint [ref: > posts.id]
+}
+
+Table reaction_types {
+  id bigint [pk, increment]
+  name_reaction_types varchar(50) [not null, unique] // ej: like, dislike, haha, sad
+}
+
+Table post_reactions {
+  id bigint [pk, increment]
+  created_at_post_reactions datetime [not null]
+  user_id bigint [ref: > users.id]
+  post_id bigint [ref: > posts.id]
+  reaction_type_id bigint [ref: > reaction_types.id]
+}
+
+Table reposts {
+  id bigint [pk, increment]
+  created_at_reposts datetime [not null]
+  user_id bigint [ref: > users.id]
+  post_id bigint [ref: > posts.id]
+}
+
+Table follows {
+  id bigint [pk, increment]
+  follower_id bigint [ref: > users.id]
+  following_id bigint [ref: > users.id]
+}
+
+Table chats {
+  id bigint [pk, increment]
+  created_at_chats datetime [not null]
+}
+
+Table chat_users {
+  id bigint [pk, increment]
+  chat_id bigint [ref: > chats.id]
+  user_id bigint [ref: > users.id]
+}
+
+Table messages {
+  id bigint [pk, increment]
+  content_messages text [not null]
+  created_at_messages datetime [not null]
+  chat_id bigint [ref: > chats.id]
+  user_id bigint [ref: > users.id]
+}
+
+Table notifications {
+  id bigint [pk, increment]
+  type_notifications varchar(50) [not null]
+  content_notifications text
+  is_read_notifications boolean [not null, default: false]
+  created_at_notifications datetime [not null]
+  user_id bigint [ref: > users.id]
+}
