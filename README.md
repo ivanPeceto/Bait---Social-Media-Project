@@ -35,7 +35,7 @@ Bait is a social media application inspired by popular platforms like X, designe
 - [Iván Gabriel Peceto](https://github.com/ivanPeceto)
 - [Juan Cruz Comas Tavella](https://github.com/juancruzct12)
 - [Facundo Nahuel Martinez Larroza](https://github.com/facu24fm)
-- [Juan Manuel Rodriguez Spinkler](https://github.com/jmrodriguezspinker)
+- [Juan Manuel Rodriguez Spinker](https://github.com/jmrodriguezspinker)
 
 
 

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\UserData\Http\Controllers\AuthController;
 use App\Modules\UserData\Http\Controllers\ProfileController;
 use App\Modules\UserData\Http\Controllers\UserRoleController;
+use App\Modules\UserData\Http\Controllers\AvatarController;
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
@@ -28,3 +29,10 @@ Route::prefix('roles')->group(function () {
     Route::get('/{role}', [UserRoleController::class, 'destroy']);
 
 });
+
+Route::prefix('avatars')->middleware('auth:api')->group(function () {
+    Route::post('/upload', [AvatarController::class, 'upload'])->name('avatars.upload');
+
+    Route::get('/{id}', [AvatarController::class, 'show'])->name('avatars.show');
+});
+

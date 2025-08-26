@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\UserData\Http\Requests;
+namespace App\Modules\UserData\Http\Requests\UserRole;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class UpdateRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,10 +21,7 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array {
     return [
-        'username'   => ['required','string','min:3','max:30','alpha_dash','unique:users,username'],
-        'name'     => ['required','string','max:120'],
-        'email'    => ['required','email','unique:users,email'],
-        'password' => ['required','string','min:8','confirmed'],
+        'name'   => ['sometimes','string','max:120'],
     ];
-    }
+}
 }

@@ -4,8 +4,8 @@ namespace App\Modules\UserData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\UserData\Domain\Models\UserRole;
-use App\Modules\UserData\Http\Requests\CreateRoleRequest;
-use App\Modules\UserData\Http\Requests\UpdateRoleRequest;
+use App\Modules\UserData\Http\Requests\UserRole\CreateRoleRequest;
+use App\Modules\UserData\Http\Requests\UserRole\UpdateRoleRequest;
 use App\Modules\UserData\Http\Resources\UserRoleResource;
 use Illuminate\Http\JsonResponse;
 

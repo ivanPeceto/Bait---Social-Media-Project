@@ -3,11 +3,12 @@
 namespace App\Modules\UserData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\UserData\Http\Requests\UpdateProfileRequest;
-use App\Modules\UserData\Http\Requests\ChangePasswordRequest;
+use App\Modules\UserData\Http\Requests\User\UpdateProfileRequest;
+use App\Modules\UserData\Http\Requests\User\ChangePasswordRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use PHPOpenSourceSaver\JWTAuth\JWTGuard;
+use App\Modules\UserData\Domain\Models\User;
 
 class ProfileController extends Controller
 {
@@ -26,7 +27,7 @@ class ProfileController extends Controller
 
     public function update(UpdateProfileRequest $request)
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $this->guard->user();
         $user->update($request->validated());
 

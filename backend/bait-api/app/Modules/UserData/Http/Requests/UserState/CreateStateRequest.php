@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Modules\UserData\Http\Requests;
+namespace App\Modules\UserData\Http\Requests\UserState;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateRoleRequest extends FormRequest
-{
+class CreateStateRequest extends FormRequest {
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -20,8 +19,9 @@ class UpdateRoleRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array {
-    return [
-        'name'   => ['sometimes','string','max:120'],
-    ];
-}
+        return [
+            'name'=> ['required','string','max:120'],
+        ];
+    }
+
 }
