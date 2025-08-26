@@ -3,8 +3,8 @@
 namespace App\Modules\UserData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\UserData\Http\Requests\UpdateProfileRequest;
-use App\Modules\UserData\Http\Requests\ChangePasswordRequest;
+use App\Modules\UserData\Http\Requests\User\UpdateProfileRequest;
+use App\Modules\UserData\Http\Requests\User\ChangePasswordRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use PHPOpenSourceSaver\JWTAuth\JWTGuard;

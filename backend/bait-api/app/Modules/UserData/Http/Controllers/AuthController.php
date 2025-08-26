@@ -3,9 +3,9 @@
 namespace App\Modules\UserData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\UserData\Http\Requests\RegisterRequest;
+use App\Modules\UserData\Http\Requests\User\RegisterRequest;
 use App\Modules\UserData\Services\AuthService;
-use App\Modules\UserData\Http\Requests\LoginRequest;
+use App\Modules\UserData\Http\Requests\User\LoginRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\JWTGuard;

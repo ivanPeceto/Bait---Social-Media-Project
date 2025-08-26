@@ -4,8 +4,8 @@ namespace App\Modules\UserData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\UserData\Domain\Models\UserState;
-use App\Modules\UserData\Http\Requests\CreateStateRequest;
-use App\Modules\UserData\Http\Requests\UpdateStateRequest;
+use App\Modules\UserData\Http\Requests\UserState\CreateStateRequest;
+use App\Modules\UserData\Http\Requests\UserState\UpdateStateRequest;
 use App\Modules\UserData\Http\Resources\UserStateResource;
 use Illuminate\Http\JsonResponse;
 
