@@ -21,28 +21,28 @@ class BannerController extends Controller {
     public function upload(BannerUploadRequest $request){
 
         //Validation
-        if (!$request->hasFile('avatar') || !$request->file('avatar')->isValid()) {
+        if (!$request->hasFile('banner') || !$request->file('banner')->isValid()) {
             return response()->json(['message' => 'Invalid file upload'], 422);
         }
 
-        $file = $request->file('avatar');
-        $path = $file->store('avatar', 'public'); // storage/app/public/avatar
+        $file = $request->file('banner');
+        $path = $file->store('banner', 'public'); // storage/app/public/banner
 
-        $avatar = Avatar::create([
-            'url_avatar'=>$path,
+        $banner = banner::create([
+            'url_banner'=>$path,
         ]);
 
         /** @var User $user */
         $user = $this->guard->user();
         $user->update([
-            'avatar_id' => $avatar->id,
+            'banner_id' => $banner->id,
         ]);
 
-        return new AvatarResource($avatar);
+        return new BannerResource($banner);
     }
 
     public function show($id){
-        $avatar = Avatar::findOrFail($id);
-        return new AvatarResource($avatar);
+        $banner = Banner::findOrFail($id);
+        return new BannerResource($banner);
     }
 }
