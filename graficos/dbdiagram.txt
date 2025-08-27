@@ -107,3 +107,6 @@ Table notifications {
   created_at_notifications datetime [not null]
   user_id bigint [ref: > users.id]
 }
+
+
+------------------------------------------------------------------
