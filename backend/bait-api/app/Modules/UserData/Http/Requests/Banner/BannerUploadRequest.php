@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\UserData\Http\Requests\Avatar;
+namespace App\Modules\UserData\Http\Requests\Banner;
 
 use Illuminate\Foundation\Http\FormRequest;
 use PHPOpenSourceSaver\JWTAuth\JWTGuard;
