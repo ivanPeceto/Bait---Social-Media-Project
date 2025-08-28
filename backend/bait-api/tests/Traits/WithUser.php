@@ -3,32 +3,24 @@
 namespace Tests\Traits;
 
 use App\Modules\UserData\Domain\Models\User;
-use PHPOpenSourceSaver\JWTAuth\JWTGuard;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 trait WithUser
 {
-    private $guard;
-
-    public function __construct() {
-         /** @var JWTGuard $guard */ //Eliminates ugly intelephense problem >:(
-        $this->guard = auth('api');
-    }
-
     /**
      * Creates an user and returns [User, JWT Headers].
      *
      * @param array $overrides Overwrites factory data
      * @return array
      */
-    protected function actingAsUser(array $overrides = []): array
+    public function actingAsUser()
     {
-        /** @var User $user */
-        $user = User::factory()->create($overrides);
-
-        $token = $this->guard->login($user);
+        $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
 
         $headers = ['Authorization' => "Bearer $token"];
-
+        
         return [$user, $headers];
     }
+
 }

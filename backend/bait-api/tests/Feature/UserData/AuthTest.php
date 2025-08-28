@@ -12,6 +12,11 @@ class AuthTest extends TestCase
     use RefreshDatabase;
     use WithUser;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
     /** @test */
     public function it_registers_a_user_and_returns_a_token()
     {
