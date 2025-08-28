@@ -2,18 +2,18 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
 
-class AvatarSeeder extends Seeder
+class BannerSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('avatar')->insert([
-            'url_avatar' => 'avatar/default.jpg',
+        DB::table('banner')->insert([
+        'url_banner' => 'banner/default.jpg',
         ]);
     }
 }
