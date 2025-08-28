@@ -7,18 +7,18 @@ use App\Modules\UserData\Http\Controllers\UserRoleController;
 use App\Modules\UserData\Http\Controllers\AvatarController;
 use App\Modules\Multimedia\Http\Controllers\PostController;
 
+/*Healthcheck routes*/
+
+Route::get('/', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 Route::prefix('api')->group(function () {
-    /*Healthcheck routes*/
-
-    Route::get('/', function () {
-        return response()->json(['status' => 'ok']);
-    });
-
     Route::get('/ping', function () {
         return response()->json(['status' => 'ok']);
     });
 
-    /*------------------*/
+/*----End Healthceck routes--------------*/
 
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
