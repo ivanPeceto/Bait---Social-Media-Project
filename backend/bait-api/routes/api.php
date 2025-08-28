@@ -5,6 +5,19 @@ use App\Modules\UserData\Http\Controllers\AuthController;
 use App\Modules\UserData\Http\Controllers\ProfileController;
 use App\Modules\UserData\Http\Controllers\UserRoleController;
 use App\Modules\UserData\Http\Controllers\AvatarController;
+use App\Modules\Multimedia\Http\Controllers\PostController;
+
+/*Healthcheck routes*/
+
+Route::get('/', function () {
+    return response()->json(['status' => 'ok']);
+});
+
+Route::get('/api/ping', function () {
+    return response()->json(['status' => 'ok']);
+});
+
+/*------------------*/
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
