@@ -14,6 +14,7 @@ use App\Modules\Social\Http\Controllers\RepostController;
 use App\Modules\Content\Http\Controllers\MultimediaContentController;
 use App\Modules\Chat\Http\Controllers\ChatController;
 use App\Modules\Chat\Http\Controllers\MessageController;
+use App\Modules\Multimedia\Http\Controllers\PostReactionController;
 
 /*Healthcheck routes*/
 Route::get('/', function () {
@@ -24,6 +25,8 @@ Route::get('/ping', function () {
     return response()->json(['status' => 'ok']);
 });
 /*----End Healthceck routes--------------*/
+
+/*UserData routes*/
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
@@ -53,6 +56,12 @@ Route::prefix('avatars')->middleware('auth:api')->group(function () {
     Route::get('/{id}', [AvatarController::class, 'show'])->name('avatars.show');
 });
 
+/*----End UserData routes--------------*/
+
+/*----------------------------------------------------------------------------------------------*/
+
+/*MultiMedia routes*/
+
 Route::middleware('auth:api')->prefix('posts')->group(function () {
     Route::get('/', [PostController::class, 'index']);
     Route::post('/', [PostController::class, 'store']);
@@ -69,6 +78,26 @@ Route::middleware('auth:api')->prefix('comments')->group(function () {
     Route::delete('/{comment}', [CommentController::class, 'destroy']);
 });
 
+Route::middleware('auth:api')->prefix('reposts')->group(function () {
+    Route::post('/', [RepostController::class, 'store']);
+    Route::delete('/{repost}', [RepostController::class, 'destroy']);
+});
+
+Route::middleware('auth:api')->prefix('multimedia-contents')->group(function () {
+    Route::post('/', [MultimediaContentController::class, 'store']);
+    Route::delete('/{multimediaContent}', [MultimediaContentController::class, 'destroy']);
+});
+
+Route::middleware('auth:api')->prefix('post-reactions')->group(function () {
+    Route::post('/', [PostReactionController::class, 'store']);
+});
+
+/*end MultiMedia routes*/
+
+/*----------------------------------------------------------------------------------------------*/
+
+/*UserInteractions routes*/
+
 Route::middleware('auth:api')->prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index']);
     Route::get('/{notification}', [NotificationController::class, 'show']);
@@ -80,15 +109,6 @@ Route::middleware('auth:api')->prefix('follows')->group(function () {
     Route::delete('/{follow}', [FollowController::class, 'destroy']);
 });
 
-Route::middleware('auth:api')->prefix('reposts')->group(function () {
-    Route::post('/', [RepostController::class, 'store']);
-    Route::delete('/{repost}', [RepostController::class, 'destroy']);
-});
-
-Route::middleware('auth:api')->prefix('multimedia-contents')->group(function () {
-    Route::post('/', [MultimediaContentController::class, 'store']);
-    Route::delete('/{multimediaContent}', [MultimediaContentController::class, 'destroy']);
-});
 
 Route::middleware('auth:api')->prefix('chats')->group(function () {
     Route::get('/', [ChatController::class, 'index']);
@@ -100,3 +120,5 @@ Route::middleware('auth:api')->prefix('chats/{chat}')->group(function () {
     Route::get('messages', [MessageController::class, 'index']); 
     Route::post('messages', [MessageController::class, 'store']); 
 });
+
+/*end UserInteractions routes*/
