@@ -45,4 +45,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(UserState::class, 'state_id');
     }
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\UserFactory::new();
+    }
+
 }

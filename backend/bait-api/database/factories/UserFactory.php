@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories\Modules\UserData\Domain\Models;
+namespace Database\Factories;
 
 use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,6 +19,8 @@ class UserFactory extends Factory
             'password' => Hash::make('password'), 
             'role_id'  => 1, 
             'state_id' => 1,
+            'avatar_id' => 1,
+            'banner_id' => 1,
         ];
     }
 }

@@ -25,9 +25,9 @@ class AuthController extends Controller
         
         return response()->json([
             'user'  => new UserResource($user),
-            'token' => $token,
-            'type'  => 'bearer',
-            'ttl'   => $this->guard->factory()->getTTL(),
+            'access_token' => $token,
+            'token_type'  => 'bearer',
+            'expires_in'   => $this->guard->factory()->getTTL(),
         ], 201);
     }
 
@@ -37,9 +37,9 @@ class AuthController extends Controller
         }
         return response()->json([
             'user'  => new UserResource($this->guard->user()),
-            'token' => $token,
-            'type'  => 'bearer',
-            'ttl'   => $this->guard->factory()->getTTL(),
+            'access_token' => $token,
+            'token_type'  => 'bearer',
+            'expires_in'   => $this->guard->factory()->getTTL(),
         ]);
     }
 
@@ -49,9 +49,9 @@ class AuthController extends Controller
 
     public function refresh() {
         return response()->json([
-            'token' => $this->guard->refresh(),
-            'type'  => 'bearer',
-            'ttl'   => $this->guard->factory()->getTTL(),
+            'access_token' => $this->guard->refresh(),
+            'token_type'  => 'bearer',
+            'expires_in'   => $this->guard->factory()->getTTL(),
         ]);
     }
 

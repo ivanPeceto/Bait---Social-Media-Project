@@ -15,12 +15,17 @@ class AuthTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed(\Database\Seeders\UserRolesSeeder::class);
+        $this->seed(\Database\Seeders\UserStateSeeder::class);
+        $this->seed(\Database\Seeders\AvatarSeeder::class);
+        $this->seed(\Database\Seeders\BannerSeeder::class);
     }
 
     /** @test */
     public function it_registers_a_user_and_returns_a_token()
     {
         $payload = [
+            'username'=>'TestUser',
             'name' => 'Test',
             'email' => 'pepe@example.com',
             'password' => 'secret123',
