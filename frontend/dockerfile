@@ -8,6 +8,7 @@ COPY package.json package-lock.json ./
 
 # Install project dependencies
 RUN npm install
+RUN npm install @angular/router
 
 # Copy the rest of the application's source code
 COPY . .

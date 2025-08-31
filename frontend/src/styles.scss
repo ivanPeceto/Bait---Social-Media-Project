@@ -23,18 +23,11 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--bg-principal);
-    color: var(--texto-principal);
+    background-color: var(--bg-principal); 
+    color: var(--texto-principal); 
     margin: 0;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
 }
 
-/* Animated background shapes from your custom design */
 .background-shape {
     position: absolute;
     border-radius: 50%;
