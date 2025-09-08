@@ -14,8 +14,8 @@ class CreateMultimediaContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'url' => ['required', 'string', 'url', 'max:255'],
-            'type' => ['required', 'string', 'in:image,video'],
+            'url_multimedia_contents' => ['required', 'string', 'url', 'max:255'],
+            'type_multimedia_contents' => ['required', 'string', 'in:image,video'],
             'post_id' => ['required', 'exists:posts,id'],
         ];
     }
