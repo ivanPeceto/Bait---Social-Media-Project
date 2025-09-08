@@ -6,14 +6,14 @@ use App\Modules\UserData\Http\Controllers\ProfileController;
 use App\Modules\UserData\Http\Controllers\UserRoleController;
 use App\Modules\UserData\Http\Controllers\AvatarController;
 
-use App\Modules\Content\Http\Controllers\PostController;
-use App\Modules\Content\Http\Controllers\CommentController;
-use App\Modules\Content\Http\Controllers\NotificationController;
-use App\Modules\Social\Http\Controllers\FollowController;
-use App\Modules\Social\Http\Controllers\RepostController;
-use App\Modules\Content\Http\Controllers\MultimediaContentController;
-use App\Modules\Chat\Http\Controllers\ChatController;
-use App\Modules\Chat\Http\Controllers\MessageController;
+use App\Modules\Multimedia\Http\Controllers\PostController;
+use App\Modules\Multimedia\Http\Controllers\CommentController;
+use App\Modules\Multimedia\Http\Controllers\NotificationController;
+use App\Modules\UserInteractions\Http\Controllers\FollowController;
+use App\Modules\Multimedia\Http\Controllers\RepostController;
+use App\Modules\Multimedia\Http\Controllers\MultimediaContentController;
+use App\Modules\UserInteractions\Http\Controllers\ChatController;
+use App\Modules\UserInteractions\Http\Controllers\MessageController;
 use App\Modules\Multimedia\Http\Controllers\PostReactionController;
 
 /*Healthcheck routes*/
@@ -66,7 +66,7 @@ Route::middleware('auth:api')->prefix('posts')->group(function () {
     Route::get('/', [PostController::class, 'index']);
     Route::post('/', [PostController::class, 'store']);
     Route::get('/{post}', [PostController::class, 'show']);
-    Route::put('/{post}', [PostController::class, 'update']);
+    Route::patch('/{post}', [PostController::class, 'update']);
     Route::delete('/{post}', [PostController::class, 'destroy']);
 });
 
