@@ -14,7 +14,7 @@ class CreateCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'content' => ['required', 'string', 'min:1', 'max:500'],
+            'content_comments' => ['required', 'string', 'min:1', 'max:500'],
             'post_id' => ['required', 'exists:posts,id'],
         ];
     }

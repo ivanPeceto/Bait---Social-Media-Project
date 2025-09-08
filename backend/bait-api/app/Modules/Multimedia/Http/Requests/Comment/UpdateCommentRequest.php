@@ -14,7 +14,7 @@ class UpdateCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'content' => ['sometimes', 'string', 'min:1', 'max:500'],
+            'content_comments' => ['sometimes', 'string', 'min:1', 'max:500'],
         ];
     }
 }
