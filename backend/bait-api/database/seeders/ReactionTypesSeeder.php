@@ -13,12 +13,12 @@ class ReactionTypesSeeder extends Seeder
     public function run(): void
     {
         $reactionTypes = [
-            ['name_reaction_types' => 'Like'],
-            ['name_reaction_types' => 'Love'],
-            ['name_reaction_types' => 'Haha'],
-            ['name_reaction_types' => 'Wow'],
-            ['name_reaction_types' => 'Sad'],
-            ['name_reaction_types' => 'Angry'],
+            ['name_reaction_types' => 'like'], 
+            ['name_reaction_types' => 'love'], 
+            ['name_reaction_types' => 'haha'], 
+            ['name_reaction_types' => 'wow'],  
+            ['name_reaction_types' => 'sad'],  
+            ['name_reaction_types' => 'angry'],
         ];
 
         DB::table('reaction_types')->insert($reactionTypes);
