@@ -7,31 +7,32 @@ use App\Modules\UserInteractions\Domain\Models\Notification;
 use App\Modules\UserInteractions\Http\Requests\Notification\UpdateNotificationRequest;
 use App\Modules\UserInteractions\Http\Resources\NotificationResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class NotificationController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): AnonymousResourceCollection|JsonResponse
     {
         $notifications = auth()->user()->notifications()->with('user')->get();
-        return response()->json(NotificationResource::collection($notifications));
+        return NotificationResource::collection($notifications);
     }
 
-    public function show(Notification $notification): JsonResponse
+    public function show(Notification $notification): NotificationResource|JsonResponse
     {
         if (auth()->id() !== $notification->user_id) {
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
 
-        return response()->json(new NotificationResource($notification));
+        return new NotificationResource($notification);
     }
 
-    public function update(UpdateNotificationRequest $request, Notification $notification): JsonResponse
+    public function update(UpdateNotificationRequest $request, Notification $notification): NotificationResource|JsonResponse
     {
         if (auth()->id() !== $notification->user_id) {
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
 
         $notification->update($request->validated());
-        return response()->json(new NotificationResource($notification));
+        return new NotificationResource($notification);
     }
 }

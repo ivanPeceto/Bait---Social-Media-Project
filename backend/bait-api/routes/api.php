@@ -8,7 +8,7 @@ use App\Modules\UserData\Http\Controllers\AvatarController;
 
 use App\Modules\Multimedia\Http\Controllers\PostController;
 use App\Modules\Multimedia\Http\Controllers\CommentController;
-use App\Modules\Multimedia\Http\Controllers\NotificationController;
+use App\Modules\UserInteractions\Http\Controllers\NotificationController;
 use App\Modules\UserInteractions\Http\Controllers\FollowController;
 use App\Modules\Multimedia\Http\Controllers\RepostController;
 use App\Modules\Multimedia\Http\Controllers\MultimediaContentController;
@@ -106,7 +106,7 @@ Route::middleware('auth:api')->prefix('notifications')->group(function () {
 
 Route::middleware('auth:api')->prefix('follows')->group(function () {
     Route::post('/', [FollowController::class, 'store']);
-    Route::delete('/{follow}', [FollowController::class, 'destroy']);
+    Route::delete('/', [FollowController::class, 'destroy']);
 });
 
 

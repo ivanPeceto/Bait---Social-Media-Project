@@ -12,7 +12,7 @@ class MessageResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'content' => $this->content_messages,
+            'content_messages' => $this->content_messages,
             'user' => new UserResource($this->user),
             'created_at' => $this->created_at,
         ];

@@ -14,7 +14,7 @@ class UpdateNotificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'is_read' => ['required', 'boolean'],
+            'is_read_notifications' => ['required', 'boolean'],
         ];
     }
 }
