@@ -75,6 +75,16 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id');
     }
 
+    public function avatar()
+    {
+        return $this->belongsTo(Avatar::class, 'avatar_id');
+    }
+
+    public function banner()
+    {
+        return $this->belongsTo(Banner::class, 'banner_id');
+    }
+
     public function notifications()
     {
         return $this->hasMany(Notification::class);

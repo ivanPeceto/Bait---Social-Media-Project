@@ -7,47 +7,38 @@ use App\Modules\UserData\Http\Requests\User\UpdateProfileRequest;
 use App\Modules\UserData\Http\Requests\User\ChangePasswordRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
-use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 use App\Modules\UserData\Domain\Models\User;
 
 class ProfileController extends Controller
 {
-    private $guard;
-
-    public function __construct()
-    {
-        /** @var JWTGuard $guard */
-        $this->guard = auth('api');
-    }
-
-    public function me()
-    {
-        return new UserResource($this->guard->user());
-    }
-
-    public function update(UpdateProfileRequest $request)
+    public function show(): UserResource
     {
         /** @var User $user */
-        $user = $this->guard->user();
+        $user = auth()->user();
+
+        $user->load(['role', 'state', 'avatar', 'banner']);
+
+        return new UserResource($user);
+    }
+
+    public function update(UpdateProfileRequest $request): UserResource
+    {
+        /** @var User $user */
+        $user = auth()->user();
         $user->update($request->validated());
 
-        return new UserResource($user->fresh());
+        return new UserResource($user->fresh(['role', 'state', 'avatar', 'banner']));
     }
 
     public function changePassword(ChangePasswordRequest $request)
     {
-        /** @var \App\Models\User $user */
-        $user = $this->guard->user();
-
-        if (! Hash::check($request->validated()['current_password'], $user->password)) {
-            return response()->json(['message' => 'Current password is incorrect'], 422);
-        }
+        /** @var User $user */
+        $user = auth()->user();
 
         $user->update([
-            'password' => Hash::make($request->validated()['new_password']),
+            'password' => Hash::make($request->validated('new_password')),
         ]);
 
         return response()->json(['message' => 'Password updated successfully']);
     }
-
 }
