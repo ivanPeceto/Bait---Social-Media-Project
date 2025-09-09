@@ -8,22 +8,19 @@ use Illuminate\Support\Facades\Storage;
 
 class AvatarResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        $avatar_path = $this->url_avatar ?? 'avatar/default.jpg';
+        // Corregido: columna y ruta por defecto a plural.
+        $avatar_path = $this->url_avatars ?? 'avatars/default.jpg';
 
-        if (!Storage::disk('public')->exists($avatar_path)){
-            $avatar_path = 'avatar/default.jpg';
+        if (!Storage::disk('public')->exists($avatar_path)) {
+            $avatar_path = 'avatars/default.jpg';
         }
 
         return [
             'id' => $this->id,
-            'url_avatar' => Storage::url($avatar_path),
-            ];
+            // Corregido: la clave de la respuesta también.
+            'url_avatars' => Storage::url($avatar_path),
+        ];
     }
 }

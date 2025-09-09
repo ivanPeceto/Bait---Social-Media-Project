@@ -20,7 +20,7 @@ class CommentController extends Controller
     public function store(CreateCommentRequest $request): JsonResponse
     {
         $comment = Comment::create([
-            'content_comments' => $request->validated('content'),
+            'content_comments' => $request->validated('content_comments'),
             'user_id' => auth()->id(),
             'post_id' => $request->validated('post_id'),
         ]);
@@ -45,7 +45,7 @@ class CommentController extends Controller
 
     public function destroy(Comment $comment): JsonResponse
     {
-        if ($request->user()->id !== $comment->user_id) {
+        if (auth()->id() !== $comment->user_id) {
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
 

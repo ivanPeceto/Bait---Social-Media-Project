@@ -6,43 +6,40 @@ use App\Http\Controllers\Controller;
 use App\Modules\UserData\Http\Requests\Avatar\AvatarUploadRequest;
 use App\Modules\UserData\Http\Resources\AvatarResource;
 use App\Modules\UserData\Domain\Models\Avatar;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 use App\Modules\UserData\Domain\Models\User;
+use Illuminate\Support\Facades\Storage;
 
-class AvatarController extends Controller {
-    private $guard;
-
-    public function __construct() {
-         /** @var JWTGuard $guard */
-        $this->guard = auth('api');
-    }
-
-    public function upload(AvatarUploadRequest $request){
-
-        //Validation
-        if (!$request->hasFile('avatar') || !$request->file('avatar')->isValid()) {
-            return response()->json(['message' => 'Invalid file upload'], 422);
-        }
-
+class AvatarController extends Controller
+{
+    public function upload(AvatarUploadRequest $request): AvatarResource
+    {
         $file = $request->file('avatar');
-        $path = $file->store('avatar', 'public'); // storage/app/public/avatar
-
-        $avatar = Avatar::create([
-            'url_avatar'=>$path,
-        ]);
+        // Corregido: Guarda en la carpeta 'avatars' (plural).
+        $path = $file->store('avatars', 'public');
 
         /** @var User $user */
-        $user = $this->guard->user();
+        $user = auth()->user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar->url_avatars);
+            $user->avatar->delete();
+        }
+
+        $avatar = Avatar::create([
+            // Corregido: Nombre de la columna a plural.
+            'url_avatars' => $path,
+        ]);
+
         $user->update([
             'avatar_id' => $avatar->id,
         ]);
 
+        // Laravel por defecto devuelve 201 en la creación a través de un Resource.
         return new AvatarResource($avatar);
     }
 
-    public function show($id){
-        $avatar = Avatar::findOrFail($id);
+    public function show(Avatar $avatar): AvatarResource
+    {
         return new AvatarResource($avatar);
     }
 }

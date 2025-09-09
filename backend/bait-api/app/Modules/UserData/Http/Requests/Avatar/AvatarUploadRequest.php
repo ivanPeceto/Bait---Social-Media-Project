@@ -3,22 +3,13 @@
 namespace App\Modules\UserData\Http\Requests\Avatar;
 
 use Illuminate\Foundation\Http\FormRequest;
-use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 
 class AvatarUploadRequest extends FormRequest
 {
-    private $guard;
-
-    public function __construct()
-    {
-        /** @var JWTGuard $guard */
-        $this->guard = auth('api');
-    }
-
     public function authorize(): bool
     {
-        //To add: Is user logged in?
-        return $this->guard->check();
+        // Forma estándar y más limpia de verificar la autenticación.
+        return auth()->check();
     }
 
     public function rules(): array

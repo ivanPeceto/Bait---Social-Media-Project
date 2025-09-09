@@ -5,6 +5,7 @@ namespace App\Modules\Multimedia\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Modules\UserData\Http\Resources\UserResource;
+use App\Modules\Multimedia\Http\Resources\PostResource;
 
 class RepostResource extends JsonResource
 {

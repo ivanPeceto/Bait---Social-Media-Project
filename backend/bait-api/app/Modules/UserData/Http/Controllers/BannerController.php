@@ -3,33 +3,32 @@
 namespace App\Modules\UserData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\UserData\Domain\Models\Banner;
+use App\Modules\UserData\Domain\Models\User;
 use App\Modules\UserData\Http\Requests\Banner\BannerUploadRequest;
 use App\Modules\UserData\Http\Resources\BannerResource;
-use App\Modules\UserData\Domain\Models\Banner;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\JWTGuard;
-use App\Modules\UserData\Domain\Models\User;
 
-class BannerController extends Controller {
+class BannerController extends Controller
+{
+    /** @var JWTGuard $guard */
     private $guard;
 
-    public function __construct() {
-         /** @var JWTGuard $guard */
+    public function __construct()
+    {
         $this->guard = auth('api');
     }
 
-    public function upload(BannerUploadRequest $request){
-
-        //Validation
-        if (!$request->hasFile('banner') || !$request->file('banner')->isValid()) {
-            return response()->json(['message' => 'Invalid file upload'], 422);
-        }
+    public function upload(BannerUploadRequest $request)
+    {
+        // Eliminado: Bloque de validación manual redundante.
+        // BannerUploadRequest ya se encarga de esto.
 
         $file = $request->file('banner');
-        $path = $file->store('banner', 'public'); // storage/app/public/banner
+        $path = $file->store('banners', 'public'); // 'banners' en plural para consistencia
 
-        $banner = banner::create([
-            'url_banner'=>$path,
+        $banner = Banner::create([ // Corregido: 'Banner' con mayúscula
+            'url_banners' => $path, // Corregido: a 'url_banners'
         ]);
 
         /** @var User $user */
@@ -38,10 +37,13 @@ class BannerController extends Controller {
             'banner_id' => $banner->id,
         ]);
 
+        // La respuesta por defecto para una creación es 201, pero 200 también es común.
+        // BannerResource no establece un código, por lo que Laravel usará 200 OK.
         return new BannerResource($banner);
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $banner = Banner::findOrFail($id);
         return new BannerResource($banner);
     }

@@ -20,8 +20,8 @@ class MultimediaContentController extends Controller
         }
 
         $multimediaContent = MultimediaContent::create([
-            'url_multimedia_contents' => $request->validated('url'),
-            'type_multimedia_contents' => $request->validated('type'),
+            'url_multimedia_contents' => $request->validated('url_multimedia_contents'),
+            'type_multimedia_contents' => $request->validated('type_multimedia_contents'),
             'post_id' => $request->validated('post_id'),
         ]);
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Modules\UserData\Domain\Models\User;
 use App\Modules\Multimedia\Domain\Models\Post;
 use App\Modules\Multimedia\Domain\Models\ReactionType;
+use Database\Factories\PostReactionFactory;
 
 class PostReaction extends Model
 {
@@ -31,5 +32,10 @@ class PostReaction extends Model
     public function reactionType()
     {
         return $this->belongsTo(ReactionType::class);
+    }
+
+    protected static function newFactory()
+    {
+        return PostReactionFactory::new();
     }
 }

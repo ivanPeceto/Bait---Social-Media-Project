@@ -5,6 +5,7 @@ namespace App\Modules\UserInteractions\Domain\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\UserData\Domain\Models\User;
+use Database\Factories\NotificationFactory;
 
 class Notification extends Model
 {
@@ -17,8 +18,17 @@ class Notification extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'is_read_notifications' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    protected static function newFactory()
+    {
+        return NotificationFactory::new();
     }
 }

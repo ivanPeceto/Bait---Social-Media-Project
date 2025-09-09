@@ -20,7 +20,7 @@ class PostController extends Controller
     public function store(CreatePostRequest $request): JsonResponse
     {
         $post = Post::create([
-            'content_posts' => $request->validated('content'),
+            'content_posts' => $request->validated('content_posts'),
             'user_id' => auth()->id(),
         ]);
 
@@ -44,7 +44,7 @@ class PostController extends Controller
 
     public function destroy(Post $post): JsonResponse
     {
-        if ($request->user()->id !== $post->user_id) {
+        if (auth()->id() !== $post->user_id){
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
         

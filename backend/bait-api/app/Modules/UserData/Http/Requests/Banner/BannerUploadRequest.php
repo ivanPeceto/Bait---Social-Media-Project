@@ -7,17 +7,16 @@ use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 
 class BannerUploadRequest extends FormRequest
 {
+    /** @var JWTGuard $guard */
     private $guard;
 
     public function __construct()
     {
-        /** @var JWTGuard $guard */
         $this->guard = auth('api');
     }
 
     public function authorize(): bool
     {
-        //To add: Is user logged in?
         return $this->guard->check();
     }
 
@@ -29,7 +28,7 @@ class BannerUploadRequest extends FormRequest
                 'file',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:4096', // 2MB
+                'max:4096', // Corregido: El comentario ahora es correcto (4MB)
                 'dimensions:min_width=300,min_height=100,max_width=3000,max_height=1000',
             ],
         ];
