@@ -41,6 +41,15 @@ services:
       - ./frontend:/app
       - /app/node_modules
 
+  redis:
+    image: redis:alpine
+    container_name: bait-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 # To add later: vistualization for de db
 #  phpmyadmin:
 #    image: phpmyadmin/phpmyadmin
@@ -48,4 +57,5 @@ services:
 
 volumes:
   mysql_data:
+  redis_data:
 
