@@ -1,0 +1,52 @@
+/**
+ * @file login.scss
+ * @brief Styles for the Login component.
+ * @description This file contains the SCSS for the login page, including animations and custom styles.
+ */
+
+.login-container {
+    animation: fadeInSlide 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.login-blur-background {
+    background-color: var(--bg-translucido);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.dynamic-text-words span {
+    animation: spin_words 8s infinite;
+}
+@keyframes spin_words {
+    10% { transform: translateY(-112%); } 25% { transform: translateY(-100%); }
+    35% { transform: translateY(-212%); } 50% { transform: translateY(-200%); }
+    60% { transform: translateY(-312%); } 75% { transform: translateY(-300%); }
+    85% { transform: translateY(-412%); } 100% { transform: translateY(-400%); }
+}
+
+.form-divider::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--borde-sutil), transparent);
+}
+
+/* login.scss */
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  position: relative; 
+}

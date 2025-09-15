@@ -6,22 +6,18 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CreateRoleRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return true;
+        // CORRECCIÓN DE SEGURIDAD: Solo permite la acción si el usuario
+        // está autenticado y tiene el rol de 'admin'.
+        return auth()->check() && auth()->user()->role->name === 'admin';
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array {
-    return [
-        'name'     => ['required','string','max:120'],
-    ];
+    public function rules(): array
+    {
+        return [
+            // MEJORADO: Añadimos la regla 'unique' para evitar roles duplicados.
+            'name' => ['required', 'string', 'max:50', 'unique:user_roles,name'],
+        ];
     }
 }

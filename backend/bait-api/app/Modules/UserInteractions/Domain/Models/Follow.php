@@ -5,6 +5,7 @@ namespace App\Modules\UserInteractions\Domain\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\UserData\Domain\Models\User;
+use Database\Factories\FollowFactory;
 
 class Follow extends Model
 {
@@ -29,5 +30,10 @@ class Follow extends Model
     public function following()
     {
         return $this->belongsTo(User::class, 'following_id');
+    }
+
+    protected static function newFactory()
+    {
+        return FollowFactory::new();
     }
 }

@@ -6,40 +6,37 @@ use App\Http\Controllers\Controller;
 use App\Modules\UserData\Domain\Models\UserState;
 use App\Modules\UserData\Http\Requests\UserState\CreateStateRequest;
 use App\Modules\UserData\Http\Requests\UserState\UpdateStateRequest;
+use App\Modules\UserData\Http\Requests\UserState\DeleteStateRequest;
 use App\Modules\UserData\Http\Resources\UserStateResource;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Response;
 
 class UserStateController extends Controller
 {
-    public function index(): JsonResponse{
+    public function index(): JsonResource
+    {
         $states = UserState::all();
-        return response()->json(UserStateResource::collection($states), 200);
+        return UserStateResource::collection($states);
     }
 
-    public function create(CreateStateRequest $request): JsonResponse
+    public function create(CreateStateRequest $request): UserStateResource
     {
         $state = UserState::create($request->validated());
 
-        return response()->json([
-            'message'=>'User role created successfully.',
-            'data'=>$state,
-        ], 201);
+        return new UserStateResource($state);
     }
 
-    public function update(UpdateStateRequest $request, UserState $state): JsonResponse
+    public function update(UpdateStateRequest $request, UserState $state): UserStateResource
     {
         $state->update($request->validated());
 
-        return response()->json([
-            'message' => 'User role updated successfully.',
-            'data'=>$state,
-        ], 200);
+        return new UserStateResource($state);
     }
 
-    public function destroy(UserState $state): JsonResponse{
+    public function destroy(DeleteStateRequest $request, UserState $state): Response
+    {
+        $state->delete();
 
-        return response()->json([
-            'message'=>'User role eliminated successfully',
-        ], 200);
+        return response()->noContent();
     }
 }

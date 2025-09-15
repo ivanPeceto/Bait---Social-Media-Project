@@ -1,20 +1,28 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+/*UserData*/
 use App\Modules\UserData\Http\Controllers\AuthController;
 use App\Modules\UserData\Http\Controllers\ProfileController;
 use App\Modules\UserData\Http\Controllers\UserRoleController;
 use App\Modules\UserData\Http\Controllers\AvatarController;
+use App\Modules\UserData\Http\Controllers\BannerController;
+use App\Modules\UserData\Http\Controllers\UserStateController;
 
-use App\Modules\Content\Http\Controllers\PostController;
-use App\Modules\Content\Http\Controllers\CommentController;
-use App\Modules\Content\Http\Controllers\NotificationController;
-use App\Modules\Social\Http\Controllers\FollowController;
-use App\Modules\Social\Http\Controllers\RepostController;
-use App\Modules\Content\Http\Controllers\MultimediaContentController;
-use App\Modules\Chat\Http\Controllers\ChatController;
-use App\Modules\Chat\Http\Controllers\MessageController;
+/*MultiMedia*/
+use App\Modules\Multimedia\Http\Controllers\PostController;
+use App\Modules\Multimedia\Http\Controllers\CommentController;
+use App\Modules\Multimedia\Http\Controllers\RepostController;
+use App\Modules\Multimedia\Http\Controllers\MultimediaContentController;
 use App\Modules\Multimedia\Http\Controllers\PostReactionController;
+
+/*UserInteractions*/
+use App\Modules\UserInteractions\Http\Controllers\NotificationController;
+use App\Modules\UserInteractions\Http\Controllers\FollowController;
+use App\Modules\UserInteractions\Http\Controllers\ChatController;
+use App\Modules\UserInteractions\Http\Controllers\MessageController;
+
 
 /*Healthcheck routes*/
 Route::get('/', function () {
@@ -29,31 +37,41 @@ Route::get('/ping', function () {
 /*UserData routes*/
 
 Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login',    [AuthController::class, 'login']);
-    Route::post('refresh',  [AuthController::class, 'refresh'])->middleware('auth:api');
-    Route::post('logout',   [AuthController::class, 'logout'])->middleware('auth:api');
-    Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api');
+    Route::post('register', [AuthController::class, 'register'])->name('auth.register');
+    Route::post('login',    [AuthController::class, 'login'])->name('auth.login');
+    Route::post('refresh',  [AuthController::class, 'refresh'])->middleware('auth:api')->name('auth.refresh');
+    Route::post('logout',   [AuthController::class, 'logout'])->middleware('auth:api')->name('auth.logout');
+    Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me');
 });
 
 Route::middleware('auth:api')->prefix('profile')->group(function () {
-    Route::get('/',            [ProfileController::class, 'show']);
-    Route::put('/',            [ProfileController::class, 'update']);
-    Route::put('/password',    [ProfileController::class, 'changePassword']);
-    Route::post('/avatar',     [ProfileController::class, 'updateAvatar']);
-    Route::post('/banner',     [ProfileController::class, 'updateBanner']);
+    Route::get('/',            [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/',            [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/password',    [ProfileController::class, 'changePassword'])->name('profile.password');
 });
 
-Route::prefix('roles')->group(function () {
-    Route::get('/', [UserRoleController::class, 'index']);
-    Route::get('/', [UserRoleController::class, 'create']);
-    Route::get('/{role}', [UserRoleController::class, 'update']);
-    Route::get('/{role}', [UserRoleController::class, 'destroy']);
+Route::prefix('roles')->middleware('auth:api')->group(function () {
+    Route::get('/', [UserRoleController::class, 'index'])->name('roles.index');
+    Route::post('/', [UserRoleController::class, 'create'])->name('roles.create');
+    Route::put('/{role}', [UserRoleController::class, 'update'])->name('roles.update');
+    Route::delete('/{role}', [UserRoleController::class, 'destroy'])->name('roles.destroy');
+});
+
+Route::prefix('states')->middleware('auth:api')->group(function () {
+    Route::get('/', [UserStateController::class, 'index'])->name('states.index');
+    Route::post('/', [UserStateController::class, 'create'])->name('states.create');
+    Route::put('/{state}', [UserStateController::class, 'update'])->name('states.update');
+    Route::delete('/{state}', [UserStateController::class, 'destroy'])->name('states.destroy');
 });
 
 Route::prefix('avatars')->middleware('auth:api')->group(function () {
     Route::post('/upload', [AvatarController::class, 'upload'])->name('avatars.upload');
-    Route::get('/{id}', [AvatarController::class, 'show'])->name('avatars.show');
+    Route::get('/{avatar}', [AvatarController::class, 'show'])->name('avatars.show');
+});
+
+Route::prefix('banners')->middleware('auth:api')->group(function () {
+    Route::post('/upload', [BannerController::class, 'upload'])->name('banner.upload');
+    Route::get('/{banner}', [BannerController::class, 'show'])->name('banner.show');
 });
 
 /*----End UserData routes--------------*/
@@ -66,7 +84,7 @@ Route::middleware('auth:api')->prefix('posts')->group(function () {
     Route::get('/', [PostController::class, 'index']);
     Route::post('/', [PostController::class, 'store']);
     Route::get('/{post}', [PostController::class, 'show']);
-    Route::put('/{post}', [PostController::class, 'update']);
+    Route::patch('/{post}', [PostController::class, 'update']);
     Route::delete('/{post}', [PostController::class, 'destroy']);
 });
 
@@ -106,7 +124,7 @@ Route::middleware('auth:api')->prefix('notifications')->group(function () {
 
 Route::middleware('auth:api')->prefix('follows')->group(function () {
     Route::post('/', [FollowController::class, 'store']);
-    Route::delete('/{follow}', [FollowController::class, 'destroy']);
+    Route::delete('/', [FollowController::class, 'destroy']);
 });
 
 

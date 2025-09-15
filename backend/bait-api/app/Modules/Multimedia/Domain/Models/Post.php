@@ -5,6 +5,7 @@ namespace App\Modules\Multimedia\Domain\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\UserData\Domain\Models\User;
+use Database\Factories\PostFactory; 
 
 class Post extends Model
 {
@@ -21,5 +22,15 @@ class Post extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    protected static function newFactory()
+    {
+        return PostFactory::new();
     }
 }

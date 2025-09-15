@@ -6,10 +6,20 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Database\Factories\UserFactory;
+use App\Modules\UserInteractions\Domain\Models\Chat;
+use App\Modules\UserInteractions\Domain\Models\Follow;
+use App\Modules\UserInteractions\Domain\Models\Notification;
 
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
+   
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
+    }
+
 
     protected $fillable = [
         'username',
@@ -45,9 +55,39 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(UserState::class, 'state_id');
     }
 
-    protected static function newFactory()
+    public function chats()
     {
-        return \Database\Factories\UserFactory::new();
+        return $this->belongsToMany(Chat::class, 'chat_users');
+    }
+
+    public function follows()
+    {
+        return $this->hasMany(Follow::class, 'follower_id');
+    }
+
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id');
+    }
+
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id');
+    }
+
+    public function avatar()
+    {
+        return $this->belongsTo(Avatar::class, 'avatar_id');
+    }
+
+    public function banner()
+    {
+        return $this->belongsTo(Banner::class, 'banner_id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 
 }

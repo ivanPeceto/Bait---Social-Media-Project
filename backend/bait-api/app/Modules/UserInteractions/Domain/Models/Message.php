@@ -5,6 +5,7 @@ namespace App\Modules\UserInteractions\Domain\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\UserData\Domain\Models\User;
+use Database\Factories\MessageFactory;
 
 class Message extends Model
 {
@@ -24,5 +25,10 @@ class Message extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected static function newFactory()
+    {
+        return MessageFactory::new();
     }
 }

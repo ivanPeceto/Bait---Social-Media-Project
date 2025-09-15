@@ -4,28 +4,41 @@ namespace App\Modules\UserInteractions\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\UserInteractions\Domain\Models\Message;
+use App\Modules\UserInteractions\Domain\Models\Chat;
 use App\Modules\UserInteractions\Http\Requests\Message\CreateMessageRequest;
 use App\Modules\UserInteractions\Http\Resources\MessageResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MessageController extends Controller
 {
-    public function index(int $chatId): JsonResponse
+    public function index(Chat $chat): AnonymousResourceCollection|JsonResponse
     {
-        $messages = Message::where('chat_id', $chatId)
+        if (!$chat->users()->where('user_id', auth()->id())->exists()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $messages = $chat->messages()
             ->with('user')
             ->latest()
             ->paginate(20);
-        return response()->json(MessageResource::collection($messages));
+        return MessageResource::collection($messages);
     }
 
-    public function store(CreateMessageRequest $request): JsonResponse
+    public function store(Chat $chat, CreateMessageRequest $request): MessageResource|JsonResponse
     {
+        if (!$chat->users()->where('user_id', auth()->id())->exists()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $message = Message::create([
-            'content_messages' => $request->validated('content'),
-            'chat_id' => $request->validated('chat_id'),
+            'content_messages' => $request->validated('content_messages'),
+            'chat_id' => $chat->id,
             'user_id' => auth()->id(),
         ]);
-        return response()->json(new MessageResource($message), 201);
+
+        $message->load('user');
+
+        return new MessageResource($message); 
     }
 }

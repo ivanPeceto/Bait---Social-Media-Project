@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\UserInteractions\Domain\Models\Follow;
 use App\Modules\UserInteractions\Http\Requests\Follow\CreateFollowRequest;
 use Illuminate\Http\JsonResponse;
+use App\Modules\UserInteractions\Http\Requests\Follow\DestroyFollowRequest; // **Se agregó el import**
 
 class FollowController extends Controller
 {
@@ -27,11 +28,12 @@ class FollowController extends Controller
         return response()->json(['message' => 'User followed successfully.'], 201);
     }
 
-    public function destroy(Follow $follow): JsonResponse
+    // **Corregido: Usa DestroyFollowRequest y el método firstOrFail**
+    public function destroy(DestroyFollowRequest $request): JsonResponse
     {
-        if (auth()->id() !== $follow->follower_id) {
-            return response()->json(['message' => 'Unauthorized action.'], 403);
-        }
+        $follow = Follow::where('follower_id', auth()->id())
+            ->where('following_id', $request->validated('following_id'))
+            ->firstOrFail();
 
         $follow->delete();
         return response()->json(null, 204);

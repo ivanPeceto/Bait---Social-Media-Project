@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Multimedia\Domain\Models\Repost;
 use App\Modules\Multimedia\Http\Requests\Repost\CreateRepostRequest;
 use Illuminate\Http\JsonResponse;
+use App\Modules\Multimedia\Http\Resources\RepostResource;
 
 class RepostController extends Controller
 {

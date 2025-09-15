@@ -1,0 +1,58 @@
+/**
+ * @file styles.scss
+ * @brief Global stylesheet for the entire application.
+ * @description Imports Tailwind CSS base styles and defines global custom properties and styles.
+ */
+
+/* Import Tailwind's base, components, and utilities.
+ * These lines are ESSENTIAL for Tailwind to work.
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your Custom Global Styles for the login page design */
+:root {
+    --bg-principal: #121212;
+    --color-acento: #D72C4C;
+    --texto-principal: #EAEAEA;
+    --texto-secundario: #A0A0A0;
+    --borde-sutil: #333333;
+    --bg-translucido: rgba(30, 30, 30, 0.65);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-principal); 
+    color: var(--texto-principal); 
+    margin: 0;
+}
+
+.background-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(150px);
+    z-index: -1;
+    animation: move 20s infinite alternate ease-in-out;
+}
+
+.shape1 {
+    width: 400px; height: 400px;
+    background: rgba(28, 104, 175, 0.2);
+    top: -100px; left: -100px;
+}
+
+.shape2 {
+    width: 300px; height: 300px;
+    background: rgba(76, 44, 215, 0.15);
+    bottom: -50px; right: -50px;
+    animation-delay: -10s;
+}
+
+@keyframes move {
+    from { transform: translateY(20px) translateX(-10px) rotate(0deg); }
+    to { transform: translateY(-20px) translateX(10px) rotate(90deg); }
+}
+
+/* Font import from your custom design */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');

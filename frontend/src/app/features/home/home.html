@@ -1,0 +1,88 @@
+<div class="bg-gray-900 min-h-screen text-gray-200">
+
+  <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-20">
+    <nav class="w-full px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center">
+      
+      <a href="#" class="flex items-center">
+        <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="h-8">
+      </a>
+
+      <div class="relative w-1/3">
+        <input
+          type="text"
+          placeholder="Buscar en Bait..."
+          class="bg-gray-700 text-white w-full px-3 py-1.5 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="flex items-center space-x-4 text-sm">
+        <a href="#" class="p-2 rounded-full hover:bg-gray-700">Notificaciones</a>
+        <a href="#" class="p-2 rounded-full hover:bg-gray-700">Mensajes</a>
+        
+        <a href="#" class="block">
+          <img 
+            class="h-8 w-8 rounded-full object-cover ring-2 ring-gray-600 hover:ring-blue-500" 
+            src="assets/images/iconousuario.png" 
+            alt="Mi Perfil">
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+
+    <aside class="md:col-span-1 bg-gray-800 p-4 rounded-lg h-fit">
+      <div class="flex items-center mb-4">
+        <img class="w-12 h-12 rounded-full mr-4" src="assets/images/usuario2.png" alt="Avatar">
+        <div>
+          <p class="font-bold">Nombre Usuario</p>
+          <p class="text-sm text-gray-400">@usuario</p>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#" class="block hover:bg-gray-700 p-2 rounded-md">Inicio</a></li>
+        <li><a href="#" class="block hover:bg-gray-700 p-2 rounded-md">Explorar</a></li>
+        <li><a href="#" class="block hover:bg-gray-700 p-2 rounded-md">Guardados</a></li>
+      </ul>
+    </aside>
+
+    <section class="md:col-span-2">
+      <div class="bg-gray-800 p-4 rounded-lg mb-6">
+        <textarea
+          class="bg-gray-700 text-white w-full p-3 rounded-md focus:outline-none placeholder-gray-400"
+          rows="3"
+          placeholder="¿Qué estás pensando?"></textarea>
+        <div class="text-right mt-3">
+          <button class="bg-blue-600 px-6 py-2 rounded-md hover:bg-blue-700 font-semibold text-sm">
+            Publicar
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 p-4 rounded-lg">
+        <div class="flex items-center mb-3">
+          <img class="w-10 h-10 rounded-full mr-3" src="assets/images/usuario2.png" alt="Avatar">
+          <div>
+            <p class="font-semibold text-sm">Otro Usuario</p>
+            <p class="text-xs text-gray-400">hace 10 minutos</p>
+          </div>
+        </div>
+        <p class="text-gray-300 text-sm">¡Este es mi primer post en Bait! Estoy emocionado de probar esta nueva red social. 🚀</p>
+      </div>
+    </section>
+
+    <aside class="hidden md:block md:col-span-1 bg-gray-800 p-4 rounded-lg h-fit">
+      <h3 class="text-base font-semibold mb-4">A quién seguir</h3>
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center">
+            <img class="w-10 h-10 rounded-full mr-3" src="assets/images/usuario2.png" alt="Avatar">
+            <p class="text-sm">Sugerencia1</p>
+        </div>
+        <button class="bg-transparent border border-blue-500 text-blue-500 px-3 py-1 rounded-full text-xs hover:bg-blue-500 hover:text-white">
+          Seguir
+        </button>
+      </div>
+    </aside>
+
+  </main>
+</div>

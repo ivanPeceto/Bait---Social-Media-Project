@@ -7,56 +7,65 @@ use App\Modules\UserData\Http\Requests\User\RegisterRequest;
 use App\Modules\UserData\Services\AuthService;
 use App\Modules\UserData\Http\Requests\User\LoginRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use PHPOpenSourceSaver\JWTAuth\JWTGuard;
+use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
-    private $guard;
-
-    public function __construct(private AuthService $auth) {
-         /** @var JWTGuard $guard */ //Eliminates ugly intelephense problem >:(
-        $this->guard = auth('api');
+    public function __construct(private AuthService $authService)
+    {
     }
 
-    public function register(RegisterRequest $request) {
-        $user = $this->auth->register($request->validated());
-        $token = JWTAuth::fromUser($user);
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        $this->authService->register($request->validated());
         
-        return response()->json([
-            'user'  => new UserResource($user),
-            'access_token' => $token,
-            'token_type'  => 'bearer',
-            'expires_in'   => $this->guard->factory()->getTTL(),
-        ], 201);
+        // CORRECCIÓN: En lugar de llamar al método login, usamos directamente
+        // el guard de autenticación para intentar loguear al usuario recién creado.
+        $credentials = $request->only('email', 'password');
+        if (!$token = auth('api')->attempt($credentials)) {
+            return response()->json(['message' => 'Registration succeeded but login failed.'], 500);
+        }
+
+        return $this->respondWithToken($token);
     }
 
-    public function login(LoginRequest $request) {
-        if (!$token = $this->guard->attempt($request->validated())) {
+    public function login(LoginRequest $request): JsonResponse
+    {
+        if (!$token = auth('api')->attempt($request->validated())) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
+
+        return $this->respondWithToken($token);
+    }
+
+    public function me(): UserResource
+    {
+        $user = auth('api')->user();
+        $user->load(['role', 'state', 'avatar', 'banner']);
+        return new UserResource($user);
+    }
+
+    public function refresh(): JsonResponse
+    {
+        return $this->respondWithToken(auth('api')->refresh());
+    }
+
+    public function logout(): JsonResponse
+    {
+        auth('api')->logout();
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+    
+    protected function respondWithToken(string $token): JsonResponse
+    {
+        $user = auth('api')->user();
+        $user->load(['role', 'state', 'avatar', 'banner']);
+
         return response()->json([
-            'user'  => new UserResource($this->guard->user()),
             'access_token' => $token,
-            'token_type'  => 'bearer',
-            'expires_in'   => $this->guard->factory()->getTTL(),
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'user' => new UserResource($user)
         ]);
-    }
-
-    public function me() {
-        return new UserResource($this->guard->user());
-    }
-
-    public function refresh() {
-        return response()->json([
-            'access_token' => $this->guard->refresh(),
-            'token_type'  => 'bearer',
-            'expires_in'   => $this->guard->factory()->getTTL(),
-        ]);
-    }
-
-    public function logout() {
-        $this->guard->logout();
-        return response()->json(['message' => 'Logged out']);
     }
 }
