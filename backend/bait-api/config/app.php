@@ -148,6 +148,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
 
         App\Providers\AppServiceProvider::class,
+        App\Providers\EventServiceProvider::class,
     ],
 
     'aliases' => Illuminate\Support\Facades\Facade::defaultAliases()->toArray(),
