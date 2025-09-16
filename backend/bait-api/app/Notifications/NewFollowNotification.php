@@ -5,8 +5,6 @@ namespace App\Notifications;
 use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class NewFollowNotification extends Notification implements ShouldBroadcast
@@ -36,7 +34,7 @@ class NewFollowNotification extends Notification implements ShouldBroadcast
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
         return [
             'type_notifications' => 'new_follower',

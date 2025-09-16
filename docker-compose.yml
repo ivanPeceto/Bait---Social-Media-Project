@@ -8,7 +8,6 @@ services:
     working_dir: /var/www
     volumes:
       - ./backend/bait-api:/var/www
-      - ./backend/bait-api/.env:/var/www/.env
     ports:
       - "8000:8000"
     depends_on:

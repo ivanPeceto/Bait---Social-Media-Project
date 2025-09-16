@@ -297,3 +297,5 @@ FakesAssemblies/
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+/backend/bait-api/.env
