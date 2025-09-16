@@ -74,9 +74,6 @@ services:
 
 volumes:
   mysql_data:
-<<<<<<< HEAD
   mysql_test_data:
-=======
   redis_data:
->>>>>>> 3cf0407f3206b955659ece564e0b29fceba88a4d
 
