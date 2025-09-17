@@ -16,6 +16,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UserFollowed' => [
             'App\Listeners\SendNewFollowerNotification',
         ],
+        'App\Events\NewReactionEvent' => [
+            'App\Listeners\SendNewReactionNotification',
+        ],
     ];
 
     /**

@@ -37,6 +37,7 @@ class FollowController extends Controller
         ]);
 
         $followedUser = User::find($followingId);
+        
         event(new UserFollowed($follower, $followedUser));
 
         return response()->json(['message' => 'User followed successfully.'], 201);
