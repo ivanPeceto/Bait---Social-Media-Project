@@ -40,8 +40,8 @@ class NewFollowNotification extends Notification implements ShouldBroadcast
             'type_notifications' => 'new_follower',
             'content_notifications' => json_encode([
                 'follower_id' => $this->follower->id,
-                'follower_name' => $this->follower->name_users,
-                'message' => "{$this->follower->name_users} ha comenzado a seguirte."
+                'follower_name' => $this->follower->name,
+                'message' => "{$this->follower->name} ha comenzado a seguirte."
             ]),
         ]; 
     }
@@ -50,8 +50,8 @@ class NewFollowNotification extends Notification implements ShouldBroadcast
         return [
             'data' => [
                 'follower_id' => $this->follower->id,
-                'follower_name' => $this->follower->name_users,
-                'message' => "{$this->follower->name_users} ha comenzado a seguirte."
+                'follower_name' => $this->follower->name,
+                'message' => "{$this->follower->name} ha comenzado a seguirte."
             ]
         ];
     }
