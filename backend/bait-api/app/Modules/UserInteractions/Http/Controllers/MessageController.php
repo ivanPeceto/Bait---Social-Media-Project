@@ -2,6 +2,7 @@
 
 namespace App\Modules\UserInteractions\Http\Controllers;
 
+use App\Events\NewMessage;
 use App\Http\Controllers\Controller;
 use App\Modules\UserInteractions\Domain\Models\Message;
 use App\Modules\UserInteractions\Domain\Models\Chat;
@@ -38,6 +39,8 @@ class MessageController extends Controller
         ]);
 
         $message->load('user');
+
+        broadcast(new NewMessage($message))->toOthers();
 
         return new MessageResource($message); 
     }

@@ -2,7 +2,9 @@
 
 namespace App\Modules\Multimedia\Http\Controllers;
 
+use App\Events\NewReactionEvent;
 use App\Http\Controllers\Controller;
+use App\Modules\Multimedia\Domain\Models\Post;
 use App\Modules\Multimedia\Domain\Models\PostReaction;
 use App\Modules\Multimedia\Http\Requests\Reaction\CreatePostReactionRequest;
 use App\Modules\Multimedia\Http\Resources\PostReactionResource;
@@ -41,6 +43,10 @@ class PostReactionController extends Controller
             'post_id' => $post_id,
             'reaction_type_id' => $reaction_type_id,
         ]);
+
+        $post = Post::findOrFail($post_id);
+
+        event(new NewReactionEvent(auth()->user(), $post));
 
         return response()->json(new PostReactionResource($reaction->load('user', 'reactionType')), 201);
     }

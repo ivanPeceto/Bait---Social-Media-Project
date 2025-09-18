@@ -12,7 +12,7 @@ class UserStateSeeder extends Seeder
     public function run(): void
     {
         DB::table('user_states')->insert([
-            ['name' => 'active'], ['name' => 'suspended'], ['name' => 'deleted'],
+            ['id'=> '1','name' => 'active'], ['id'=> '2','name' => 'suspended'], ['id'=> '3','name' => 'deleted'],
         ]);
     }
 }

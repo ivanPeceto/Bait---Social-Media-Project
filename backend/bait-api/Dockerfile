@@ -21,11 +21,11 @@ WORKDIR /var/www
 
 COPY composer.json composer.lock ./
 
-RUN composer install --no-scripts --no-autoloader
+RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist
 
 COPY . .
 
-RUN composer dump-autoload
+RUN composer dump-autoload --no-scripts --optimize
 
 EXPOSE 8000
 
