@@ -45,19 +45,19 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware('auth:api')->prefix('profile')->group(function () {
-    Route::get('/',            [ProfileController::class, 'show'])->name('profile.show');
-    Route::put('/',            [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/show',            [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/update',            [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/password',    [ProfileController::class, 'changePassword'])->name('profile.password');
 });
 
-Route::prefix('roles')->middleware('auth:api')->group(function () {
+Route::prefix('roles')->middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('/', [UserRoleController::class, 'index'])->name('roles.index');
     Route::post('/', [UserRoleController::class, 'create'])->name('roles.create');
     Route::put('/{role}', [UserRoleController::class, 'update'])->name('roles.update');
     Route::delete('/{role}', [UserRoleController::class, 'destroy'])->name('roles.destroy');
 });
 
-Route::prefix('states')->middleware('auth:api')->group(function () {
+Route::prefix('states')->middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('/', [UserStateController::class, 'index'])->name('states.index');
     Route::post('/', [UserStateController::class, 'create'])->name('states.create');
     Route::put('/{state}', [UserStateController::class, 'update'])->name('states.update');
@@ -67,6 +67,11 @@ Route::prefix('states')->middleware('auth:api')->group(function () {
 Route::prefix('avatars')->middleware('auth:api')->group(function () {
     Route::post('/upload', [AvatarController::class, 'upload'])->name('avatars.upload');
     Route::get('/{avatar}', [AvatarController::class, 'show'])->name('avatars.show');
+    Route::delete('/self', [AvatarController::class, 'destroySelf'])->name('avatars.destroySelf');
+
+    Route::delete('/users/{user}', [AvatarController::class, 'destroyUserAvatar'])
+        ->middleware('role:admin,moderator')
+        ->name('avatars.destroyUser');
 });
 
 Route::prefix('banners')->middleware('auth:api')->group(function () {

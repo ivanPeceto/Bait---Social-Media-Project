@@ -8,13 +8,14 @@ use App\Modules\UserData\Http\Resources\AvatarResource;
 use App\Modules\UserData\Domain\Models\Avatar;
 use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AvatarController extends Controller
 {
     public function upload(AvatarUploadRequest $request): AvatarResource
     {
         $file = $request->file('avatar');
-        // Corregido: Guarda en la carpeta 'avatars' (plural).
         $path = $file->store('avatars', 'public');
 
         /** @var User $user */
@@ -26,7 +27,6 @@ class AvatarController extends Controller
         }
 
         $avatar = Avatar::create([
-            // Corregido: Nombre de la columna a plural.
             'url_avatars' => $path,
         ]);
 
@@ -34,12 +34,47 @@ class AvatarController extends Controller
             'avatar_id' => $avatar->id,
         ]);
 
-        // Laravel por defecto devuelve 201 en la creación a través de un Resource.
         return new AvatarResource($avatar);
     }
 
-    public function show(Avatar $avatar): AvatarResource
+    public function show(Avatar $avatar): StreamedResponse
     {
-        return new AvatarResource($avatar);
+        if(!Storage::disk('public')->exists($avatar->url_avatars)) {
+            abort(404, 'Avatar not found.');
+        }
+
+        return Storage::disk('public')->response($avatar->url_avatars);
+    }
+
+    public function destroySelf(): JsonResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $this->destroyForUser($user);
+        
+        return response()->json(['message' => 'Avatar destroyed. Replaced with default.'], 200);
+    }
+
+    public function destroyUserAvatar(User $user): JsonResponse
+    {
+        $this->destroyForUser($user);
+
+        return response()->json(['message' => 'Avatar for user {$user->username} destroyed. Replaced with default.'], 200);
+    }
+
+    private function destroyForUser(User $user): void
+    {
+        $defaultAvatar = Avatar::where('url_avatars', 'avatars/default.jpg')->firstOrFail();
+
+        if($user->avatar && $user->avatar_id !== $defaultAvatar->id){
+            $temp = $user->avatar;
+            $user->update(['avatar_id' => $defaultAvatar->id]);
+
+            Storage::disk('public')->delete($temp->url_avatars);
+            $temp->delete();
+        } elseif (!$user->avatar) {
+            $user->update(['avatar_id' => $defaultAvatar->id]);
+        }
     }
 }

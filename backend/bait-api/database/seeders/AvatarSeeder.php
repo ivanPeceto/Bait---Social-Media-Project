@@ -4,14 +4,15 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Modules\UserData\Domain\Models\Avatar;
 
 class AvatarSeeder extends Seeder
 {
     public function run(): void
     {
-        // Corregido: todo a plural y ruta consistente.
-        DB::table('avatars')->insert([
-            'url_avatars' => 'avatars/default.jpg',
-        ]);
+        Avatar::firstOrCreate(
+            ['url_avatars' => 'avatars/default.jpg'],
+            ['url_avatars' => 'avatars/default.jpg']
+        );
     }
 }

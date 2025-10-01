@@ -37,7 +37,6 @@ class AvatarsTest extends TestCase
         Storage::fake('public');
         $file = UploadedFile::fake()->image('avatar.jpg', 500, 500);
 
-        // CORREGIDO: de 'avatar.upload' a 'avatars.upload'
         $response = $this->actingAs($this->user, 'api')->postJson(route('avatars.upload'), [
             'avatar' => $file,
         ]);
@@ -82,7 +81,6 @@ class AvatarsTest extends TestCase
     public function unauthenticated_user_cannot_upload_avatar()
     {
         $file = UploadedFile::fake()->image('avatar.jpg');
-         // CORREGIDO: de 'avatar.upload' a 'avatars.upload'
         $response = $this->postJson(route('avatars.upload'), ['avatar' => $file]);
         $response->assertStatus(401);
     }
@@ -91,7 +89,6 @@ class AvatarsTest extends TestCase
     public function avatar_must_be_an_image()
     {
         $file = UploadedFile::fake()->create('document.pdf');
-         // CORREGIDO: de 'avatar.upload' a 'avatars.upload'
         $response = $this->actingAs($this->user, 'api')->postJson(route('avatars.upload'), ['avatar' => $file]);
         $response->assertStatus(422)->assertJsonValidationErrors('avatar');
     }
@@ -100,7 +97,6 @@ class AvatarsTest extends TestCase
     public function avatar_must_meet_dimension_requirements()
     {
         $file = UploadedFile::fake()->image('small.jpg', 50, 50);
-         // CORREGIDO: de 'avatar.upload' a 'avatars.upload'
         $response = $this->actingAs($this->user, 'api')->postJson(route('avatars.upload'), ['avatar' => $file]);
         $response->assertStatus(422)->assertJsonValidationErrors('avatar');
     }
@@ -109,16 +105,20 @@ class AvatarsTest extends TestCase
     public function it_can_show_an_avatar()
     {
         Storage::fake('public');
+        $dummyContent = 'this is a fake image';
         $avatar = Avatar::factory()->create();
-        Storage::disk('public')->put($avatar->url_avatars, 'dummy-content');
+        
+        Storage::disk('public')->put($avatar->url_avatars, $dummyContent);
 
-         // CORREGIDO: de 'avatar.show' a 'avatars.show'
-        $response = $this->actingAs($this->user, 'api')->getJson(route('avatars.show', $avatar->id));
+        $response = $this->actingAs($this->user, 'api')->get(route('avatars.show', $avatar->id));
 
         $response->assertStatus(200);
-        $response->assertJson(['data' => [
-            'id' => $avatar->id,
-            'url_avatars' => Storage::url($avatar->url_avatars),
-        ]]);
+        
+        $this->assertEquals($dummyContent, $response->streamedContent());
+
+        // Verifica que la cabecera Content-Type es la de una imagen.
+        // El tipo exacto (image/jpeg, image/png) dependerá de la extensión del archivo.
+        // 'image/jpeg' es un buen supuesto para una foto de perfil.
+        $response->assertHeader('Content-Type', 'image/jpeg');
     }
 }
