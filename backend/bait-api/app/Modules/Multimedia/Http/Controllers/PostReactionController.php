@@ -17,7 +17,7 @@ class PostReactionController extends Controller
      */
     public function store(CreatePostReactionRequest $request): JsonResponse
     {
-        $user_id = auth()->id();
+        $user_id = auth()->user()->id();
         $post_id = $request->validated('post_id');
         $reaction_type_id = $request->validated('reaction_type_id');
         $action = $request->action;

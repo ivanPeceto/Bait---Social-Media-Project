@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MultimediaManagementController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,30 +45,30 @@ Route::prefix('auth')->group(function () {
     Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me');
 });
 
-Route::prefix('users/{user}')->middleware(['auth:api'])->group(function () {
+Route::prefix('privileged/users/{user}')->middleware(['auth:api'])->group(function () {
     Route::put('/update',    [ProfileController::class, 'updateUser'])
         ->middleware('role:admin,moderator')
-        ->name('users.update');
+        ->name('privileged.users.update');
 
     Route::put('/password',  [ProfileController::class, 'changeUserPassword'])
         ->middleware('role:admin')
-        ->name('users.changePasswor');
+        ->name('privileged.users.changePasswor');
 
     Route::delete('/avatar', [AvatarController::class, 'destroyUserAvatar'])
         ->middleware('role:admin,moderator')
-        ->name('users.destroyBanner');
+        ->name('privileged.users.destroyBanner');
 
     Route::delete('/banner', [BannerController::class, 'destroyUserBanner'])
         ->middleware('role:admin,moderator')
-        ->name('users.destroyBanner');
+        ->name('privileged.users.destroyBanner');
 
     Route::post('/suspend', [UserManagementController::class, 'suspend'])
         ->middleware('role:admin,moderator')
-        ->name('users.suspend');
+        ->name('privileged.users.suspend');
 
     Route::post('/activate', [UserManagementController::class, 'activate'])
         ->middleware('role:admin,moderator')
-        ->name('users.activate');
+        ->name('privileged.users.activate');
 });
 
 Route::middleware('auth:api')->prefix('profile')->group(function () {
@@ -136,6 +137,13 @@ Route::middleware('auth:api')->prefix('multimedia-contents')->group(function () 
 
 Route::middleware('auth:api')->prefix('post-reactions')->group(function () {
     Route::post('/', [PostReactionController::class, 'store']);
+});
+
+Route::middleware(['auth:api', 'role:admin,moderator'])->prefix('privileged/multimedia')->group(function () {
+    Route::delete('/post/{post}',        [MultimediaManagementController::class, 'destroyPost'])->name('privileged.post.destroy');
+    Route::delete('/comment/{comment}',  [MultimediaManagementController::class, 'destroyComment'])->name('privileged.comment.destroy');
+    Route::delete('/repost/{repost}',    [MultimediaManagementController::class, 'destroyRepost'])->name('privileged.repost.destroy');
+    Route::delete('/reaction/{reaction}',[MultimediaManagementController::class, 'destroyReaction'])->name('privileged.reaction.destroy');
 });
 
 /*end MultiMedia routes*/
