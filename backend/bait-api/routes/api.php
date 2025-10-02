@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 /*UserData*/
@@ -35,7 +36,6 @@ Route::get('/ping', function () {
 /*----End Healthceck routes--------------*/
 
 /*UserData routes*/
-
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register'])->name('auth.register');
     Route::post('login',    [AuthController::class, 'login'])->name('auth.login');
@@ -44,39 +44,62 @@ Route::prefix('auth')->group(function () {
     Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me');
 });
 
+Route::prefix('users/{user}')->middleware(['auth:api'])->group(function () {
+    Route::put('/update',    [ProfileController::class, 'updateUser'])
+        ->middleware('role:admin,moderator')
+        ->name('users.update');
+
+    Route::put('/password',  [ProfileController::class, 'changeUserPassword'])
+        ->middleware('role:admin')
+        ->name('users.changePasswor');
+
+    Route::delete('/avatar', [AvatarController::class, 'destroyUserAvatar'])
+        ->middleware('role:admin,moderator')
+        ->name('users.destroyBanner');
+
+    Route::delete('/banner', [BannerController::class, 'destroyUserBanner'])
+        ->middleware('role:admin,moderator')
+        ->name('users.destroyBanner');
+
+    Route::post('/suspend', [UserManagementController::class, 'suspend'])
+        ->middleware('role:admin,moderator')
+        ->name('users.suspend');
+
+    Route::post('/activate', [UserManagementController::class, 'activate'])
+        ->middleware('role:admin,moderator')
+        ->name('users.activate');
+});
+
 Route::middleware('auth:api')->prefix('profile')->group(function () {
-    Route::get('/show',            [ProfileController::class, 'show'])->name('profile.show');
-    Route::put('/update',            [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/password',    [ProfileController::class, 'changePassword'])->name('profile.password');
+    Route::get('/show',        [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/update',      [ProfileController::class, 'updateSelf'])->name('profile.update');
+    Route::put('/password',    [ProfileController::class, 'changeSelfPassword'])->name('profile.password');
 });
 
 Route::prefix('roles')->middleware(['auth:api', 'role:admin'])->group(function () {
-    Route::get('/', [UserRoleController::class, 'index'])->name('roles.index');
-    Route::post('/', [UserRoleController::class, 'create'])->name('roles.create');
-    Route::put('/{role}', [UserRoleController::class, 'update'])->name('roles.update');
+    Route::get('/',          [UserRoleController::class, 'index'])->name('roles.index');
+    Route::post('/',         [UserRoleController::class, 'create'])->name('roles.create');
+    Route::put('/{role}',    [UserRoleController::class, 'update'])->name('roles.update');
     Route::delete('/{role}', [UserRoleController::class, 'destroy'])->name('roles.destroy');
 });
 
 Route::prefix('states')->middleware(['auth:api', 'role:admin'])->group(function () {
-    Route::get('/', [UserStateController::class, 'index'])->name('states.index');
-    Route::post('/', [UserStateController::class, 'create'])->name('states.create');
-    Route::put('/{state}', [UserStateController::class, 'update'])->name('states.update');
+    Route::get('/',           [UserStateController::class, 'index'])->name('states.index');
+    Route::post('/',          [UserStateController::class, 'create'])->name('states.create');
+    Route::put('/{state}',    [UserStateController::class, 'update'])->name('states.update');
     Route::delete('/{state}', [UserStateController::class, 'destroy'])->name('states.destroy');
 });
 
 Route::prefix('avatars')->middleware('auth:api')->group(function () {
-    Route::post('/upload', [AvatarController::class, 'upload'])->name('avatars.upload');
+    Route::post('/upload',  [AvatarController::class, 'upload'])->name('avatars.upload');
     Route::get('/{avatar}', [AvatarController::class, 'show'])->name('avatars.show');
-    Route::delete('/self', [AvatarController::class, 'destroySelf'])->name('avatars.destroySelf');
-
-    Route::delete('/users/{user}', [AvatarController::class, 'destroyUserAvatar'])
-        ->middleware('role:admin,moderator')
-        ->name('avatars.destroyUser');
+    Route::delete('/self',  [AvatarController::class, 'destroySelf'])->name('avatars.destroySelf');
 });
 
 Route::prefix('banners')->middleware('auth:api')->group(function () {
-    Route::post('/upload', [BannerController::class, 'upload'])->name('banner.upload');
+    Route::post('/upload',  [BannerController::class, 'upload'])->name('banner.upload');
     Route::get('/{banner}', [BannerController::class, 'show'])->name('banner.show');
+    Route::delete('/self',  [BannerController::class, 'destroySelf'])->name('banner.destroySelf');
 });
 
 /*----End UserData routes--------------*/
@@ -86,28 +109,28 @@ Route::prefix('banners')->middleware('auth:api')->group(function () {
 /*MultiMedia routes*/
 
 Route::middleware('auth:api')->prefix('posts')->group(function () {
-    Route::get('/', [PostController::class, 'index']);
-    Route::post('/', [PostController::class, 'store']);
-    Route::get('/{post}', [PostController::class, 'show']);
+    Route::get('/',         [PostController::class, 'index'])->name('posts.');
+    Route::post('/',        [PostController::class, 'store']);
+    Route::get('/{post}',   [PostController::class, 'show']);
     Route::patch('/{post}', [PostController::class, 'update']);
-    Route::delete('/{post}', [PostController::class, 'destroy']);
+    Route::delete('/{post}',[PostController::class, 'destroy']);
 });
 
 Route::middleware('auth:api')->prefix('comments')->group(function () {
-    Route::get('/', [CommentController::class, 'index']);
-    Route::post('/', [CommentController::class, 'store']);
-    Route::get('/{comment}', [CommentController::class, 'show']);
-    Route::put('/{comment}', [CommentController::class, 'update']);
+    Route::get('/',             [CommentController::class, 'index']);
+    Route::post('/',            [CommentController::class, 'store']);
+    Route::get('/{comment}',    [CommentController::class, 'show']);
+    Route::put('/{comment}',    [CommentController::class, 'update']);
     Route::delete('/{comment}', [CommentController::class, 'destroy']);
 });
 
 Route::middleware('auth:api')->prefix('reposts')->group(function () {
-    Route::post('/', [RepostController::class, 'store']);
+    Route::post('/',           [RepostController::class, 'store']);
     Route::delete('/{repost}', [RepostController::class, 'destroy']);
 });
 
 Route::middleware('auth:api')->prefix('multimedia-contents')->group(function () {
-    Route::post('/', [MultimediaContentController::class, 'store']);
+    Route::post('/',                      [MultimediaContentController::class, 'store']);
     Route::delete('/{multimediaContent}', [MultimediaContentController::class, 'destroy']);
 });
 
@@ -122,25 +145,24 @@ Route::middleware('auth:api')->prefix('post-reactions')->group(function () {
 /*UserInteractions routes*/
 
 Route::middleware('auth:api')->prefix('notifications')->group(function () {
-    Route::get('/', [NotificationController::class, 'index']);
+    Route::get('/',               [NotificationController::class, 'index']);
     Route::get('/{notification}', [NotificationController::class, 'show']);
     Route::put('/{notification}', [NotificationController::class, 'update']);
 });
 
 Route::middleware('auth:api')->prefix('follows')->group(function () {
-    Route::post('/', [FollowController::class, 'store']);
-    Route::delete('/', [FollowController::class, 'destroy']);
+    Route::post('/',    [FollowController::class, 'store']);
+    Route::delete('/',  [FollowController::class, 'destroy']);
 });
 
-
 Route::middleware('auth:api')->prefix('chats')->group(function () {
-    Route::get('/', [ChatController::class, 'index']);
-    Route::post('/', [ChatController::class, 'store']);
-    Route::get('/{chat}', [ChatController::class, 'show']);
+    Route::get('/',         [ChatController::class, 'index']);
+    Route::post('/',        [ChatController::class, 'store']);
+    Route::get('/{chat}',   [ChatController::class, 'show']);
 });
 
 Route::middleware('auth:api')->prefix('chats/{chat}')->group(function () {
-    Route::get('messages', [MessageController::class, 'index']); 
+    Route::get('messages',  [MessageController::class, 'index']); 
     Route::post('messages', [MessageController::class, 'store']); 
 });
 

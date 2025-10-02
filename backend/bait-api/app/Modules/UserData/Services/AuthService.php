@@ -18,7 +18,6 @@ class AuthService {
       'password' => Hash::make($data['password']),
       'role_id'  => $this->defaultRoleId(),
       'state_id' => $this->activeStateId(),
-      // CORREGIDO: Asignamos el avatar y banner por defecto.
       'avatar_id'=> $this->defaultAvatarId(),
       'banner_id'=> $this->defaultBannerId(),
     ]);

@@ -14,7 +14,6 @@ class Avatar extends Model
         'url_avatars',
     ];
 
-    // Buena práctica: Si es una relación hasOne, el método es singular.
     public function user()
     {
         return $this->hasOne(User::class, 'avatar_id');

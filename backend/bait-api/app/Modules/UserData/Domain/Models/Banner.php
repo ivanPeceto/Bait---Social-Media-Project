@@ -16,7 +16,7 @@ class Banner extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'url_banners', // Corregido: de 'url_banner' a 'url_banners'
+        'url_banners', 
     ];
 
     /**
@@ -26,7 +26,6 @@ class Banner extends Model
      */
     protected static function newFactory()
     {
-        // Agregado: Apunta al Factory específico del módulo
         return BannerFactory::new();
     }
 

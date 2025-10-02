@@ -105,20 +105,15 @@ class AvatarsTest extends TestCase
     public function it_can_show_an_avatar()
     {
         Storage::fake('public');
-        $dummyContent = 'this is a fake image';
         $avatar = Avatar::factory()->create();
-        
-        Storage::disk('public')->put($avatar->url_avatars, $dummyContent);
+        Storage::disk('public')->put($avatar->url_avatars, 'dummy-content');
 
-        $response = $this->actingAs($this->user, 'api')->get(route('avatars.show', $avatar->id));
+        $response = $this->actingAs($this->user, 'api')->getJson(route('avatars.show', $avatar->id));
 
         $response->assertStatus(200);
-        
-        $this->assertEquals($dummyContent, $response->streamedContent());
-
-        // Verifica que la cabecera Content-Type es la de una imagen.
-        // El tipo exacto (image/jpeg, image/png) dependerá de la extensión del archivo.
-        // 'image/jpeg' es un buen supuesto para una foto de perfil.
-        $response->assertHeader('Content-Type', 'image/jpeg');
+        $response->assertJson(['data' => [
+            'id' => $avatar->id,
+            'url_avatars' => Storage::url($avatar->url_avatars),
+        ]]);
     }
 }

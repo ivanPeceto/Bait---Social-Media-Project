@@ -37,13 +37,9 @@ class AvatarController extends Controller
         return new AvatarResource($avatar);
     }
 
-    public function show(Avatar $avatar): StreamedResponse
+    public function show(Avatar $avatar): AvatarResource
     {
-        if(!Storage::disk('public')->exists($avatar->url_avatars)) {
-            abort(404, 'Avatar not found.');
-        }
-
-        return Storage::disk('public')->response($avatar->url_avatars);
+        return new AvatarResource($avatar);
     }
 
     public function destroySelf(): JsonResponse
