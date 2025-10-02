@@ -18,9 +18,7 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         $this->authService->register($request->validated());
-        
-        // CORRECCIÓN: En lugar de llamar al método login, usamos directamente
-        // el guard de autenticación para intentar loguear al usuario recién creado.
+
         $credentials = $request->only('email', 'password');
         if (!$token = auth('api')->attempt($credentials)) {
             return response()->json(['message' => 'Registration succeeded but login failed.'], 500);
