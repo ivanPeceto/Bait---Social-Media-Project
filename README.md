@@ -44,25 +44,40 @@ Bait is a social media application inspired by popular platforms like X, designe
 To get the project up and running, follow these steps:
 
 1. Clone the repository
+    ```bash
+    git clone https://github.com/ivanPeceto/Bait---Social-Media-Project.git
+    cd Bait---Social-Media-Project
+    ```
 
 2. Configure `.env` files:
 
-    - Create a `.env` file for the Laravel backend from `.env.example`.
-
+    - In the root of the project, copy the example environment file:
+    ```bash
+    cp .env.example .env
+    ```
     - Configure your database connection, Redis, and broadcasting settings.
 
-3. Run with Docker:
-```bash
-  docker compose build
-  docker compose up
-```
+3. Make the installation script executable:
+    - (You'll only need to do this once)
+    ```bash
+    chmod +x start_server.sh
+    ```
 
-4. Database Mirations:
-    - Execute database migrations.
+4. Run the application:
+    - Our `start_server.sh` script simplifies the entire Docker setup.
+    - You can check all the functionallities by running:
+    ```bash
+    ./start_server.sh --help
+    ```
+    - For a fresh installation you should run:
+    ```bash
+    ./start_server.sh --clean --build
+    ```
 
 5. Access the application:
-    - The frontend will be available at `http://we_dont_know_yet_:D`.
-    - The backend API will be available at `http://we_dont_know_yet_:D`. The API documentation can be accessed at `http://we_dont_know_yet_:D/api/documentation`.
+    - The frontend will be available at `http://localhost:4200`.
+    - The backend API will be available at `http://localhost:8000`. 
+    - The API documentation can be accessed at `http://localhost:8000/api/documentation`.
 
     
 
