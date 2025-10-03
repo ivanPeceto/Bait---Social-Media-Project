@@ -121,34 +121,38 @@ do
 done
 
 #---- ascii art ----#
-                                                            
-echo "                            ####                                                  "
-echo "                            ######                                                "
-echo "                            #######                                               "
-echo "                            #######                                               "
-echo "                            #######                                               "
-echo "                            #######                                               "
-echo "                            #######                                               "
-echo "                            ###XXX#                                               "
-echo "                            XXXXXX#       XXXXXXXx                                "
-echo "                            XXXXXX#  XXXXXXXXXXXxxxxxx+                           "
-echo "                            XXXXXXXXXXXXXxxxxxxxxxxxxxxxxx+                       "
-echo "                            XXXXXXXXXxxxxx        xxxxxx+++++                     "
-echo "                            XXXXXxxxxx               x++++++++                    "
-echo "                            XXxxxxxxX                  ++++++++                   "
-echo "                            xxxxxxxx                    +++++++                   "
-echo "                            xxxxxxx                      +++++++                  "
-echo "                            xxxxxx+                      +++++++                  "
-echo "                            xxx+++x                      +++++++                  "
-echo "                                                        +++++++                   "
-echo "                                                      ++++++++                    "
-echo "                             ++++                   +++++++++                     "
-echo "                             ++++    +++++++++++++++++++++++                      "
-echo "                            ++++  ++++++++++++++++++++++++                        "
-echo "                            +++ ++++++++++++++++++++++++                          "
-echo "                            +++++++++++ ++++++++++++                              "
-echo "                           ++++++++                                               "
-echo "                           +++++                                                  "
+blue='\e[34m'
+cyan='\e[36m'     
+lightblue='\e[94m'      
+lightcyan='\e[96m'
+
+echo -e "${blue}                            ####                                                  "
+echo -e "                            ######                                  "
+echo -e "                            #######                                 "
+echo -e "                            #######                                 "
+echo -e "                            #######                                 "
+echo -e "                            #######                                 "
+echo -e "                            #######                                 "
+echo -e "                            ###${cyan}XXX${blue}#${NC}                                 "
+echo -e "                            ${cyan}XXXXXX${blue}#${NC}       ${cyan}XXXXXXX${lightblue}x                  "
+echo -e "                            ${cyan}XXXXXX${blue}#${NC}  ${cyan}XXXXXXXXXXX${lightblue}xxxxxx${lightcyan}+             "
+echo -e "                            ${cyan}XXXXXXXXXXXXX${lightblue}xxxxxxxxxxxxxxxxx${lightcyan}+         "
+echo -e "                            ${cyan}XXXXXXXXX${lightblue}xxxxx        xxxxxx${lightcyan}+++++       "
+echo -e "                            ${cyan}XXXXX${lightblue}xxxx${cyan}x               ${lightblue}x${lightcyan}++++++++      "
+echo -e "                            ${cyan}XX${lightblue}xxxxxx${cyan}X                  ${lightcyan}++++++++     "
+echo -e "                            ${lightblue}xxxxxxxx                    ${lightcyan}+++++++     "
+echo -e "                            ${lightblue}xxxxxxx                      ${lightcyan}+++++++    "
+echo -e "                            ${lightblue}xxxxxx${lightcyan}+                      +++++++    "
+echo -e "                            ${cyan}xxx${lightcyan}+++${cyan}x                      ${lightcyan}+++++++    "
+echo -e "                                                        ${lightcyan}+++++++     "
+echo -e "                                                      ${lightcyan}++++++++      "
+echo -e "                             ${lightcyan}++++                   +++++++++       "
+echo -e "                             ${lightcyan}++++    +++++++++++++++++++++++        "
+echo -e "                            ${lightcyan}++++  ++++++++++++++++++++++++          "
+echo -e "                            ${lightcyan}+++ ++++++++++++++++++++++++            "              
+echo -e "                            ${lightcyan}+++++++++++ ++++++++++++                "
+echo -e "                           ${lightcyan}++++++++                                 "
+echo -e "                           ${lightcyan}+++++${NC}                                    "
                                                                             
 #---------------------------#
 
