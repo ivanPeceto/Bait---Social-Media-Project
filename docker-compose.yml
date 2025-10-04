@@ -9,7 +9,7 @@ services:
     volumes:
       - ./backend/bait-api:/var/www
     ports:
-      - "8000:8000"
+      - "8001:8000"
     depends_on:
       - mysql
       - mysql_test
@@ -46,7 +46,7 @@ services:
     container_name: bait-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
 
