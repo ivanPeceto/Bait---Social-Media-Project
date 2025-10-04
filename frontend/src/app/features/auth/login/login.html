@@ -1,51 +1,12 @@
-<div class="background-shape shape1"></div>
-<div class="background-shape shape2"></div>
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <input type="email" formControlName="email">
+    <input type="password" formControlName="password">
 
-<div class="login-container relative w-full max-w-xs rounded-2xl">
-  <div class="login-blur-background absolute top-0 left-0 w-full h-full rounded-2xl border border-white/10"></div>
-
-  <div class="login-form-content relative p-6 text-center">
-    <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="mx-auto h-20 w-auto mb-2">
-
-    <p class="slogan text-sm text-gray-400 mb-6 tracking-wide">Enganchate y conectá.</p>
-
-    <div class="dynamic-text-container flex justify-center items-baseline gap-2 text-base text-gray-400 mb-6 h-6">
-      <span>Descubrí</span>
-      <div class="dynamic-text-words h-full overflow-hidden">
-        <span class="block h-full text-gray-200 font-medium">historias</span>
-        <span class="block h-full text-gray-200 font-medium">ideas</span>
-        <span class="block h-full text-gray-200 font-medium">artistas</span>
-        <span class="block h-full text-gray-200 font-medium">momentos</span>
-        <span class="block h-full text-gray-200 font-medium">historias</span>
-      </div>
+    <div *ngIf="loginError" class="error-message">
+        Credenciales inválidas. Por favor, verifica tu email y contraseña.
     </div>
-
-    <form>
-      <div class="form-group relative text-left mb-4">
-        <input type="email" id="email" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Email o usuario" required>
-        <div class="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400 hidden">
-          </div>
-      </div>
-      <div class="form-group relative text-left mb-6">
-        <input type="password" id="password" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Contraseña" required>
-        <div class="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400 hidden">
-          </div>
-      </div>
-      <button type="submit" class="cta-button w-full p-3 mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium rounded-lg transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/40 active:scale-[0.99]">Iniciar Sesión</button>
-    </form>
-
-    <div class="secondary-links mt-5 text-sm">
-      <a href="#" class="text-gray-400 hover:text-white">¿Olvidaste tu contraseña?</a>
-    </div>
-
-    <div class="form-divider relative mt-7 pt-7 text-sm">
-      <span class="text-gray-400">¿No tenés cuenta? <a href="#" class="font-medium text-gray-200 hover:text-white">Registrate</a></span>
-    </div>
-  </div>
-</div>
-
-<footer class="page-footer absolute bottom-5 left-1/2 -translate-x-1/2 flex justify-center gap-4 text-xs text-gray-500">
-  <span>© 2025 bait</span>
-  <a href="#" class="hover:text-gray-200">Términos</a>
-  <a href="#" class="hover:text-gray-200">Privacidad</a>
-</footer>
+    
+    <button type="submit" [disabled]="loginForm.invalid">
+        Iniciar Sesión
+    </button>
+</form>

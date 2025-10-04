@@ -1,30 +1,35 @@
 /**
  * @file app.routes.ts
- * @brief Defines the main routes for the standalone application.
+ * @description Defines the main application routes, separating public paths (auth) 
+ * from protected paths (main content) using the authentication guard.
  */
 
 import { Routes } from '@angular/router';
 
+// import { authGuard } from './core/guards/auth.guard'; 
+
 /**
- * @brief Main application routes.
- * @description Defines the routing configuration for the application, including lazy-loaded modules for authentication and home features.
+ * @const routes
+ * @description Definition of the application's main routes.
  */
 export const routes: Routes = [
-    {
-        path: 'auth',
-        loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
-    },
-    {
-    path: 'home',
+  {
+    path: 'auth',
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
+  },
+
+  // 2. PROTECTED ROUTES (Main Application Content)
+  {
+    path: '', 
+    /**
+     * @property {CanActivateFn[]} canActivate - Applies the authGuard to this route and its children.
+     * If the guard returns false or a UrlTree, navigation is canceled or redirected.
+     */
     loadChildren: () => import('./features/home/home.routes').then(m => m.HOME_ROUTES)
-    },
-    {
-        path: '',
-        redirectTo: 'home',
-        pathMatch: 'full'
-    },
-    {
-        path: '**',
-        redirectTo: 'auth'
-    }
+  },
+  
+  {
+    path: '**',
+    redirectTo: '' // Redirects unmatched paths to the base route (which is protected)
+  }
 ];
