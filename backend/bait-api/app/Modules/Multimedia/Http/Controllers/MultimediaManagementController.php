@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Modules\Multimedia\Http\Controllers;
+use App\Http\Controllers\Controller;
 use App\Modules\Multimedia\Domain\Models\Post;
 use App\Modules\Multimedia\Domain\Models\Comment;
 use App\Modules\Multimedia\Domain\Models\Repost;

@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Modules\UserData\Http\Controllers;
+use App\Http\Controllers\Controller;     
 use App\Modules\UserData\Domain\Models\User;
 use App\Modules\UserData\Domain\Models\UserState;
 use App\Modules\UserData\Http\Resources\UserResource;

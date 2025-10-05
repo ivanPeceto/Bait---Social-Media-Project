@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\MultimediaManagementController;
-use App\Http\Controllers\UserManagementController;
+use App\Modules\Multimedia\Http\Controllers\MultimediaManagementController;
+use App\Modules\UserData\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 /*UserData*/
