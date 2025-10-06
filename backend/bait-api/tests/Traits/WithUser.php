@@ -22,9 +22,5 @@ trait WithUser
         
         return [$user, $headers];
     }
-
-<<<<<<< HEAD
+    
 }
-=======
-}
->>>>>>> 3cf0407f3206b955659ece564e0b29fceba88a4d

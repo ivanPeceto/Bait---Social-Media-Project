@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\MultimediaManagementController;
-use App\Http\Controllers\UserManagementController;
+use App\Modules\Multimedia\Http\Controllers\MultimediaManagementController;
+use App\Modules\UserData\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 /*UserData*/
@@ -25,16 +25,24 @@ use App\Modules\UserInteractions\Http\Controllers\FollowController;
 use App\Modules\UserInteractions\Http\Controllers\ChatController;
 use App\Modules\UserInteractions\Http\Controllers\MessageController;
 
+/*Healthcheck*/
+use App\Modules\Healthcheck\Http\Controllers\HealthcheckController;
+use App\Modules\Healthcheck\Http\Controllers\PingController;
 
 /*Healthcheck routes*/
+
+Route::get('/healthcheck',     [HealthcheckController::class, 'status']);
+Route::get('/ping', [PingController::class, 'ping']);
+
+/*
 Route::get('/', function () {
     return response()->json(['status' => 'ok']);
 });
 
 Route::get('/ping', function () {
     return response()->json(['status' => 'ok']);
-});
-/*----End Healthceck routes--------------*/
+}); */
+/*----End Healthcheck routes--------------*/
 
 /*UserData routes*/
 Route::prefix('auth')->group(function () {

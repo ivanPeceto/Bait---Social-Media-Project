@@ -34,7 +34,7 @@ class UserRolesTest extends TestCase
         $this->regularUser = User::factory()->create(['role_id' => $userRole->id]);
     }
 
-    /** @test */
+    #[Test]
     public function an_admin_can_get_a_list_of_roles()
     {
         $response = $this->actingAs($this->adminUser, 'api')->getJson(route('roles.index'));
@@ -44,7 +44,7 @@ class UserRolesTest extends TestCase
         $response->assertJsonFragment(['name' => 'admin']);
     }
 
-    /** @test */
+    #[Test]
     public function an_admin_can_create_a_role()
     {
         $roleData = ['name' => 'new-role'];
@@ -55,7 +55,7 @@ class UserRolesTest extends TestCase
         $this->assertDatabaseHas('user_roles', $roleData);
     }
 
-    /** @test */
+    #[Test]
     public function a_regular_user_cannot_create_a_role()
     {
         $roleData = ['name' => 'new-role'];
@@ -64,7 +64,7 @@ class UserRolesTest extends TestCase
         $response->assertStatus(403);
     }
     
-    /** @test */
+    #[Test]
     public function an_admin_can_update_a_role()
     {
         $role = UserRole::factory()->create(['name' => 'to-be-updated']);
@@ -77,7 +77,7 @@ class UserRolesTest extends TestCase
         $this->assertDatabaseHas('user_roles', ['id' => $role->id, 'name' => 'updated-role']);
     }
 
-    /** @test */
+    #[Test]
     public function a_regular_user_cannot_update_a_role()
     {
         $role = UserRole::factory()->create();
@@ -88,7 +88,7 @@ class UserRolesTest extends TestCase
         $response->assertStatus(403);
     }
     
-    /** @test */
+    #[Test]
     public function an_admin_can_delete_a_role()
     {
         $role = UserRole::factory()->create();
@@ -99,7 +99,7 @@ class UserRolesTest extends TestCase
         $this->assertDatabaseMissing('user_roles', ['id' => $role->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_regular_user_cannot_delete_a_role()
     {
         $role = UserRole::factory()->create();

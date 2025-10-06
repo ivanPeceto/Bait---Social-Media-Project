@@ -31,7 +31,7 @@ class AvatarsTest extends TestCase
         $this->user = User::factory()->create();
     }
 
-    /** @test */
+    #[Test]
     public function an_authenticated_user_can_upload_an_avatar()
     {
         Storage::fake('public');
@@ -55,7 +55,7 @@ class AvatarsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function an_authenticated_user_can_replace_their_avatar()
     {
         Storage::fake('public');
@@ -77,7 +77,7 @@ class AvatarsTest extends TestCase
         $this->assertDatabaseMissing('avatars', ['id' => $oldAvatar->id]);
     }
 
-    /** @test */
+    #[Test]
     public function unauthenticated_user_cannot_upload_avatar()
     {
         $file = UploadedFile::fake()->image('avatar.jpg');
@@ -85,7 +85,7 @@ class AvatarsTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function avatar_must_be_an_image()
     {
         $file = UploadedFile::fake()->create('document.pdf');
@@ -93,7 +93,7 @@ class AvatarsTest extends TestCase
         $response->assertStatus(422)->assertJsonValidationErrors('avatar');
     }
 
-    /** @test */
+    #[Test]
     public function avatar_must_meet_dimension_requirements()
     {
         $file = UploadedFile::fake()->image('small.jpg', 50, 50);
@@ -101,7 +101,7 @@ class AvatarsTest extends TestCase
         $response->assertStatus(422)->assertJsonValidationErrors('avatar');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_show_an_avatar()
     {
         Storage::fake('public');

@@ -28,8 +28,8 @@ class PostLifecycleTest extends TestCase
 
     /**
      * Prueba el ciclo de vida completo de un post: creación, comentario, reacción y repost.
-     * @test
      */
+    #[Test]
     public function it_simulates_the_full_lifecycle_of_a_post_with_interactions(): void
     {
         // === ARRANGE: PREPARAR EL ESCENARIO COMPLETO ===

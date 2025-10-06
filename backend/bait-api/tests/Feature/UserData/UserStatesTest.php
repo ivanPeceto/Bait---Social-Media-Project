@@ -36,7 +36,7 @@ class UserStatesTest extends TestCase
         $this->regularUser = User::factory()->create(['role_id' => $userRole->id]);
     }
 
-    /** @test */
+    #[Test]
     public function an_admin_can_get_a_list_of_states()
     {
         $response = $this->actingAs($this->adminUser, 'api')->getJson(route('states.index'));
@@ -46,7 +46,7 @@ class UserStatesTest extends TestCase
         $response->assertJsonFragment(['name' => 'active']);
     }
 
-    /** @test */
+    #[Test]
     public function an_admin_can_create_a_state()
     {
         $stateData = ['name' => 'banned'];
@@ -57,7 +57,7 @@ class UserStatesTest extends TestCase
         $this->assertDatabaseHas('user_states', $stateData);
     }
 
-    /** @test */
+    #[Test]
     public function a_regular_user_cannot_create_a_state()
     {
         $stateData = ['name' => 'banned'];
@@ -66,7 +66,7 @@ class UserStatesTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function an_admin_can_update_a_state()
     {
         $state = UserState::factory()->create(['name' => 'to-update']);
@@ -79,7 +79,7 @@ class UserStatesTest extends TestCase
         $this->assertDatabaseHas('user_states', ['id' => $state->id, 'name' => 'updated-state']);
     }
 
-    /** @test */
+    #[Test]
     public function a_regular_user_cannot_update_a_state()
     {
         $state = UserState::factory()->create();
@@ -90,7 +90,7 @@ class UserStatesTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function an_admin_can_delete_a_state()
     {
         $state = UserState::factory()->create();
@@ -100,7 +100,7 @@ class UserStatesTest extends TestCase
         $this->assertDatabaseMissing('user_states', ['id' => $state->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_regular_user_cannot_delete_a_state()
     {
         $state = UserState::factory()->create();

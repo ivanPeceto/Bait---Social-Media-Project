@@ -22,7 +22,7 @@ class FollowsTest extends TestCase
         $this->seed(\Database\Seeders\BannerSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_follow_another_user(): void
     {
         // Arrange
@@ -46,7 +46,7 @@ class FollowsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_follow_themself(): void
     {
         // Arrange
@@ -64,7 +64,7 @@ class FollowsTest extends TestCase
                  ->assertJsonValidationErrors(['following_id']);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_follow_a_user_they_are_already_following(): void
     {
         // Arrange
@@ -87,7 +87,7 @@ class FollowsTest extends TestCase
                  ->assertJson(['message' => 'Already following this user.']);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_unfollow_another_user(): void
     {
         // Arrange
@@ -114,7 +114,7 @@ class FollowsTest extends TestCase
         ]);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_cannot_unfollow_a_user_they_are_not_following(): void
     {
         // Arrange

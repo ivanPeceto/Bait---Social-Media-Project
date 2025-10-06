@@ -31,7 +31,7 @@ class ProfileTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function an_authenticated_user_can_view_their_profile()
     {
         $response = $this->actingAs($this->user, 'api')->getJson(route('profile.show'));
@@ -45,7 +45,7 @@ class ProfileTest extends TestCase
         $response->assertJsonFragment(['username' => $this->user->username]);
     }
 
-    /** @test */
+    #[Test]
     public function an_authenticated_user_can_update_their_profile()
     {
         $updateData = [
@@ -63,7 +63,7 @@ class ProfileTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function updating_profile_with_existing_username_fails()
     {
         User::factory()->create(['username' => 'existing_user']);
@@ -75,7 +75,7 @@ class ProfileTest extends TestCase
         $response->assertJsonValidationErrors('username');
     }
 
-    /** @test */
+    #[Test]
     public function an_authenticated_user_can_change_their_password()
     {
         $passwordData = [
@@ -94,7 +94,7 @@ class ProfileTest extends TestCase
         $this->assertTrue(Hash::check('new-secure-password-456', $this->user->password));
     }
 
-    /** @test */
+    #[Test]
     public function changing_password_with_incorrect_current_password_fails()
     {
         $passwordData = [
@@ -109,7 +109,7 @@ class ProfileTest extends TestCase
         $response->assertJsonValidationErrors('current_password');
     }
 
-    /** @test */
+    #[Test]
     public function changing_password_with_mismatched_new_password_fails()
     {
         $passwordData = [
@@ -124,7 +124,7 @@ class ProfileTest extends TestCase
         $response->assertJsonValidationErrors('new_password');
     }
 
-    /** @test */
+    #[Test]
     public function an_unauthenticated_user_cannot_access_profile_endpoints()
     {
         $this->getJson(route('profile.show'))->assertStatus(401);
