@@ -104,7 +104,14 @@ class AuthController extends Controller
         if (!$token = auth('api')->attempt($request->validated())) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
+        $user = auth('api')->user();
 
+        if(in_array($user->state->name, ['suspended', 'deleted'])){
+            auth('api')->logout();
+            return response()->json([
+                'message' => 'Your account is currently' . $user->state->name . "."
+            ], 403);
+        }
         return $this->respondWithToken($token);
     }
 
