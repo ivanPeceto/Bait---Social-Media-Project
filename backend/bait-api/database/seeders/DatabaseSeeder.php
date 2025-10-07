@@ -31,16 +31,16 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin',
             'username' => 'admin',
             'email' => 'admin@admin.com',
-            'password' => Hash::make('admin'),
+            'password' => Hash::make('adminadmin'),
             'role_id' => $adminRole->id,
             'state_id' => $activeState->id,
         ]);
 
         User::factory()->create([
             'name' => 'Moderator',
-            'username' => 'mod',
-            'email' => 'mod@mod.com',
-            'password' => Hash::make('mod'),
+            'username' => 'moderator',
+            'email' => 'moderator@moderator.com',
+            'password' => Hash::make('moderator'),
             'role_id' => $modRole->id,
             'state_id' => $activeState->id,
         ]);
