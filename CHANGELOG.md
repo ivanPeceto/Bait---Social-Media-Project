@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.1.4] - 2025-10-07
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Observations
+
+* Se detectó la falta de validación de estado de usuario para el caso de los usuarios que están suspendidos. 
+* Queda pendiente añadir un middleware que invalide cualquier JWT generado antes de la suspensión de la cuenta.
+* Se detectó problemas con la dependencia de swagger al crear los contenedores desde 0.
+
+### Added
+
+* Nuevo seeder `DatabaseSeeder.php` para generar un usuario administrador y uno moderador iniciales
+* Nuevo archivo `.dockerignore` para resolver problemas de buildeo de contenedores con la dependencia de swagger.
+
+### Changed
+
+* Método `login` en `AuthController.php` para verificar el estado del usuario.
+* Comentado Swagger dentro de los providers de `app.php`
+* Volúmenes generados en `docker-compose.yml` 
+
 ## [1.1.3] - 2025-10-06
 
 _(Cambios realizados por @jmrodriguezspinker)_
