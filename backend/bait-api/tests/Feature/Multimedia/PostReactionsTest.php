@@ -27,7 +27,7 @@ class PostReactionsTest extends TestCase
         $this->seed(\Database\Seeders\ReactionTypesSeeder::class);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_can_react_to_a_post(): void
     {
         // Arrange
@@ -60,7 +60,7 @@ class PostReactionsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_update_their_reaction_to_a_post(): void
     {
         // Arrange
@@ -92,7 +92,7 @@ class PostReactionsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_remove_their_reaction_to_a_post(): void
     {
         // Arrange

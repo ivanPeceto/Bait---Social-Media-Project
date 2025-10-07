@@ -23,7 +23,7 @@ class RepostsTest extends TestCase
         $this->seed(\Database\Seeders\BannerSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_create_a_repost(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -53,7 +53,7 @@ class RepostsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_repost_the_same_post_twice(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -74,7 +74,7 @@ class RepostsTest extends TestCase
                  ->assertJsonValidationErrors(['post_id']);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_delete_their_own_repost(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -86,7 +86,7 @@ class RepostsTest extends TestCase
         $this->assertDatabaseMissing('reposts', ['id' => $repost->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_delete_another_users_repost(): void
     {
         [$owner, $headers] = $this->actingAsUser();

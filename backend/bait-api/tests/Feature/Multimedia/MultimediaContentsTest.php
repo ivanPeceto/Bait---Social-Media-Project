@@ -23,7 +23,7 @@ class MultimediaContentsTest extends TestCase
         $this->seed(\Database\Seeders\BannerSeeder::class);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_can_create_multimedia_content_for_their_own_post(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -52,7 +52,7 @@ class MultimediaContentsTest extends TestCase
         ]);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_cannot_create_multimedia_content_for_another_users_post(): void
     {
         [$owner, $headers] = $this->actingAsUser();
@@ -73,7 +73,7 @@ class MultimediaContentsTest extends TestCase
         $this->assertDatabaseMissing('multimedia_contents', ['post_id' => $post->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_delete_their_own_multimedia_content(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -86,7 +86,7 @@ class MultimediaContentsTest extends TestCase
         $this->assertDatabaseMissing('multimedia_contents', ['id' => $multimediaContent->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_delete_another_users_multimedia_content(): void
     {
         [$owner, $headers] = $this->actingAsUser();

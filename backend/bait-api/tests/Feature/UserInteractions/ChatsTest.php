@@ -24,7 +24,7 @@ class ChatsTest extends TestCase
         $this->seed(\Database\Seeders\BannerSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_view_their_list_of_chats(): void
     {
         // Arrange
@@ -59,7 +59,7 @@ class ChatsTest extends TestCase
                  ]);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_can_create_a_chat(): void
     {
         // Arrange
@@ -100,7 +100,7 @@ class ChatsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_create_a_chat_without_participants(): void
     {
         // Arrange
@@ -117,7 +117,7 @@ class ChatsTest extends TestCase
                  ->assertJsonValidationErrors(['participants']);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_view_a_chat_they_are_a_participant_of(): void
     {
         // Arrange
@@ -148,7 +148,7 @@ class ChatsTest extends TestCase
                  ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_view_a_chat_they_are_not_a_participant_of(): void
     {
         // Arrange

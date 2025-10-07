@@ -23,7 +23,7 @@ class MessagesTest extends TestCase
         $this->seed(\Database\Seeders\BannerSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_create_a_message_in_their_chat(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -57,7 +57,7 @@ class MessagesTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_create_a_message_in_a_chat_they_are_not_a_participant_of(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -75,7 +75,7 @@ class MessagesTest extends TestCase
         $this->assertDatabaseMissing('messages', ['chat_id' => $chat->id, 'user_id' => $user->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_view_their_messages_in_a_chat(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -115,7 +115,7 @@ class MessagesTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_create_a_message_with_invalid_data(): void
     {
         [$user, $headers] = $this->actingAsUser();

@@ -1,0 +1,3695 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API in Laravel",
+        "description": "API documentation with Swagger in Laravel",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8001",
+            "description": "Local server"
+        }
+    ],
+    "paths": {
+        "/api/healthcheck": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Healthcheck Endpoint",
+                "description": "Returns a simple status message to confirm that the backend is operational.",
+                "operationId": "4038403bb04dda3fd3824d2209bd550f",
+                "responses": {
+                    "200": {
+                        "description": "OK status"
+                    }
+                }
+            }
+        },
+        "/api/ping": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Ping Endpoint",
+                "description": "Simple endpoint to check if the API is responding. Returns a JSON object with service status.",
+                "operationId": "0b30500f152ac1bf5f9d44a62f405d32",
+                "responses": {
+                    "200": {
+                        "description": "The API is reachable. Returns a JSON: {'status': 'ok'}"
+                    }
+                }
+            }
+        },
+        "/api/comments": {
+            "get": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "List all comments",
+                "description": "Returns a list of all comments with associated user info.",
+                "operationId": "5c1afc2478052ba72ac1ce164f963973",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CommentSchema"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Create a new comment",
+                "description": "Creates a new comment on a post. Authenticated users only.",
+                "operationId": "ef9a31700c225e16eb4113a034d73613",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content_comments",
+                                    "post_id"
+                                ],
+                                "properties": {
+                                    "content_comments": {
+                                        "type": "string",
+                                        "example": "Nice post!"
+                                    },
+                                    "post_id": {
+                                        "type": "integer",
+                                        "example": 42
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Comment created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/comments/{comment}": {
+            "get": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Get a specific comment",
+                "description": "Returns the details of a single comment.",
+                "operationId": "054db1b820bd71cd45526a5368cc4a16",
+                "parameters": [
+                    {
+                        "name": "comment",
+                        "in": "path",
+                        "description": "ID of the comment to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comment not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Update a comment",
+                "description": "Allows the comment author to update their comment.",
+                "operationId": "8fc37f1ec7a5fed09001e987ecbc7bf4",
+                "parameters": [
+                    {
+                        "name": "comment",
+                        "in": "path",
+                        "description": "ID of the comment to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content_comments"
+                                ],
+                                "properties": {
+                                    "content_comments": {
+                                        "type": "string",
+                                        "example": "Updated comment content"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Comment updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentSchema"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized action"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Delete a comment",
+                "description": "Allows the comment author to delete their comment.",
+                "operationId": "bd1b46b8086501bafb6b638a104203a4",
+                "parameters": [
+                    {
+                        "name": "comment",
+                        "in": "path",
+                        "description": "ID of the comment to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Comment deleted successfully"
+                    },
+                    "403": {
+                        "description": "Unauthorized action"
+                    },
+                    "404": {
+                        "description": "Comment not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/multimedia-contents": {
+            "post": {
+                "tags": [
+                    "Multimedia Content"
+                ],
+                "summary": "Attach multimedia to a post",
+                "description": "Creates a multimedia content item (image/video) and links it to a post created by the authenticated user.",
+                "operationId": "f9d88d3d79b6a7a71c4a8e9b4153b72d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "url_multimedia_contents",
+                                    "type_multimedia_contents",
+                                    "post_id"
+                                ],
+                                "properties": {
+                                    "url_multimedia_contents": {
+                                        "type": "string",
+                                        "example": "uploads/posts/media123.jpg"
+                                    },
+                                    "type_multimedia_contents": {
+                                        "type": "string",
+                                        "example": "image"
+                                    },
+                                    "post_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Multimedia content created and linked to post",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MultimediaContentSchema"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized - only post creator can attach multimedia"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/multimedia-contents/{multimediaContent}": {
+            "delete": {
+                "tags": [
+                    "Multimedia Content"
+                ],
+                "summary": "Delete a multimedia content from a post",
+                "description": "Deletes a multimedia content item, if it belongs to a post created by the authenticated user.",
+                "operationId": "03873359417a6c3db143eeeed7aec7fb",
+                "parameters": [
+                    {
+                        "name": "multimediaContent",
+                        "in": "path",
+                        "description": "ID of the multimedia content to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Multimedia content deleted"
+                    },
+                    "403": {
+                        "description": "Unauthorized - only post creator can delete the content"
+                    },
+                    "404": {
+                        "description": "Multimedia content not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/multimedia/post/{post}": {
+            "delete": {
+                "tags": [
+                    "Multimedia Management"
+                ],
+                "summary": "Delete a post and its associated multimedia",
+                "operationId": "dbc21d5541a2c57ef0269117c2067325",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "ID of the post to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post and associated content deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Post and all associated content deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/multimedia/comment/{comment}": {
+            "delete": {
+                "tags": [
+                    "Multimedia Management"
+                ],
+                "summary": "Delete a comment",
+                "operationId": "24340f2348f6cc052eabdedb2a9ba8c7",
+                "parameters": [
+                    {
+                        "name": "comment",
+                        "in": "path",
+                        "description": "ID of the comment to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Comment deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Comment not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/multimedia/repost/{repost}": {
+            "delete": {
+                "tags": [
+                    "Multimedia Management"
+                ],
+                "summary": "Delete a repost",
+                "operationId": "c26125dda01d26b752abf96e390983ea",
+                "parameters": [
+                    {
+                        "name": "repost",
+                        "in": "path",
+                        "description": "ID of the repost to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Repost deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Repost deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Repost not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/multimedia/reaction/{reaction}": {
+            "delete": {
+                "tags": [
+                    "Multimedia Management"
+                ],
+                "summary": "Delete a post reaction",
+                "operationId": "016daf5ff54160a5b5399ec02aa619b4",
+                "parameters": [
+                    {
+                        "name": "reaction",
+                        "in": "path",
+                        "description": "ID of the reaction to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reaction deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Reaction deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Reaction not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "List all posts",
+                "description": "Returns a list of all posts with associated user info.",
+                "operationId": "9e58af18bca82bd5cc4abb285b09582f",
+                "responses": {
+                    "200": {
+                        "description": "List of posts returned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PostSchema"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Create a new post",
+                "description": "Authenticated users can create a new post.",
+                "operationId": "4b59b12ebea5c3246a9af90747ec35e6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content_posts"
+                                ],
+                                "properties": {
+                                    "content_posts": {
+                                        "type": "string",
+                                        "example": "This is a new post."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Post created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{post}": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Retrieve a specific post",
+                "description": "Returns the details of a single post.",
+                "operationId": "be21ffec76a1e9d5c2af5742f6788bb8",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "ID of the post",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Update a post",
+                "description": "Only the author of the post can update it.",
+                "operationId": "5dda4c4da2150043e98e29824af60189",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "ID of the post",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content_posts"
+                                ],
+                                "properties": {
+                                    "content_posts": {
+                                        "type": "string",
+                                        "example": "Updated post content."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Post updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostSchema"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized action"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Delete a post",
+                "description": "Only the author of the post can delete it.",
+                "operationId": "18b4480d13109732c54c029f6ff1256a",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "ID of the post",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Post deleted successfully"
+                    },
+                    "403": {
+                        "description": "Unauthorized action"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/post-reactions": {
+            "post": {
+                "tags": [
+                    "Post Reactions"
+                ],
+                "summary": "Add, update or delete a reaction to a post",
+                "description": "Creates a new reaction, updates an existing one, or deletes it based on the 'action' parameter.",
+                "operationId": "7b95eda16d815d699adc4c2c5939c4a2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "post_id",
+                                    "reaction_type_id"
+                                ],
+                                "properties": {
+                                    "post_id": {
+                                        "type": "integer",
+                                        "example": 12
+                                    },
+                                    "reaction_type_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "action": {
+                                        "description": "Action to perform on the reaction",
+                                        "type": "string",
+                                        "enum": [
+                                            "create",
+                                            "update",
+                                            "delete"
+                                        ],
+                                        "example": "create"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Reaction created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostReactionSchema"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Reaction updated or deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PostReactionSchema"
+                                        },
+                                        {
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Reaction removed successfully."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/reposts": {
+            "post": {
+                "tags": [
+                    "Reposts"
+                ],
+                "summary": "Repost a post",
+                "description": "Allows an authenticated user to repost an existing post.",
+                "operationId": "ff85ca6b14dbff190fbf375216cd0995",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "post_id"
+                                ],
+                                "properties": {
+                                    "post_id": {
+                                        "type": "integer",
+                                        "example": 12
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Repost created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RepostSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Original post not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/reposts/{repost}": {
+            "delete": {
+                "tags": [
+                    "Reposts"
+                ],
+                "summary": "Delete a repost",
+                "description": "Deletes a repost made by the authenticated user.",
+                "operationId": "e71b3bc66674b44401ff11698c24e6f5",
+                "parameters": [
+                    {
+                        "name": "repost",
+                        "in": "path",
+                        "description": "ID of the repost to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Repost deleted successfully"
+                    },
+                    "403": {
+                        "description": "Unauthorized - not the owner of the repost"
+                    },
+                    "404": {
+                        "description": "Repost not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user",
+                "description": "Registers a new user with email and password. Returns an access token on successful registration and login.",
+                "operationId": "aeada63af5b817c051fe34f5d740e60e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "username",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "username": {
+                                        "type": "string",
+                                        "example": "john_doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered and authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJ0eXAiOiJKV1QiLCJh..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 3600
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Registration succeeded but login failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Registration succeeded but login failed."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User login",
+                "description": "Logs in a user with valid credentials and returns a JWT token.",
+                "operationId": "9d82940dc1e1d2b8bfc33b369f415b36",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login, returns JWT token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOi..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 3600
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid credentials"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get authenticated user details",
+                "description": "Returns the details of the currently authenticated user including role, state, avatar, and banner.",
+                "operationId": "dd9ba33c645e3c6e906ded89bbe9763a",
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "username": {
+                                            "type": "string",
+                                            "example": "john_doe"
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "John Doe"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "john@example.com"
+                                        },
+                                        "role": {
+                                            "$ref": "#/components/schemas/UserRoleSchema"
+                                        },
+                                        "state": {
+                                            "$ref": "#/components/schemas/UserStateSchema"
+                                        },
+                                        "avatar": {
+                                            "$ref": "#/components/schemas/AvatarSchema"
+                                        },
+                                        "banner": {
+                                            "$ref": "#/components/schemas/BannerSchema"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-10-05T14:48:00.000Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-10-05T15:00:00.000Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh JWT token",
+                "description": "Refresh the current JWT token and return a new one.",
+                "operationId": "1b58a203efb07caf7f413f8bb8dfb756",
+                "responses": {
+                    "200": {
+                        "description": "Token refreshed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "new.jwt.token"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 3600
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized or token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Token has expired"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout the user",
+                "description": "Invalidate the current JWT token, effectively logging the user out.",
+                "operationId": "cb5df54972172a7c97e30f81e8b55260",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged out",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Successfully logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Token is missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/avatars/upload": {
+            "post": {
+                "tags": [
+                    "Avatar"
+                ],
+                "summary": "Upload user avatar",
+                "description": "Uploads an image file to be used as the user's avatar. Replaces any existing avatar.",
+                "operationId": "uploadAvatar",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "avatar"
+                                ],
+                                "properties": {
+                                    "avatar": {
+                                        "description": "Image file to upload",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Avatar uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AvatarSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/avatars/{avatar}": {
+            "get": {
+                "tags": [
+                    "Avatar"
+                ],
+                "summary": "Get a specific avatar",
+                "description": "Returns a single avatar resource by ID",
+                "operationId": "63c25395d0eed70c5e530ffd98cec771",
+                "parameters": [
+                    {
+                        "name": "avatar",
+                        "in": "path",
+                        "description": "ID of the avatar to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AvatarSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar not found"
+                    }
+                }
+            }
+        },
+        "/api/avatars/self": {
+            "delete": {
+                "tags": [
+                    "Avatar"
+                ],
+                "summary": "Delete the authenticated user's avatar",
+                "description": "Deletes the avatar of the currently authenticated user and replaces it with a default avatar.",
+                "operationId": "8f5daa52273b7e544a9b6e5b7bbd7cc4",
+                "responses": {
+                    "200": {
+                        "description": "Avatar destroyed and replaced with default",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Avatar destroyed. Replaced with default."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "api/privileged/users/{user}/avatar": {
+            "delete": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "Delete avatar for a specified user (admin/moderator only)",
+                "description": "Deletes the avatar for the given user and replaces it with a default avatar.",
+                "operationId": "1ebe67f721cd292677e4f6f602042f0b",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user whose avatar will be deleted",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar destroyed and replaced with default",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Avatar for user johndoe destroyed. Replaced with default."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - user does not have permission"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/banners/upload": {
+            "post": {
+                "tags": [
+                    "Banner"
+                ],
+                "summary": "Upload or replace the authenticated user's banner",
+                "description": "Uploads a new banner image for the authenticated user. If a banner already exists, it will be deleted and replaced with the new one.",
+                "operationId": "12ee88ff07ba8093d1692ef2512c3b21",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "banner"
+                                ],
+                                "properties": {
+                                    "banner": {
+                                        "description": "The banner image file to upload",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully uploaded banner",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BannerSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
+                    "422": {
+                        "description": "Validation error - invalid or missing file"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/banners/{banner}": {
+            "get": {
+                "tags": [
+                    "Banner"
+                ],
+                "summary": "Get a specific banner",
+                "description": "Returns a single banner resource by ID",
+                "operationId": "45147c2d2d2d70a997124ee6009411c9",
+                "parameters": [
+                    {
+                        "name": "banner",
+                        "in": "path",
+                        "description": "ID of the banner to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Banner retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BannerSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Banner not found"
+                    }
+                }
+            }
+        },
+        "/api/banners/self": {
+            "delete": {
+                "tags": [
+                    "Banner"
+                ],
+                "summary": "Delete the authenticated user's banner",
+                "description": "Deletes the authenticated user's banner and replaces it with the default banner.",
+                "operationId": "2535940fdb80092cf8af33dfe169f573",
+                "responses": {
+                    "200": {
+                        "description": "Banner destroyed and replaced with default",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Banner destroyed. Replaced with default."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/users/{user}/banner": {
+            "delete": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "Delete a specific user's banner (admin/moderator only)",
+                "description": "Deletes the specified user's banner and replaces it with the default banner. Only accessible to admins or moderators.",
+                "operationId": "5eb1484e20561bae204c64476ba23c76",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user whose banner will be deleted",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Banner deleted and replaced with default",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Banner for user johndoe destroyed. Replaced with default."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - not authorized"
+                    },
+                    "404": {
+                        "description": "User not found or banner not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile/show": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get the authenticated user's profile",
+                "description": "Returns the authenticated user's profile with related role, state, avatar, and banner information.",
+                "operationId": "05c552df192df4e9f92936e798a9e15f",
+                "responses": {
+                    "200": {
+                        "description": "User profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile/update": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Update the authenticated user's profile",
+                "description": "Updates the authenticated user's profile fields. Only fields allowed by validation will be updated.",
+                "operationId": "514d6028989771b7cbaa85cda3d66cc2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "state_id": {
+                                        "description": "ID of the new state to assign to the user",
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile/password": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the authenticated user's password",
+                "description": "Allows the authenticated user to change their password by providing the current and new passwords.",
+                "operationId": "3b72cc50e5174562a87320c942b7d065",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password",
+                                    "new_password",
+                                    "new_password_confirmation"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "description": "The user's current password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    },
+                                    "new_password": {
+                                        "description": "The new password the user wants to set",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret456"
+                                    },
+                                    "new_password_confirmation": {
+                                        "description": "Confirmation of the new password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
+                    "422": {
+                        "description": "Validation failed (e.g., current password incorrect, password too weak)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/users/{user}/update": {
+            "put": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "Update a user's profile (admin/moderator only)",
+                "description": "Allows admins and moderators to update a user's profile. Moderators can only update limited fields (e.g., name).",
+                "operationId": "ea815b53cffaaca971c03382641fdeba",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "state_id": {
+                                        "description": "ID of the new state for the user",
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSchema"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient permissions"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/users/{user}/password": {
+            "put": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "Change password for a specified user (admin/moderator only)",
+                "description": "Allows admins or moderators to update the password of a specified user.",
+                "operationId": "727402a3c29eb8a371f35333ec748863",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user whose password is to be changed",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "new_password"
+                                ],
+                                "properties": {
+                                    "new_password": {
+                                        "description": "The new password for the user (min 8 characters)",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newStrongPassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password for user johndoe updated successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient permissions"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "422": {
+                        "description": "Validation error - e.g., password too short"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/users/{user}/suspend": {
+            "post": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "Suspend a user (admin/moderator only)",
+                "description": "Sets the state of the specified user to 'suspended'. Fails if the 'suspended' state is not defined in the database.",
+                "operationId": "8081468a8fefb1bcad2fa66c16d5976f",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user to suspend",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User successfully suspended",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSchema"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient permissions"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "The 'suspended' state is not defined in the database",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "'suspended' state not found in database."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/users/{user}/activate": {
+            "post": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "Activate a user (admin/moderator only)",
+                "description": "Sets the state of the specified user to 'active'. Fails if the 'active' state is not defined in the database.",
+                "operationId": "4607c301d8e83d0e1118bf0457237b65",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user to activate",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User successfully activated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSchema"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient permissions"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "The 'active' state is not defined in the database",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "'active' state not found in database."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/roles": {
+            "get": {
+                "tags": [
+                    "User Roles"
+                ],
+                "summary": "Get all user roles",
+                "description": "Returns a list of all user roles in the system.",
+                "operationId": "42855d8bc780d9fb65a184b4a8abd46d",
+                "responses": {
+                    "200": {
+                        "description": "List of user roles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserRoleSchema"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "User Roles"
+                ],
+                "summary": "Create a new user role",
+                "description": "Creates a new role in the system.",
+                "operationId": "56bfa5863d5b552ec80ad1b015ac0d4f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "editor"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Role created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserRoleSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/roles/{role}": {
+            "put": {
+                "tags": [
+                    "User Roles"
+                ],
+                "summary": "Update a user role",
+                "description": "Updates an existing user role.",
+                "operationId": "86f10ea4145c295adf0132242f1b651e",
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "path",
+                        "description": "ID of the role to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "manager"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Role updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserRoleSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Role not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "User Roles"
+                ],
+                "summary": "Delete a user role",
+                "description": "Deletes an existing user role.",
+                "operationId": "37f92d8ec191c605558eaca72c5c3d4c",
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "path",
+                        "description": "ID of the role to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Role deleted successfully"
+                    },
+                    "404": {
+                        "description": "Role not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/states": {
+            "get": {
+                "tags": [
+                    "User States"
+                ],
+                "summary": "Get all user states",
+                "description": "Returns a list of all user states (e.g. active, suspended).",
+                "operationId": "getAllStates",
+                "responses": {
+                    "200": {
+                        "description": "List of user states",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserStateSchema"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "User States"
+                ],
+                "summary": "Create a new user state",
+                "description": "Creates a new user state in the system.",
+                "operationId": "e0794cb4901b41e4baa96d64e2f3de62",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "active"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "State created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserStateSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/states/{state}": {
+            "put": {
+                "tags": [
+                    "User States"
+                ],
+                "summary": "Update a user state",
+                "description": "Updates an existing user state.",
+                "operationId": "85e9e16c11ce4be0c5b13b14383fb785",
+                "parameters": [
+                    {
+                        "name": "state",
+                        "in": "path",
+                        "description": "ID of the state to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "banned"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "State updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserStateSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "State not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "User States"
+                ],
+                "summary": "Delete a user state",
+                "description": "Deletes an existing user state.",
+                "operationId": "f84233cc731f4228509fa8c06a17bde2",
+                "parameters": [
+                    {
+                        "name": "state",
+                        "in": "path",
+                        "description": "ID of the state to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "State deleted successfully"
+                    },
+                    "404": {
+                        "description": "State not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/chats": {
+            "get": {
+                "tags": [
+                    "Chats"
+                ],
+                "summary": "List all chats for the authenticated user",
+                "description": "Retrieves a list of chats where the authenticated user is a participant.",
+                "operationId": "getUserChats",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ChatSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Chats"
+                ],
+                "summary": "Create a new chat",
+                "description": "Creates a new chat and adds the authenticated user and specified participants.",
+                "operationId": "createChat",
+                "requestBody": {
+                    "description": "Array of participant user IDs to include in the chat.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "participants"
+                                ],
+                                "properties": {
+                                    "participants": {
+                                        "description": "An array of user IDs.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Chat created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/chats/{chat}": {
+            "get": {
+                "tags": [
+                    "Chats"
+                ],
+                "summary": "Get details of a specific chat",
+                "description": "Retrieves the details of a single chat, including participants and messages. Authenticated user must be a participant.",
+                "operationId": "getChatById",
+                "parameters": [
+                    {
+                        "name": "chat",
+                        "in": "path",
+                        "description": "The ID of the chat.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not a participant of this chat"
+                    },
+                    "404": {
+                        "description": "Chat not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/follows": {
+            "post": {
+                "tags": [
+                    "Follows"
+                ],
+                "summary": "Follow another user",
+                "description": "Creates a new follow relationship from the authenticated user to another user.",
+                "operationId": "followUser",
+                "requestBody": {
+                    "description": "Pass the ID of the user to follow.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "following_id"
+                                ],
+                                "properties": {
+                                    "following_id": {
+                                        "description": "The ID of the user to be followed.",
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Follow relationship created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FollowSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "409": {
+                        "description": "Conflict - Already following this user"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity (e.g., trying to follow oneself, validation error)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Follows"
+                ],
+                "summary": "Unfollow a user",
+                "description": "Deletes an existing follow relationship.",
+                "operationId": "unfollowUser",
+                "requestBody": {
+                    "description": "Pass the ID of the user to unfollow.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "following_id"
+                                ],
+                                "properties": {
+                                    "following_id": {
+                                        "description": "The ID of the user to be unfollowed.",
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful operation. No content."
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Not Found - The follow relationship does not exist"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/chats/{chat}/messages": {
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "List messages in a specific chat",
+                "description": "Retrieves a paginated list of messages for a given chat. The authenticated user must be a participant of the chat.",
+                "operationId": "getChatMessages",
+                "parameters": [
+                    {
+                        "name": "chat",
+                        "in": "path",
+                        "description": "The ID of the chat.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MessageSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not a participant of this chat"
+                    },
+                    "404": {
+                        "description": "Chat not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a new message to a chat",
+                "description": "Creates and broadcasts a new message in a chat. The authenticated user must be a participant of the chat.",
+                "operationId": "sendMessageToChat",
+                "parameters": [
+                    {
+                        "name": "chat",
+                        "in": "path",
+                        "description": "The ID of the chat where the message will be sent.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "The content of the message.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content_messages"
+                                ],
+                                "properties": {
+                                    "content_messages": {
+                                        "type": "string",
+                                        "maxLength": 1000,
+                                        "example": "This is a test message."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Message created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not a participant of this chat"
+                    },
+                    "404": {
+                        "description": "Chat not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List all notifications for the authenticated user",
+                "description": "Retrieves a list of all notifications for the currently authenticated user.",
+                "operationId": "getUserNotifications",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/NotificationSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/{notification}": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get a single notification by ID",
+                "description": "Retrieves the details of a single notification. The user must be the owner of the notification.",
+                "operationId": "getNotificationById",
+                "parameters": [
+                    {
+                        "name": "notification",
+                        "in": "path",
+                        "description": "The ID of the notification.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not own this notification"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark a notification as read",
+                "description": "Updates the status of a notification, typically to mark it as read. The user must be the owner of the notification.",
+                "operationId": "updateNotification",
+                "parameters": [
+                    {
+                        "name": "notification",
+                        "in": "path",
+                        "description": "The ID of the notification.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Boolean status to mark the notification as read.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "is_read"
+                                ],
+                                "properties": {
+                                    "is_read": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Notification updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not own this notification"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AvatarSchema": {
+                "title": "Avatar Schema",
+                "required": [
+                    "id",
+                    "url_avatars"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "url_avatars": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "https://example.com/storage/avatars/avatar1.jpg"
+                    }
+                },
+                "type": "object"
+            },
+            "BannerSchema": {
+                "title": "Banner Schema",
+                "required": [
+                    "id",
+                    "url_banners"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "url_banners": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "https://example.com/storage/banners/banner1.jpg"
+                    }
+                },
+                "type": "object"
+            },
+            "ChatSchema": {
+                "title": "Chat Schema",
+                "description": "Represents a chat conversation between users.",
+                "properties": {
+                    "id": {
+                        "description": "The chat's unique identifier.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "participants": {
+                        "description": "List of users participating in the chat.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserSchema"
+                        }
+                    },
+                    "last_message": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/MessageSchema"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "The most recent message in the chat."
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the chat was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T10:00:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "CommentSchema": {
+                "title": "Comment Schema",
+                "description": "Represents a user comment on a post.",
+                "required": [
+                    "id",
+                    "content_comments",
+                    "post_id",
+                    "user_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "content_comments": {
+                        "type": "string",
+                        "example": "This is a great post!"
+                    },
+                    "post_id": {
+                        "type": "integer",
+                        "example": 42
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 7
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T14:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T14:15:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "FollowSchema": {
+                "title": "Follow Schema",
+                "description": "Represents a follow relationship between two users.",
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier for the follow relationship.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "follower": {
+                        "$ref": "#/components/schemas/UserSchema"
+                    },
+                    "following": {
+                        "$ref": "#/components/schemas/UserSchema"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the follow action occurred.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-04T16:28:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "MessageSchema": {
+                "title": "Message Schema",
+                "description": "Represents a message within a chat.",
+                "properties": {
+                    "id": {
+                        "description": "The message's unique identifier.",
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "content_messages": {
+                        "description": "The text content of the message.",
+                        "type": "string",
+                        "example": "Hello, how are you?"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserSchema"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the message was sent.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T12:30:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "MultimediaContentSchema": {
+                "title": "Multimedia Content",
+                "required": [
+                    "id",
+                    "url_multimedia_contents",
+                    "type_multimedia_contents",
+                    "post_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "url_multimedia_contents": {
+                        "type": "string",
+                        "example": "uploads/posts/photo.jpg"
+                    },
+                    "type_multimedia_contents": {
+                        "type": "string",
+                        "example": "image"
+                    },
+                    "post_id": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T10:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T10:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "NotificationSchema": {
+                "title": "Notification Schema",
+                "description": "Represents a user notification.",
+                "properties": {
+                    "id": {
+                        "description": "The notification's unique identifier.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "9a7c132-45a6-41a7-9385-4f39b3385890"
+                    },
+                    "type": {
+                        "description": "The type of notification.",
+                        "type": "string",
+                        "example": "App\\\\Notifications\\\\NewFollowNotification"
+                    },
+                    "content": {
+                        "description": "The data associated with the notification.",
+                        "type": "object",
+                        "example": {
+                            "follower_name": "John Doe",
+                            "message": "John Doe is now following you."
+                        }
+                    },
+                    "is_read": {
+                        "description": "Indicates if the notification has been read.",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the notification was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T18:45:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "PostReactionSchema": {
+                "title": "Post Reaction Schema",
+                "description": "Represents a user's reaction to a post",
+                "required": [
+                    "id",
+                    "user_id",
+                    "post_id",
+                    "reaction_type_id"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier for the post reaction",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "description": "ID of the user who reacted",
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "post_id": {
+                        "description": "ID of the post being reacted to",
+                        "type": "integer",
+                        "example": 34
+                    },
+                    "reaction_type_id": {
+                        "description": "ID representing the type of reaction (e.g., like, love, laugh)",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T14:48:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T14:50:00Z"
+                    },
+                    "reaction_type": {
+                        "description": "Reaction type details",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "like"
+                            },
+                            "icon": {
+                                "type": "string",
+                                "example": "👍"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "user": {
+                        "description": "User who reacted",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 12
+                            },
+                            "username": {
+                                "type": "string",
+                                "example": "johndoe"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PostSchema": {
+                "title": "Post Schema",
+                "description": "Schema representing a user's post.",
+                "required": [
+                    "id",
+                    "content_posts",
+                    "user_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "content_posts": {
+                        "type": "string",
+                        "example": "This is my post."
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T12:30:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "RepostSchema": {
+                "title": "Repost Schema",
+                "description": "Represents a repost of an existing post by a user.",
+                "required": [
+                    "id",
+                    "user_id",
+                    "post_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "post_id": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T14:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T14:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "UserRoleSchema": {
+                "title": "User Role Schema",
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "admin"
+                    }
+                },
+                "type": "object"
+            },
+            "UserSchema": {
+                "title": "User Schema",
+                "required": [
+                    "id",
+                    "username",
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john@example.com"
+                    },
+                    "role": {
+                        "description": "User's role name",
+                        "type": "string",
+                        "example": "admin",
+                        "nullable": true
+                    },
+                    "state": {
+                        "description": "User's state name",
+                        "type": "string",
+                        "example": "active",
+                        "nullable": true
+                    },
+                    "avatar": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/AvatarSchema"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "banner": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/BannerSchema"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T12:34:56Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T12:34:56Z"
+                    }
+                },
+                "type": "object"
+            },
+            "UserStateSchema": {
+                "title": "User State Schema",
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "active"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "title": "User Schema",
+                "description": "Represents a user in the system.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "role": {
+                        "description": "User's role information",
+                        "type": "object"
+                    },
+                    "state": {
+                        "description": "User's account state",
+                        "type": "object"
+                    },
+                    "avatar": {
+                        "description": "User's avatar information",
+                        "type": "object"
+                    },
+                    "banner": {
+                        "description": "User's profile banner information",
+                        "type": "object"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-04T16:28:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-04T16:30:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ChatResource": {
+                "title": "Chat Schema",
+                "description": "Represents a chat conversation.",
+                "properties": {
+                    "id": {
+                        "description": "The chat's unique identifier.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "participants": {
+                        "description": "List of users participating in the chat.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserResource"
+                        }
+                    },
+                    "last_message": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/MessageResource"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "The most recent message in the chat."
+                    },
+                    "messages": {
+                        "description": "A collection of messages in the chat (often included in detailed views).",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MessageResource"
+                        }
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the chat was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T10:00:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "FollowResource": {
+                "title": "Follow Schema",
+                "description": "Represents a follow relationship between two users.",
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier for the follow relationship.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "follower": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "following": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the follow action occurred.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-04T16:28:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "MessageResource": {
+                "title": "Message Schema",
+                "description": "Represents a message within a chat.",
+                "properties": {
+                    "id": {
+                        "description": "The message's unique identifier.",
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "content_messages": {
+                        "description": "The text content of the message.",
+                        "type": "string",
+                        "example": "Hello, how are you?"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the message was sent.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T12:30:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "NotificationResource": {
+                "title": "Notification Schema",
+                "description": "Represents a user notification.",
+                "properties": {
+                    "id": {
+                        "description": "The notification's unique identifier.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "9a7c132-45a6-41a7-9385-4f39b3385890"
+                    },
+                    "type": {
+                        "description": "The type of notification.",
+                        "type": "string",
+                        "example": "App\\Notifications\\NewFollowNotification"
+                    },
+                    "content": {
+                        "description": "The data associated with the notification.",
+                        "type": "object",
+                        "example": {
+                            "follower_name": "John Doe",
+                            "message": "John Doe is now following you."
+                        }
+                    },
+                    "is_read": {
+                        "description": "Indicates if the notification has been read.",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the notification was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T18:45:00.000000Z"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "responses": {
+            "422": {
+                "description": "Validation Error"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Use a JWT token to authenticate",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Health"
+        },
+        {
+            "name": "Auth"
+        },
+        {
+            "name": "Avatar"
+        },
+        {
+            "name": "Banner"
+        },
+        {
+            "name": "Profile"
+        },
+        {
+            "name": "User Roles"
+        },
+        {
+            "name": "User States"
+        },
+        {
+            "name": "Comments"
+        },
+        {
+            "name": "Multimedia Content"
+        },
+        {
+            "name": "Posts"
+        },
+        {
+            "name": "Post Reactions"
+        },
+        {
+            "name": "Reposts"
+        },
+        {
+            "name": "Multimedia Management",
+            "description": "Privileged"
+        },
+        {
+            "name": "User Management",
+            "description": "Privileged"
+        },
+        {
+            "name": "Chats"
+        },
+        {
+            "name": "Follows"
+        },
+        {
+            "name": "Messages"
+        },
+        {
+            "name": "Notifications"
+        }
+    ]
+}

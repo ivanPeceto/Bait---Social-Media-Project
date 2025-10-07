@@ -22,7 +22,7 @@ class NotificationsTest extends TestCase
         $this->seed(\Database\Seeders\BannerSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_view_their_notifications(): void
     {
         // Arrange
@@ -38,7 +38,7 @@ class NotificationsTest extends TestCase
                  ->assertJsonCount(3, 'data'); // Asegura que solo se devuelvan las notificaciones del usuario
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_view_a_single_notification_they_own(): void
     {
         // Arrange
@@ -62,7 +62,7 @@ class NotificationsTest extends TestCase
                  ]);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_cannot_view_a_notification_they_do_not_own(): void
     {
         // Arrange
@@ -76,7 +76,7 @@ class NotificationsTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_mark_a_notification_as_read(): void
     {
         // Arrange
@@ -101,7 +101,7 @@ class NotificationsTest extends TestCase
         ]);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_cannot_update_a_notification_they_do_not_own(): void
     {
         // Arrange
@@ -119,7 +119,7 @@ class NotificationsTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function update_notification_request_validation(): void
     {
         // Arrange

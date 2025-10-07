@@ -146,9 +146,9 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-
         App\Providers\AppServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        L5Swagger\L5SwaggerServiceProvider::class,
     ],
 
     'aliases' => Illuminate\Support\Facades\Facade::defaultAliases()->toArray(),

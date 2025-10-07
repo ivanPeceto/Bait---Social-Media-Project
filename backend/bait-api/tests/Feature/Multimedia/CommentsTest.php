@@ -23,7 +23,7 @@ class CommentsTest extends TestCase
         $this->seed(\Database\Seeders\BannerSeeder::class);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_can_create_a_comment(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -54,7 +54,7 @@ class CommentsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function comment_creation_fails_with_invalid_data(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -65,7 +65,7 @@ class CommentsTest extends TestCase
                  ->assertJsonValidationErrors(['content_comments', 'post_id']);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_can_update_their_own_comment(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -81,7 +81,7 @@ class CommentsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_update_another_users_comment(): void
     {
         [$owner, $headers] = $this->actingAsUser();
@@ -94,7 +94,7 @@ class CommentsTest extends TestCase
         $this->assertDatabaseHas('comments', ['id' => $comment->id, 'content_comments' => $comment->content_comments]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_delete_their_own_comment(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -106,7 +106,7 @@ class CommentsTest extends TestCase
         $this->assertDatabaseMissing('comments', ['id' => $comment->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_delete_another_users_comment(): void
     {
         [$owner, $headers] = $this->actingAsUser();

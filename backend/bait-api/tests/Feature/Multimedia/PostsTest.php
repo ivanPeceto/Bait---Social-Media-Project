@@ -22,7 +22,7 @@ class PostsTest extends TestCase
         $this->seed(\Database\Seeders\BannerSeeder::class);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_can_create_a_post(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -49,7 +49,7 @@ class PostsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function post_creation_fails_with_invalid_data(): void
     {
         
@@ -61,7 +61,7 @@ class PostsTest extends TestCase
                  ->assertJsonValidationErrors(['content_posts']);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_can_update_their_own_post(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -77,7 +77,7 @@ class PostsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_update_another_users_post(): void
     {
         [$owner, $headers] = $this->actingAsUser();
@@ -90,7 +90,7 @@ class PostsTest extends TestCase
         $this->assertDatabaseHas('posts', ['id' => $post->id, 'content_posts' => $post->content_posts]);
     }
     
-    /** @test */
+    #[Test]
     public function a_user_can_delete_their_own_post(): void
     {
         [$user, $headers] = $this->actingAsUser();
@@ -102,7 +102,7 @@ class PostsTest extends TestCase
         $this->assertDatabaseMissing('posts', ['id' => $post->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_user_cannot_delete_another_users_post(): void
     {
         [$owner, $headers] = $this->actingAsUser();
@@ -115,7 +115,7 @@ class PostsTest extends TestCase
         $this->assertDatabaseHas('posts', ['id' => $post->id]);
     }
 
-    /** @test */
+    #[Test]
     public function a_post_belongs_to_a_user(): void
     {
         $user = User::factory()->create();

@@ -31,7 +31,7 @@ class BannersTest extends TestCase
         $this->user = User::factory()->create();
     }
     
-    /** @test */
+    #[Test]
     public function an_authenticated_user_can_upload_a_banner()
     {
         Storage::fake('public');
@@ -61,7 +61,7 @@ class BannersTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function an_unauthenticated_user_cannot_upload_a_banner()
     {
         Storage::fake('public');
@@ -70,7 +70,7 @@ class BannersTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function banner_upload_fails_if_file_is_not_an_image()
     {
         Storage::fake('public');
@@ -81,7 +81,7 @@ class BannersTest extends TestCase
         $response->assertJsonValidationErrors('banner');
     }
 
-    /** @test */
+    #[Test]
     public function banner_upload_fails_if_dimensions_are_invalid()
     {
         Storage::fake('public');
@@ -92,7 +92,7 @@ class BannersTest extends TestCase
         $response->assertJsonValidationErrors('banner');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_show_a_banner()
     {
         Storage::fake('public');

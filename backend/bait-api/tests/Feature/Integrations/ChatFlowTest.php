@@ -28,8 +28,8 @@ class ChatFlowTest extends TestCase
      * 1. Usuario A inicia un chat con Usuario B.
      * 2. Usuario A envía un mensaje.
      * 3. Usuario B responde al mensaje.
-     * @test
      */
+    #[Test]
     public function it_simulates_a_full_chat_conversation(): void
     {
         // === ARRANGE: PREPARAR LOS PARTICIPANTES ===
