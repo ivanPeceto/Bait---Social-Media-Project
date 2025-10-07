@@ -15,7 +15,7 @@ class ChatController extends Controller
      * @OA\Get(
      * path="/api/chats",
      * operationId="getUserChats",
-     * tags={"User Interactions"},
+     * tags={"Chats"},
      * summary="List all chats for the authenticated user",
      * description="Retrieves a list of chats where the authenticated user is a participant.",
      * security={{"bearerAuth":{}}},
@@ -24,7 +24,7 @@ class ChatController extends Controller
      * description="Successful operation",
      * @OA\JsonContent(
      * type="array",
-     * @OA\Items(ref="#/components/schemas/ChatResource")
+     * @OA\Items(ref="#/components/schemas/ChatSchema")
      * )
      * ),
      * @OA\Response(response=401, description="Unauthenticated")
@@ -41,7 +41,7 @@ class ChatController extends Controller
      * @OA\Post(
      * path="/api/chats",
      * operationId="createChat",
-     * tags={"User Interactions"},
+     * tags={"Chats"},
      * summary="Create a new chat",
      * description="Creates a new chat and adds the authenticated user and specified participants.",
      * security={{"bearerAuth":{}}},
@@ -61,7 +61,7 @@ class ChatController extends Controller
      * @OA\Response(
      * response=201,
      * description="Chat created successfully",
-     * @OA\JsonContent(ref="#/components/schemas/ChatResource")
+     * @OA\JsonContent(ref="#/components/schemas/ChatSchema")
      * ),
      * @OA\Response(response=401, description="Unauthenticated"),
      * @OA\Response(response=422, description="Validation Error")
@@ -88,7 +88,7 @@ class ChatController extends Controller
      * @OA\Get(
      * path="/api/chats/{chat}",
      * operationId="getChatById",
-     * tags={"User Interactions"},
+     * tags={"Chats"},
      * summary="Get details of a specific chat",
      * description="Retrieves the details of a single chat, including participants and messages. Authenticated user must be a participant.",
      * security={{"bearerAuth":{}}},
@@ -102,7 +102,7 @@ class ChatController extends Controller
      * @OA\Response(
      * response=200,
      * description="Successful operation",
-     * @OA\JsonContent(ref="#/components/schemas/ChatResource")
+     * @OA\JsonContent(ref="#/components/schemas/ChatSchema")
      * ),
      * @OA\Response(response=401, description="Unauthenticated"),
      * @OA\Response(response=403, description="Forbidden - User is not a participant of this chat"),

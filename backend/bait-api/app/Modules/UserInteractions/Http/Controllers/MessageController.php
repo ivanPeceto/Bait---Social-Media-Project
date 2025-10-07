@@ -17,7 +17,7 @@ class MessageController extends Controller
      * @OA\Get(
      * path="/api/chats/{chat}/messages",
      * operationId="getChatMessages",
-     * tags={"User Interactions"},
+     * tags={"Messages"},
      * summary="List messages in a specific chat",
      * description="Retrieves a paginated list of messages for a given chat. The authenticated user must be a participant of the chat.",
      * security={{"bearerAuth":{}}},
@@ -33,7 +33,7 @@ class MessageController extends Controller
      * description="Successful operation",
      * @OA\JsonContent(
      * type="array",
-     * @OA\Items(ref="#/components/schemas/MessageResource")
+     * @OA\Items(ref="#/components/schemas/MessageSchema")
      * )
      * ),
      * @OA\Response(response=401, description="Unauthenticated"),
@@ -58,7 +58,7 @@ class MessageController extends Controller
      * @OA\Post(
      * path="/api/chats/{chat}/messages",
      * operationId="sendMessageToChat",
-     * tags={"User Interactions"},
+     * tags={"Messages"},
      * summary="Send a new message to a chat",
      * description="Creates and broadcasts a new message in a chat. The authenticated user must be a participant of the chat.",
      * security={{"bearerAuth":{}}},
@@ -80,7 +80,7 @@ class MessageController extends Controller
      * @OA\Response(
      * response=201,
      * description="Message created successfully",
-     * @OA\JsonContent(ref="#/components/schemas/MessageResource")
+     * @OA\JsonContent(ref="#/components/schemas/MessageSchema")
      * ),
      * @OA\Response(response=401, description="Unauthenticated"),
      * @OA\Response(response=403, description="Forbidden - User is not a participant of this chat"),

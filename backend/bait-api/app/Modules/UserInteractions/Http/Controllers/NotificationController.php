@@ -15,7 +15,7 @@ class NotificationController extends Controller
      * @OA\Get(
      * path="/api/notifications",
      * operationId="getUserNotifications",
-     * tags={"User Interactions"},
+     * tags={"Notifications"},
      * summary="List all notifications for the authenticated user",
      * description="Retrieves a list of all notifications for the currently authenticated user.",
      * security={{"bearerAuth":{}}},
@@ -24,7 +24,7 @@ class NotificationController extends Controller
      * description="Successful operation",
      * @OA\JsonContent(
      * type="array",
-     * @OA\Items(ref="#/components/schemas/NotificationResource")
+     * @OA\Items(ref="#/components/schemas/NotificationSchema")
      * )
      * ),
      * @OA\Response(response=401, description="Unauthenticated")
@@ -40,7 +40,7 @@ class NotificationController extends Controller
      * @OA\Get(
      * path="/api/notifications/{notification}",
      * operationId="getNotificationById",
-     * tags={"User Interactions"},
+     * tags={"Notifications"},
      * summary="Get a single notification by ID",
      * description="Retrieves the details of a single notification. The user must be the owner of the notification.",
      * security={{"bearerAuth":{}}},
@@ -54,7 +54,7 @@ class NotificationController extends Controller
      * @OA\Response(
      * response=200,
      * description="Successful operation",
-     * @OA\JsonContent(ref="#/components/schemas/NotificationResource")
+     * @OA\JsonContent(ref="#/components/schemas/NotificationSchema")
      * ),
      * @OA\Response(response=401, description="Unauthenticated"),
      * @OA\Response(response=403, description="Forbidden - User does not own this notification"),
@@ -74,7 +74,7 @@ class NotificationController extends Controller
      * @OA\Put(
      * path="/api/notifications/{notification}",
      * operationId="updateNotification",
-     * tags={"User Interactions"},
+     * tags={"Notifications"},
      * summary="Mark a notification as read",
      * description="Updates the status of a notification, typically to mark it as read. The user must be the owner of the notification.",
      * security={{"bearerAuth":{}}},
@@ -96,7 +96,7 @@ class NotificationController extends Controller
      * @OA\Response(
      * response=200,
      * description="Notification updated successfully",
-     * @OA\JsonContent(ref="#/components/schemas/NotificationResource")
+     * @OA\JsonContent(ref="#/components/schemas/NotificationSchema")
      * ),
      * @OA\Response(response=401, description="Unauthenticated"),
      * @OA\Response(response=403, description="Forbidden - User does not own this notification"),

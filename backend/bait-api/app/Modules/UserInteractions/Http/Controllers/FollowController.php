@@ -9,6 +9,7 @@ use App\Modules\UserInteractions\Domain\Models\Follow;
 use App\Modules\UserInteractions\Http\Requests\Follow\CreateFollowRequest;
 use Illuminate\Http\JsonResponse;
 use App\Modules\UserInteractions\Http\Requests\Follow\DestroyFollowRequest;
+use App\Modules\UserInteractions\Http\Resources\FollowResource;
 
 class FollowController extends Controller
 {
@@ -16,7 +17,7 @@ class FollowController extends Controller
      * @OA\Post(
      * path="/api/follows",
      * operationId="followUser",
-     * tags={"User Interactions"},
+     * tags={"Follows"},
      * summary="Follow another user",
      * description="Creates a new follow relationship from the authenticated user to another user.",
      * security={{"bearerAuth":{}}},
@@ -30,10 +31,8 @@ class FollowController extends Controller
      * ),
      * @OA\Response(
      * response=201,
-     * description="Successful operation",
-     * @OA\JsonContent(
-     * @OA\Property(property="message", type="string", example="User followed successfully.")
-     * )
+     * description="Follow relationship created successfully",
+     * @OA\JsonContent(ref="#/components/schemas/FollowSchema") 
      * ),
      * @OA\Response(response=401, description="Unauthenticated"),
      * @OA\Response(response=409, description="Conflict - Already following this user"),
@@ -75,7 +74,7 @@ class FollowController extends Controller
      * @OA\Delete(
      * path="/api/follows",
      * operationId="unfollowUser",
-     * tags={"User Interactions"},
+     * tags={"Follows"},
      * summary="Unfollow a user",
      * description="Deletes an existing follow relationship.",
      * security={{"bearerAuth":{}}},

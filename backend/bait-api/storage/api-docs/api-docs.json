@@ -1,8 +1,8 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Bait Social Media API",
-        "description": "Documentación de la API para la red social Bait",
+        "title": "API in Laravel",
+        "description": "API documentation with Swagger in Laravel",
         "version": "1.0.0"
     },
     "servers": [
@@ -2441,6 +2441,515 @@
                     }
                 ]
             }
+        },
+        "/api/chats": {
+            "get": {
+                "tags": [
+                    "Chats"
+                ],
+                "summary": "List all chats for the authenticated user",
+                "description": "Retrieves a list of chats where the authenticated user is a participant.",
+                "operationId": "getUserChats",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ChatSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Chats"
+                ],
+                "summary": "Create a new chat",
+                "description": "Creates a new chat and adds the authenticated user and specified participants.",
+                "operationId": "createChat",
+                "requestBody": {
+                    "description": "Array of participant user IDs to include in the chat.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "participants"
+                                ],
+                                "properties": {
+                                    "participants": {
+                                        "description": "An array of user IDs.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Chat created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/chats/{chat}": {
+            "get": {
+                "tags": [
+                    "Chats"
+                ],
+                "summary": "Get details of a specific chat",
+                "description": "Retrieves the details of a single chat, including participants and messages. Authenticated user must be a participant.",
+                "operationId": "getChatById",
+                "parameters": [
+                    {
+                        "name": "chat",
+                        "in": "path",
+                        "description": "The ID of the chat.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not a participant of this chat"
+                    },
+                    "404": {
+                        "description": "Chat not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/follows": {
+            "post": {
+                "tags": [
+                    "Follows"
+                ],
+                "summary": "Follow another user",
+                "description": "Creates a new follow relationship from the authenticated user to another user.",
+                "operationId": "followUser",
+                "requestBody": {
+                    "description": "Pass the ID of the user to follow.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "following_id"
+                                ],
+                                "properties": {
+                                    "following_id": {
+                                        "description": "The ID of the user to be followed.",
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Follow relationship created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FollowSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "409": {
+                        "description": "Conflict - Already following this user"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity (e.g., trying to follow oneself, validation error)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Follows"
+                ],
+                "summary": "Unfollow a user",
+                "description": "Deletes an existing follow relationship.",
+                "operationId": "unfollowUser",
+                "requestBody": {
+                    "description": "Pass the ID of the user to unfollow.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "following_id"
+                                ],
+                                "properties": {
+                                    "following_id": {
+                                        "description": "The ID of the user to be unfollowed.",
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful operation. No content."
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Not Found - The follow relationship does not exist"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/chats/{chat}/messages": {
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "List messages in a specific chat",
+                "description": "Retrieves a paginated list of messages for a given chat. The authenticated user must be a participant of the chat.",
+                "operationId": "getChatMessages",
+                "parameters": [
+                    {
+                        "name": "chat",
+                        "in": "path",
+                        "description": "The ID of the chat.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MessageSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not a participant of this chat"
+                    },
+                    "404": {
+                        "description": "Chat not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a new message to a chat",
+                "description": "Creates and broadcasts a new message in a chat. The authenticated user must be a participant of the chat.",
+                "operationId": "sendMessageToChat",
+                "parameters": [
+                    {
+                        "name": "chat",
+                        "in": "path",
+                        "description": "The ID of the chat where the message will be sent.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "The content of the message.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content_messages"
+                                ],
+                                "properties": {
+                                    "content_messages": {
+                                        "type": "string",
+                                        "maxLength": 1000,
+                                        "example": "This is a test message."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Message created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not a participant of this chat"
+                    },
+                    "404": {
+                        "description": "Chat not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List all notifications for the authenticated user",
+                "description": "Retrieves a list of all notifications for the currently authenticated user.",
+                "operationId": "getUserNotifications",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/NotificationSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/{notification}": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get a single notification by ID",
+                "description": "Retrieves the details of a single notification. The user must be the owner of the notification.",
+                "operationId": "getNotificationById",
+                "parameters": [
+                    {
+                        "name": "notification",
+                        "in": "path",
+                        "description": "The ID of the notification.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not own this notification"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark a notification as read",
+                "description": "Updates the status of a notification, typically to mark it as read. The user must be the owner of the notification.",
+                "operationId": "updateNotification",
+                "parameters": [
+                    {
+                        "name": "notification",
+                        "in": "path",
+                        "description": "The ID of the notification.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Boolean status to mark the notification as read.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "is_read"
+                                ],
+                                "properties": {
+                                    "is_read": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Notification updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not own this notification"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -2479,6 +2988,40 @@
                         "type": "string",
                         "format": "url",
                         "example": "https://example.com/storage/banners/banner1.jpg"
+                    }
+                },
+                "type": "object"
+            },
+            "ChatSchema": {
+                "title": "Chat Schema",
+                "description": "Represents a chat conversation between users.",
+                "properties": {
+                    "id": {
+                        "description": "The chat's unique identifier.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "participants": {
+                        "description": "List of users participating in the chat.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserSchema"
+                        }
+                    },
+                    "last_message": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/MessageSchema"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "The most recent message in the chat."
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the chat was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T10:00:00.000000Z"
                     }
                 },
                 "type": "object"
@@ -2522,6 +3065,56 @@
                 },
                 "type": "object"
             },
+            "FollowSchema": {
+                "title": "Follow Schema",
+                "description": "Represents a follow relationship between two users.",
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier for the follow relationship.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "follower": {
+                        "$ref": "#/components/schemas/UserSchema"
+                    },
+                    "following": {
+                        "$ref": "#/components/schemas/UserSchema"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the follow action occurred.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-04T16:28:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "MessageSchema": {
+                "title": "Message Schema",
+                "description": "Represents a message within a chat.",
+                "properties": {
+                    "id": {
+                        "description": "The message's unique identifier.",
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "content_messages": {
+                        "description": "The text content of the message.",
+                        "type": "string",
+                        "example": "Hello, how are you?"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserSchema"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the message was sent.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T12:30:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
             "MultimediaContentSchema": {
                 "title": "Multimedia Content",
                 "required": [
@@ -2556,6 +3149,43 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2025-10-06T10:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "NotificationSchema": {
+                "title": "Notification Schema",
+                "description": "Represents a user notification.",
+                "properties": {
+                    "id": {
+                        "description": "The notification's unique identifier.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "9a7c132-45a6-41a7-9385-4f39b3385890"
+                    },
+                    "type": {
+                        "description": "The type of notification.",
+                        "type": "string",
+                        "example": "App\\\\Notifications\\\\NewFollowNotification"
+                    },
+                    "content": {
+                        "description": "The data associated with the notification.",
+                        "type": "object",
+                        "example": {
+                            "follower_name": "John Doe",
+                            "message": "John Doe is now following you."
+                        }
+                    },
+                    "is_read": {
+                        "description": "Indicates if the notification has been read.",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the notification was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T18:45:00.000000Z"
                     }
                 },
                 "type": "object"
@@ -2807,6 +3437,187 @@
                     }
                 },
                 "type": "object"
+            },
+            "UserResource": {
+                "title": "User Schema",
+                "description": "Represents a user in the system.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "role": {
+                        "description": "User's role information",
+                        "type": "object"
+                    },
+                    "state": {
+                        "description": "User's account state",
+                        "type": "object"
+                    },
+                    "avatar": {
+                        "description": "User's avatar information",
+                        "type": "object"
+                    },
+                    "banner": {
+                        "description": "User's profile banner information",
+                        "type": "object"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-04T16:28:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-04T16:30:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ChatResource": {
+                "title": "Chat Schema",
+                "description": "Represents a chat conversation.",
+                "properties": {
+                    "id": {
+                        "description": "The chat's unique identifier.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "participants": {
+                        "description": "List of users participating in the chat.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserResource"
+                        }
+                    },
+                    "last_message": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/MessageResource"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "The most recent message in the chat."
+                    },
+                    "messages": {
+                        "description": "A collection of messages in the chat (often included in detailed views).",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MessageResource"
+                        }
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the chat was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T10:00:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "FollowResource": {
+                "title": "Follow Schema",
+                "description": "Represents a follow relationship between two users.",
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier for the follow relationship.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "follower": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "following": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the follow action occurred.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-04T16:28:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "MessageResource": {
+                "title": "Message Schema",
+                "description": "Represents a message within a chat.",
+                "properties": {
+                    "id": {
+                        "description": "The message's unique identifier.",
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "content_messages": {
+                        "description": "The text content of the message.",
+                        "type": "string",
+                        "example": "Hello, how are you?"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the message was sent.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T12:30:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "NotificationResource": {
+                "title": "Notification Schema",
+                "description": "Represents a user notification.",
+                "properties": {
+                    "id": {
+                        "description": "The notification's unique identifier.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "9a7c132-45a6-41a7-9385-4f39b3385890"
+                    },
+                    "type": {
+                        "description": "The type of notification.",
+                        "type": "string",
+                        "example": "App\\Notifications\\NewFollowNotification"
+                    },
+                    "content": {
+                        "description": "The data associated with the notification.",
+                        "type": "object",
+                        "example": {
+                            "follower_name": "John Doe",
+                            "message": "John Doe is now following you."
+                        }
+                    },
+                    "is_read": {
+                        "description": "Indicates if the notification has been read.",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the notification was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T18:45:00.000000Z"
+                    }
+                },
+                "type": "object"
             }
         },
         "responses": {
@@ -2867,6 +3678,18 @@
         {
             "name": "User Management",
             "description": "Privileged"
+        },
+        {
+            "name": "Chats"
+        },
+        {
+            "name": "Follows"
+        },
+        {
+            "name": "Messages"
+        },
+        {
+            "name": "Notifications"
         }
     ]
 }
