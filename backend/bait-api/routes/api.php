@@ -41,7 +41,7 @@ Route::prefix('auth')->group(function () {
     Route::post('login',    [AuthController::class, 'login'])->name('auth.login');
     Route::post('refresh',  [AuthController::class, 'refresh'])->middleware('auth:api')->name('auth.refresh');
     Route::post('logout',   [AuthController::class, 'logout'])->middleware('auth:api')->name('auth.logout');
-    Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me');
+    #Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me');
 });
 
 Route::prefix('/privileged/users/{user}')->middleware(['auth:api'])->group(function () {
