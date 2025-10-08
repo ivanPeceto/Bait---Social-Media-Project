@@ -30,7 +30,7 @@ class Post extends Model
     public function comments(): HasMany 
     {
         return $this->hasMany(Comment::class);
-
+    }
     /**
      * Get the multimedia contents for the post.
      */
