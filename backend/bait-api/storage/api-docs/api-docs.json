@@ -313,31 +313,28 @@
                 "tags": [
                     "Multimedia Content"
                 ],
-                "summary": "Attach multimedia to a post",
-                "description": "Creates a multimedia content item (image/video) and links it to a post created by the authenticated user.",
+                "summary": "Upload and attach multimedia to a post",
+                "description": "Uploads a file (image/video) and links it to a post.",
                 "operationId": "f9d88d3d79b6a7a71c4a8e9b4153b72d",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "url_multimedia_contents",
-                                    "type_multimedia_contents",
+                                    "file",
                                     "post_id"
                                 ],
                                 "properties": {
-                                    "url_multimedia_contents": {
+                                    "file": {
+                                        "description": "The image or video file to upload.",
                                         "type": "string",
-                                        "example": "uploads/posts/media123.jpg"
-                                    },
-                                    "type_multimedia_contents": {
-                                        "type": "string",
-                                        "example": "image"
+                                        "format": "binary"
                                     },
                                     "post_id": {
+                                        "description": "The ID of the post to attach the media to.",
                                         "type": "integer",
-                                        "example": 10
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -347,7 +344,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Multimedia content created and linked to post",
+                        "description": "Multimedia uploaded and linked successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -356,11 +353,11 @@
                             }
                         }
                     },
-                    "403": {
-                        "description": "Unauthorized - only post creator can attach multimedia"
-                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation Error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
