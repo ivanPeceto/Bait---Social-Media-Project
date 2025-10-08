@@ -12,32 +12,6 @@ use Illuminate\Http\JsonResponse;
 class PostController extends Controller
 {
     /**
-     * @OA\Get(
-     *     path="/api/posts",
-     *     summary="List all posts",
-     *     description="Returns a list of all posts with associated user info.",
-     *     tags={"Posts"},
-     *     security={{"bearerAuth":{}}},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of posts returned successfully",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/PostSchema")
-     *         )
-     *     )
-     * )
-     */
-
-    public function index(): JsonResponse
-    {
-        $posts = Post::with('user')->get();
-        return response()->json(PostResource::collection($posts));
-    }
-
-
-    /**
      * @OA\Post(
      *     path="/api/posts",
      *     summary="Create a new post",
@@ -59,12 +33,16 @@ class PostController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/PostSchema")
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
+     *     @OA\Response(
      *         response=422,
      *         description="Validation error"
      *     )
      * )
      */
-    
+
     public function store(CreatePostRequest $request): JsonResponse
     {
         $post = Post::create([
@@ -73,6 +51,36 @@ class PostController extends Controller
         ]);
 
         return response()->json(new PostResource($post), 201);
+    }
+
+    
+    /**
+     * @OA\Get(
+     *     path="/api/posts",
+     *     summary="List all posts",
+     *     description="Returns a list of all posts with associated user info.",
+     *     tags={"Posts"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of posts returned successfully",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/PostSchema")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     )
+     * )
+     */
+    
+    public function index(): JsonResponse
+    {
+        $posts = Post::with('user')->get();
+        return response()->json(PostResource::collection($posts));
     }
 
 
@@ -89,13 +97,17 @@ class PostController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the post",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
      *         response=200,
      *         description="Post retrieved successfully",
      *         @OA\JsonContent(ref="#/components/schemas/PostSchema")
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -109,7 +121,7 @@ class PostController extends Controller
         return response()->json(new PostResource($post));
     }
 
-    
+
     /**
      * @OA\Put(
      *     path="/api/posts/{post}",
@@ -123,7 +135,7 @@ class PostController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the post",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\RequestBody(
@@ -138,6 +150,10 @@ class PostController extends Controller
      *         response=200,
      *         description="Post updated successfully",
      *         @OA\JsonContent(ref="#/components/schemas/PostSchema")
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     ),
      *     @OA\Response(
      *         response=403,
@@ -174,12 +190,16 @@ class PostController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the post",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer",example=1)
      *     ),
      *
      *     @OA\Response(
      *         response=204,
      *         description="Post deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     ),
      *     @OA\Response(
      *         response=403,
@@ -197,7 +217,7 @@ class PostController extends Controller
         if (auth()->id() !== $post->user_id){
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
-        
+
         $post->delete();
         return response()->json(null, 204);
     }

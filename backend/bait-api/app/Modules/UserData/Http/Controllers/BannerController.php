@@ -47,7 +47,7 @@ class BannerController extends Controller
      *     ),
      *
      *     @OA\Response(
-     *         response=200,
+     *         response=201,
      *         description="Successfully uploaded banner",
      *         @OA\JsonContent(ref="#/components/schemas/BannerSchema")
      *     ),
@@ -73,11 +73,6 @@ class BannerController extends Controller
         /** @var User $user */
         $user = $this->guard->user();
 
-        if ($user->banner) {
-            Storage::disk('public')->delete($user->banner->url_banners);
-            $user->banner->delete();
-        }
-
         $banner = Banner::create([ 
             'url_banners' => $path, 
         ]);
@@ -97,18 +92,25 @@ class BannerController extends Controller
      *     description="Returns a single banner resource by ID",
      *     tags={"Banner"},
      *
+     *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="banner",
      *         in="path",
      *         required=true,
      *         description="ID of the banner to retrieve",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=2)
      *     ),
      *
      *     @OA\Response(
      *         response=200,
      *         description="Banner retrieved successfully",
      *         @OA\JsonContent(ref="#/components/schemas/BannerSchema")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid token"
      *     ),
      *
      *     @OA\Response(
@@ -121,6 +123,7 @@ class BannerController extends Controller
     {
         return new BannerResource($banner);
     }
+
 
 
     /**
@@ -153,19 +156,20 @@ class BannerController extends Controller
 
     public function destroySelf(): JsonResponse
     {
-        /** @var User $user */
-        $user = $this->guard->user();
+        $user = auth()->user();
 
+        // Luego destruimos el banner anterior (que estaba asociado al usuario)
         $this->destroyForUser($user);
 
         return response()->json(['message' => 'Banner destroyed. Replaced with default.'], 200);
     }
+
     
 
     /**
      * @OA\Delete(
      *     path="/api/privileged/users/{user}/banner",
-     *     summary="Delete a specific user's banner (admin/moderator only)",
+     *     summary="Delete a specific user's banner",
      *     description="Deletes the specified user's banner and replaces it with the default banner. Only accessible to admins or moderators.",
      *     tags={"User Management"},
      *     security={{"bearerAuth":{}}},
@@ -175,7 +179,7 @@ class BannerController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the user whose banner will be deleted",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=2)
      *     ),
      *
      *     @OA\Response(
@@ -206,17 +210,18 @@ class BannerController extends Controller
     public function destroyUserBanner(User $user): JsonResponse 
     {
         $this->destroyForUser($user);
+        $user->refresh();
 
         return response()->json([
             'message' => "Banner for user {$user->username} destroyed. Replaced with default."
         ], 200);
     }
-
+    
     private function destroyForUser(User $user): void
     {
         $defaultBanner = Banner::where('url_banners', 'banners/default.jpg')->firstOrFail();
 
-        if ($user->banner && $user->banner_id !== $defaultBanner->id) {
+        if($user->banner && $user->banner_id !== $defaultBanner->id){
             $temp = $user->banner;
             $user->update(['banner_id' => $defaultBanner->id]);
 

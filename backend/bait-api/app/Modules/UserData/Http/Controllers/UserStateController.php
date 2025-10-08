@@ -29,9 +29,14 @@ class UserStateController extends Controller
      *             type="array",
      *             @OA\Items(ref="#/components/schemas/UserStateSchema")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     )
      * )
      */
+
     public function index(): JsonResource
     {
         $states = UserState::all();
@@ -51,7 +56,7 @@ class UserStateController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name"},
-     *             @OA\Property(property="name", type="string", example="active")
+     *             @OA\Property(property="name", type="string", example="muted")
      *         )
      *     ),
      *
@@ -60,20 +65,24 @@ class UserStateController extends Controller
      *         description="State created successfully",
      *         @OA\JsonContent(ref="#/components/schemas/UserStateSchema")
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error"
      *     )
      * )
      */
+
     public function create(CreateStateRequest $request): UserStateResource
     {
         $state = UserState::create($request->validated());
 
         return new UserStateResource($state);
     }
-
+    
 
     /**
      * @OA\Put(
@@ -88,7 +97,7 @@ class UserStateController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the state to update",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=4)
      *     ),
      *
      *     @OA\RequestBody(
@@ -104,18 +113,21 @@ class UserStateController extends Controller
      *         description="State updated successfully",
      *         @OA\JsonContent(ref="#/components/schemas/UserStateSchema")
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="State not found"
      *     ),
-     *
      *     @OA\Response(
      *         response=422,
      *         description="Validation error"
      *     )
      * )
      */
+
     public function update(UpdateStateRequest $request, UserState $state): UserStateResource
     {
         $state->update($request->validated());
@@ -137,20 +149,24 @@ class UserStateController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the state to delete",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=4)
      *     ),
      *
      *     @OA\Response(
      *         response=204,
      *         description="State deleted successfully"
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="State not found"
      *     )
      * )
      */
+
     public function destroy(DeleteStateRequest $request, UserState $state): Response
     {
         $state->delete();

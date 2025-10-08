@@ -48,7 +48,7 @@ class ProfileController extends Controller
      * @OA\Put(
      *     path="/api/profile/update",
      *     summary="Update the authenticated user's profile",
-     *     description="Updates the authenticated user's profile fields. Only fields allowed by validation will be updated.",
+     *     description="Updates the authenticated user's profile. Only 'name', 'username', and 'email' can be changed.",
      *     tags={"Profile"},
      *     security={{"bearerAuth":{}}},
      *
@@ -56,15 +56,9 @@ class ProfileController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="username", type="string", example="johndoe"),
-     *             @OA\Property(property="name", type="string", example="John Doe"),
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
-     *             @OA\Property(
-     *                 property="state_id",
-     *                 type="integer",
-     *                 example=2,
-     *                 description="ID of the new state to assign to the user"
-     *             )
+     *             @OA\Property(property="username", type="string", example="SuperAdmin"),
+     *             @OA\Property(property="name", type="string", example="Super Admin"),
+     *             @OA\Property(property="email", type="string", format="email", example="superadmin@example.com"),
      *         )
      *     ),
      *
@@ -113,21 +107,21 @@ class ProfileController extends Controller
      *                 property="current_password",
      *                 type="string",
      *                 format="password",
-     *                 example="secret123",
+     *                 example="admin123",
      *                 description="The user's current password"
      *             ),
      *             @OA\Property(
      *                 property="new_password",
      *                 type="string",
      *                 format="password",
-     *                 example="secret456",
+     *                 example="superadmin123",
      *                 description="The new password the user wants to set"
      *             ),
      *             @OA\Property(
      *                 property="new_password_confirmation",
      *                 type="string",
      *                 format="password",
-     *                 example="secret456",
+     *                 example="superadmin123",
      *                 description="Confirmation of the new password"
      *             )
      *         )
@@ -174,7 +168,7 @@ class ProfileController extends Controller
     /**
      * @OA\Put(
      *     path="/api/privileged/users/{user}/update",
-     *     summary="Update a user's profile (admin/moderator only)",
+     *     summary="Update a user's profile",
      *     description="Allows admins and moderators to update a user's profile. Moderators can only update limited fields (e.g., name).",
      *     tags={"User Management"},
      *     security={{"bearerAuth":{}}},
@@ -184,21 +178,27 @@ class ProfileController extends Controller
      *         in="path",
      *         description="ID of the user to update",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=2)
      *     ),
      *
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="username", type="string", example="johndoe"),
-     *             @OA\Property(property="name", type="string", example="John Doe"),
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="username", type="string", example="janedoe"),
+     *             @OA\Property(property="name", type="string", example="Jane Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
      *             @OA\Property(
      *                 property="state_id",
      *                 type="integer",
      *                 example=2,
      *                 description="ID of the new state for the user"
+     *             ),
+     *             @OA\Property(
+     *                 property="role_id",
+     *                 type="integer",
+     *                 example=2,
+     *                 description="ID of the new role for the user"
      *             )
      *         )
      *     ),
@@ -248,7 +248,7 @@ class ProfileController extends Controller
     /**
      * @OA\Put(
      *     path="/api/privileged/users/{user}/password",
-     *     summary="Change password for a specified user (admin/moderator only)",
+     *     summary="Change password for a specified user *ADMIN Only",
      *     description="Allows admins or moderators to update the password of a specified user.",
      *     tags={"User Management"},
      *     security={{"bearerAuth":{}}},
@@ -258,7 +258,7 @@ class ProfileController extends Controller
      *         in="path",
      *         description="ID of the user whose password is to be changed",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=2)
      *     ),
      * 
      *     @OA\RequestBody(

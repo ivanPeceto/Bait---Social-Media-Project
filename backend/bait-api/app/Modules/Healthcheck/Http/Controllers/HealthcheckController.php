@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 
 class HealthcheckController
 {
-    /**
+    /*
      * @OA\Get(
      *     path="/api/healthcheck",
      *     summary="Healthcheck Endpoint",
@@ -20,9 +20,9 @@ class HealthcheckController
      * )
      */
 
-    public function status(): JsonResponse
+    /* public function status(): JsonResponse
     {
         return response()->json(['status' => 'ok']);
-    }
+    } */
 }
 

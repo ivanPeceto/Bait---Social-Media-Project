@@ -31,17 +31,9 @@ use App\Modules\Healthcheck\Http\Controllers\PingController;
 
 /*Healthcheck routes*/
 
-Route::get('/healthcheck',     [HealthcheckController::class, 'status']);
-Route::get('/ping', [PingController::class, 'ping']);
+#Route::get('/healthcheck',  [HealthcheckController::class, 'status']);
+Route::get('/ping',        [PingController::class, 'ping']);
 
-/*
-Route::get('/', function () {
-    return response()->json(['status' => 'ok']);
-});
-
-Route::get('/ping', function () {
-    return response()->json(['status' => 'ok']);
-}); */
 /*----End Healthcheck routes--------------*/
 
 /*UserData routes*/
@@ -50,17 +42,25 @@ Route::prefix('auth')->group(function () {
     Route::post('login',    [AuthController::class, 'login'])->name('auth.login');
     Route::post('refresh',  [AuthController::class, 'refresh'])->middleware('auth:api')->name('auth.refresh');
     Route::post('logout',   [AuthController::class, 'logout'])->middleware('auth:api')->name('auth.logout');
-    Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me');
+    #Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me'); DEPRECATED
 });
 
-Route::prefix('privileged/users/{user}')->middleware(['auth:api'])->group(function () {
+Route::prefix('/privileged/users/{user}')->middleware(['auth:api'])->group(function () {
+    Route::post('/suspend', [UserManagementController::class, 'suspend'])
+        ->middleware('role:admin,moderator')
+        ->name('privileged.users.suspend');
+
+    Route::post('/activate', [UserManagementController::class, 'activate'])
+        ->middleware('role:admin,moderator')
+        ->name('privileged.users.activate');
+
     Route::put('/update',    [ProfileController::class, 'updateUser'])
         ->middleware('role:admin,moderator')
         ->name('privileged.users.update');
 
     Route::put('/password',  [ProfileController::class, 'changeUserPassword'])
         ->middleware('role:admin')
-        ->name('privileged.users.changePasswor');
+        ->name('privileged.users.changePassword');
 
     Route::delete('/avatar', [AvatarController::class, 'destroyUserAvatar'])
         ->middleware('role:admin,moderator')
@@ -69,14 +69,7 @@ Route::prefix('privileged/users/{user}')->middleware(['auth:api'])->group(functi
     Route::delete('/banner', [BannerController::class, 'destroyUserBanner'])
         ->middleware('role:admin,moderator')
         ->name('privileged.users.destroyBanner');
-
-    Route::post('/suspend', [UserManagementController::class, 'suspend'])
-        ->middleware('role:admin,moderator')
-        ->name('privileged.users.suspend');
-
-    Route::post('/activate', [UserManagementController::class, 'activate'])
-        ->middleware('role:admin,moderator')
-        ->name('privileged.users.activate');
+        
 });
 
 Route::middleware('auth:api')->prefix('profile')->group(function () {
@@ -86,15 +79,15 @@ Route::middleware('auth:api')->prefix('profile')->group(function () {
 });
 
 Route::prefix('roles')->middleware(['auth:api', 'role:admin'])->group(function () {
-    Route::get('/',          [UserRoleController::class, 'index'])->name('roles.index');
     Route::post('/',         [UserRoleController::class, 'create'])->name('roles.create');
+    Route::get('/',          [UserRoleController::class, 'index'])->name('roles.index');
     Route::put('/{role}',    [UserRoleController::class, 'update'])->name('roles.update');
     Route::delete('/{role}', [UserRoleController::class, 'destroy'])->name('roles.destroy');
 });
 
 Route::prefix('states')->middleware(['auth:api', 'role:admin'])->group(function () {
-    Route::get('/',           [UserStateController::class, 'index'])->name('states.index');
     Route::post('/',          [UserStateController::class, 'create'])->name('states.create');
+    Route::get('/',           [UserStateController::class, 'index'])->name('states.index');
     Route::put('/{state}',    [UserStateController::class, 'update'])->name('states.update');
     Route::delete('/{state}', [UserStateController::class, 'destroy'])->name('states.destroy');
 });
@@ -118,16 +111,16 @@ Route::prefix('banners')->middleware('auth:api')->group(function () {
 /*MultiMedia routes*/
 
 Route::middleware('auth:api')->prefix('posts')->group(function () {
-    Route::get('/',         [PostController::class, 'index'])->name('posts.');
     Route::post('/',        [PostController::class, 'store']);
+    Route::get('/',         [PostController::class, 'index'])->name('posts.');
     Route::get('/{post}',   [PostController::class, 'show']);
-    Route::patch('/{post}', [PostController::class, 'update']);
+    Route::put('/{post}', [PostController::class, 'update']);
     Route::delete('/{post}',[PostController::class, 'destroy']);
 });
 
 Route::middleware('auth:api')->prefix('comments')->group(function () {
-    Route::get('/',             [CommentController::class, 'index']);
     Route::post('/',            [CommentController::class, 'store']);
+    Route::get('/',             [CommentController::class, 'index']);
     Route::get('/{comment}',    [CommentController::class, 'show']);
     Route::put('/{comment}',    [CommentController::class, 'update']);
     Route::delete('/{comment}', [CommentController::class, 'destroy']);

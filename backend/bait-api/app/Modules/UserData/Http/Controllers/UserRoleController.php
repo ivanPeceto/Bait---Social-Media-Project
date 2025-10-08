@@ -29,6 +29,10 @@ class UserRoleController extends Controller
      *             type="array",
      *             @OA\Items(ref="#/components/schemas/UserRoleSchema")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     )
      * )
      */
@@ -61,7 +65,10 @@ class UserRoleController extends Controller
      *         description="Role created successfully",
      *         @OA\JsonContent(ref="#/components/schemas/UserRoleSchema")
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error"
@@ -89,7 +96,7 @@ class UserRoleController extends Controller
      *         in="path",
      *         description="ID of the role to update",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=4)
      *     ),
      *
      *     @OA\RequestBody(
@@ -105,12 +112,14 @@ class UserRoleController extends Controller
      *         description="Role updated successfully",
      *         @OA\JsonContent(ref="#/components/schemas/UserRoleSchema")
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Role not found"
      *     ),
-     *
      *     @OA\Response(
      *         response=422,
      *         description="Validation error"
@@ -121,7 +130,7 @@ class UserRoleController extends Controller
     public function update(UpdateRoleRequest $request, UserRole $role): UserRoleResource
     {
         $role->update($request->validated());
-        
+
         return new UserRoleResource($role);
     }
 
@@ -139,14 +148,17 @@ class UserRoleController extends Controller
      *         in="path",
      *         description="ID of the role to delete",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=4)
      *     ),
      *
      *     @OA\Response(
      *         response=204,
      *         description="Role deleted successfully"
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Role not found"

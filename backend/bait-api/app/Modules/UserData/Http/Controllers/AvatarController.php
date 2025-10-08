@@ -37,7 +37,7 @@ class AvatarController extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=200,
+     *         response=201,
      *         description="Avatar uploaded successfully",
      *         @OA\JsonContent(ref="#/components/schemas/AvatarSchema")
      *     ),
@@ -60,10 +60,8 @@ class AvatarController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar->url_avatars);
-            $user->avatar->delete();
-        }
+        // No eliminamos el archivo anterior ni el registro en DB
+        // Solo creamos uno nuevo y lo asociamos al usuario
 
         $avatar = Avatar::create([
             'url_avatars' => $path,
@@ -84,18 +82,28 @@ class AvatarController extends Controller
      *     description="Returns a single avatar resource by ID",
      *     tags={"Avatar"},
      *
+     *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="avatar",
      *         in="path",
      *         required=true,
      *         description="ID of the avatar to retrieve",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=2)
      *     ),
      *
      *     @OA\Response(
      *         response=200,
      *         description="Successful response",
      *         @OA\JsonContent(ref="#/components/schemas/AvatarSchema")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - JWT token missing or invalid",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
      *     ),
      *
      *     @OA\Response(
@@ -108,7 +116,6 @@ class AvatarController extends Controller
     {
         return new AvatarResource($avatar);
     }
-
 
 
     /**
@@ -150,8 +157,8 @@ class AvatarController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="api/privileged/users/{user}/avatar",
-     *     summary="Delete avatar for a specified user (admin/moderator only)",
+     *     path="/api/privileged/users/{user}/avatar",
+     *     summary="Delete avatar for a specified user",
      *     description="Deletes the avatar for the given user and replaces it with a default avatar.",
      *     tags={"User Management"},
      * 
@@ -162,7 +169,7 @@ class AvatarController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the user whose avatar will be deleted",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=2)
      *     ),
      * 
      *     @OA\Response(
@@ -179,6 +186,19 @@ class AvatarController extends Controller
      *     ),
      * 
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Cannot delete the default avatar",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Cannot delete the default avatar."
+     *             )
+     *         )
+     *     ),
+     * 
+     *     @OA\Response(
      *         response=403,
      *         description="Forbidden - user does not have permission"
      *     ),
@@ -189,12 +209,16 @@ class AvatarController extends Controller
      *     )
      * )
      */
+
     public function destroyUserAvatar(User $user): JsonResponse
     {
         $this->destroyForUser($user);
 
-        return response()->json(['message' => "Avatar for user {$user->username} destroyed. Replaced with default."], 200);
+        return response()->json([
+            'message' => "Avatar for user {$user->username} destroyed. Replaced with default."
+        ], 200);
     }
+
 
 
     private function destroyForUser(User $user): void

@@ -13,54 +13,58 @@ class NotificationController extends Controller
 {
     /**
      * @OA\Get(
-     * path="/api/notifications",
-     * operationId="getUserNotifications",
-     * tags={"Notifications"},
-     * summary="List all notifications for the authenticated user",
-     * description="Retrieves a list of all notifications for the currently authenticated user.",
-     * security={{"bearerAuth":{}}},
-     * @OA\Response(
-     * response=200,
-     * description="Successful operation",
-     * @OA\JsonContent(
-     * type="array",
-     * @OA\Items(ref="#/components/schemas/NotificationSchema")
-     * )
-     * ),
-     * @OA\Response(response=401, description="Unauthenticated")
+     *     path="/api/notifications",
+     *     operationId="getUserNotifications",
+     *     tags={"Notifications"},
+     *     summary="List all notifications for the authenticated user",
+     *     description="Retrieves a list of all notifications for the currently authenticated user.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/NotificationSchema")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthenticated")
      * )
      */
+
     public function index(): AnonymousResourceCollection|JsonResponse
     {
         $notifications = auth()->user()->notifications()->get();
+
         return NotificationResource::collection($notifications);
     }
 
+
     /**
      * @OA\Get(
-     * path="/api/notifications/{notification}",
-     * operationId="getNotificationById",
-     * tags={"Notifications"},
-     * summary="Get a single notification by ID",
-     * description="Retrieves the details of a single notification. The user must be the owner of the notification.",
-     * security={{"bearerAuth":{}}},
-     * @OA\Parameter(
-     * name="notification",
-     * in="path",
-     * required=true,
-     * description="The ID of the notification.",
-     * @OA\Schema(type="string", format="uuid")
-     * ),
-     * @OA\Response(
-     * response=200,
-     * description="Successful operation",
-     * @OA\JsonContent(ref="#/components/schemas/NotificationSchema")
-     * ),
-     * @OA\Response(response=401, description="Unauthenticated"),
-     * @OA\Response(response=403, description="Forbidden - User does not own this notification"),
-     * @OA\Response(response=404, description="Notification not found")
+     *     path="/api/notifications/{notification}",
+     *     operationId="getNotificationById",
+     *     tags={"Notifications"},
+     *     summary="Get a single notification by ID",
+     *     description="Retrieves the details of a single notification. The user must be the owner of the notification.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="notification",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the notification.",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/NotificationSchema")
+     *     ),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden - User does not own this notification"),
+     *     @OA\Response(response=404, description="Notification not found")
      * )
      */
+
     public function show(Notification $notification): NotificationResource|JsonResponse
     {
         if (auth()->id() !== $notification->notifiable_id) {
@@ -70,40 +74,46 @@ class NotificationController extends Controller
         return new NotificationResource($notification);
     }
 
+
     /**
      * @OA\Put(
-     * path="/api/notifications/{notification}",
-     * operationId="updateNotification",
-     * tags={"Notifications"},
-     * summary="Mark a notification as read",
-     * description="Updates the status of a notification, typically to mark it as read. The user must be the owner of the notification.",
-     * security={{"bearerAuth":{}}},
-     * @OA\Parameter(
-     * name="notification",
-     * in="path",
-     * required=true,
-     * description="The ID of the notification.",
-     * @OA\Schema(type="string", format="uuid")
-     * ),
-     * @OA\RequestBody(
-     * required=true,
-     * description="Boolean status to mark the notification as read.",
-     * @OA\JsonContent(
-     * required={"is_read"},
-     * @OA\Property(property="is_read", type="boolean", example=true)
-     * )
-     * ),
-     * @OA\Response(
-     * response=200,
-     * description="Notification updated successfully",
-     * @OA\JsonContent(ref="#/components/schemas/NotificationSchema")
-     * ),
-     * @OA\Response(response=401, description="Unauthenticated"),
-     * @OA\Response(response=403, description="Forbidden - User does not own this notification"),
-     * @OA\Response(response=404, description="Notification not found"),
-     * @OA\Response(response=422, description="Validation error")
+     *     path="/api/notifications/{notification}",
+     *     operationId="updateNotification",
+     *     tags={"Notifications"},
+     *     summary="Mark a notification as read",
+     *     description="Updates the status of a notification, typically to mark it as read. The user must be the owner of the notification.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="notification",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the notification.",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Boolean status to mark the notification as read.",
+     *         @OA\JsonContent(
+     *             required={"is_read"},
+     *             @OA\Property(
+     *                 property="is_read",
+     *                 type="boolean",
+     *                 example=true
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Notification updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/NotificationSchema")
+     *     ),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden - User does not own this notification"),
+     *     @OA\Response(response=404, description="Notification not found"),
+     *     @OA\Response(response=422, description="Validation error")
      * )
      */
+
     public function update(UpdateNotificationRequest $request, Notification $notification): NotificationResource|JsonResponse
     {
         if (auth()->id() !== $notification->notifiable_id) {
@@ -116,4 +126,5 @@ class NotificationController extends Controller
 
         return new NotificationResource($notification);
     }
+
 }

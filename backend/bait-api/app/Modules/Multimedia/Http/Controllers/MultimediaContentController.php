@@ -23,9 +23,9 @@ class MultimediaContentController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"url_multimedia_contents", "type_multimedia_contents", "post_id"},
-     *             @OA\Property(property="url_multimedia_contents", type="string", example="uploads/posts/media123.jpg"),
+     *             @OA\Property(property="url_multimedia_contents", type="string", example="https://msmk.university/wp-content/uploads/2025/05/byte-1-e1539273122454.jpg"),
      *             @OA\Property(property="type_multimedia_contents", type="string", example="image"),
-     *             @OA\Property(property="post_id", type="integer", example=10)
+     *             @OA\Property(property="post_id", type="integer", example=1)
      *         )
      *     ),
      *
@@ -33,6 +33,11 @@ class MultimediaContentController extends Controller
      *         response=201,
      *         description="Multimedia content created and linked to post",
      *         @OA\JsonContent(ref="#/components/schemas/MultimediaContentSchema")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     ),
      *
      *     @OA\Response(
@@ -78,12 +83,17 @@ class MultimediaContentController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the multimedia content to delete",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
      *         response=204,
      *         description="Multimedia content deleted"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     ),
      *
      *     @OA\Response(

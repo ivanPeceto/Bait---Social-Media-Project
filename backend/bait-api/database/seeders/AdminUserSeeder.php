@@ -1,0 +1,36 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use App\Modules\UserData\Domain\Models\User;
+use Illuminate\Support\Str;
+
+class AdminUserSeeder extends Seeder
+{
+    public function run()
+    {
+        $admin = User::where('email', 'admin@example.com')->first();
+
+        if (!$admin) {
+            DB::table('users')->insert([
+                'id' => 1,
+                'username' => 'admin',
+                'name' => 'admin',
+                'email' => 'admin@example.com',
+                'email_verified_at' => now(),
+                'password' => bcrypt('admin123'),
+                'remember_token' => Str::random(10),
+                'role_id' => 3,
+                'state_id' => 1,
+                'avatar_id' => 1,
+                'banner_id' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } else {
+            $this->command->info('Admin user already exists.');
+        }
+    }
+}
