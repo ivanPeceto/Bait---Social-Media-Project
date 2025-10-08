@@ -6,6 +6,8 @@ use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Notifications\Notification;
+use App\Notifications\Channels\CustomDatabaseChannel;
+
 
 class NewFollowNotification extends Notification implements ShouldBroadcast
 {
@@ -24,17 +26,19 @@ class NewFollowNotification extends Notification implements ShouldBroadcast
      *
      * @return array<int, string>
      */
+
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast'];
+        return [CustomDatabaseChannel::class, 'broadcast'];
     }
+
 
     /**
      * Get the array representation of the notification.
      *
      * @return array<string, mixed>
      */
-    public function toDatabase(object $notifiable): array
+    public function toCustomDatabase(object $notifiable): array
     {
         return [
             'type_notifications' => 'new_follower',

@@ -26,7 +26,7 @@ class MessageController extends Controller
      *         in="path",
      *         required=true,
      *         description="The ID of the chat where the message will be sent.",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *     @OA\RequestBody(
      *         required=true,
@@ -86,7 +86,7 @@ class MessageController extends Controller
      *         in="path",
      *         required=true,
      *         description="The ID of the chat.",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *     @OA\Response(
      *         response=200,

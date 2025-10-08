@@ -28,7 +28,7 @@ class FollowController extends Controller
      *             @OA\Property(
      *                 property="following_id",
      *                 type="integer",
-     *                 example=2,
+     *                 example=1,
      *                 description="The ID of the user to be followed."
      *             )
      *         )
@@ -92,7 +92,7 @@ class FollowController extends Controller
      *             @OA\Property(
      *                 property="following_id",
      *                 type="integer",
-     *                 example=2,
+     *                 example=1,
      *                 description="The ID of the user to be unfollowed."
      *             )
      *         )

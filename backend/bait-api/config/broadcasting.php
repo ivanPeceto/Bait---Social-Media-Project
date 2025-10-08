@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('BROADCAST_CONNECTION', 'null'),
+    'default' => env('BROADCAST_CONNECTION', 'reverb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -46,7 +46,7 @@ return [
             ],
         ],
 
-        'pusher' => [
+        /* 'pusher' => [
             'driver' => 'pusher',
             'key' => env('PUSHER_APP_KEY', 'dummy'),
             'secret' => env('PUSHER_APP_SECRET', 'dummy'),
@@ -62,7 +62,7 @@ return [
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
             ],
-        ],
+        ], */
 
         'ably' => [
             'driver' => 'ably',

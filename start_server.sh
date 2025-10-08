@@ -18,6 +18,7 @@ show_help() {
     echo "  --build        Rebuilds images before starting."
     echo "  --clean        Stops and removes containers AND volumes (destroys databases)."
     echo "  --migrate      Runs Laravel database migrations."
+    echo "  --init-api     Inicializa Laravel solo en servicios API (requiere --api)."
     echo ""
     echo "SPECIAL COMBINATIONS:"
     echo "  --clean --build  Full reset, rebuild, and automatic migrations."
@@ -103,6 +104,7 @@ BUILD_FLAG=false
 CLEAN_FLAG=false
 MIGRATE_FLAG=false
 STOP_FLAG=false
+INIT_API=false
 SERVICES=""
 
 for arg in "$@"
@@ -126,6 +128,10 @@ do
             ;;
         --stop)
             STOP_FLAG=true
+            shift
+            ;;
+        --init-api)
+            INIT_API=true
             shift
             ;;
         --api)
@@ -214,6 +220,9 @@ if [ "$MIGRATE_FLAG" = true ]; then
     run_migrations
 fi
 
-initialize_laravel_backend
+# --- Init Laravel Backend if flag is set and service is API ---
+if [ "$INIT_API" = true ] && [ "$SERVICES" = "backend mysql mysql_test phpmyadmin" ]; then
+    initialize_laravel_backend
+fi
 
-echo -e "${GREEN} Server is running in background. Ports: Backend (8000), Frontend (4200).${NC}"
+echo -e "${GREEN} Server is running in background. Ports: Backend (8000), Front

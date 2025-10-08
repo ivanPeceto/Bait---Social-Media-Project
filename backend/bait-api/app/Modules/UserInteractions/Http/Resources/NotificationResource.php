@@ -19,22 +19,17 @@ use App\Modules\UserData\Http\Resources\UserResource;
  * @OA\Property(property="created_at", type="string", format="date-time", description="Timestamp when the notification was created.", example="2025-10-05T18:45:00.000000Z")
  * )
  */
+
 class NotificationResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(Request $request): array
+    public function toArray($request)
     {
         return [
             'id' => $this->id,
-            'type' => $this->type,
-            'content' => $this->data,
-            'is_read' => ($this->read_at !== null),
-            'user' => new UserResource($this->whenLoaded('notifiable')),
-            'created_at' => $this->created_at,
+            'type' => $this->type_notifications,
+            'content' => json_decode($this->content_notifications, true),
+            'is_read_notifications' => (bool) $this->is_read_notifications,
+            'created_at' => $this->created_at->toIso8601String(),
         ];
     }
 }

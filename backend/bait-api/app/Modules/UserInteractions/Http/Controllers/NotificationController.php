@@ -52,7 +52,7 @@ class NotificationController extends Controller
      *         in="path",
      *         required=true,
      *         description="The ID of the notification.",
-     *         @OA\Schema(type="string", format="uuid")
+     *         @OA\Schema(type="string", example=1)
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -88,7 +88,7 @@ class NotificationController extends Controller
      *         in="path",
      *         required=true,
      *         description="The ID of the notification.",
-     *         @OA\Schema(type="string", format="uuid")
+     *         @OA\Schema(type="string", example=1)
      *     ),
      *     @OA\RequestBody(
      *         required=true,
@@ -96,7 +96,7 @@ class NotificationController extends Controller
      *         @OA\JsonContent(
      *             required={"is_read"},
      *             @OA\Property(
-     *                 property="is_read",
+     *                 property="is_read_notifications",
      *                 type="boolean",
      *                 example=true
      *             )
@@ -116,12 +116,12 @@ class NotificationController extends Controller
 
     public function update(UpdateNotificationRequest $request, Notification $notification): NotificationResource|JsonResponse
     {
-        if (auth()->id() !== $notification->notifiable_id) {
+        if (auth()->id() !== $notification->user_id){ 
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
 
-        if ($request->validated('is_read')) {
-            $notification->markAsRead();
+        if ($request->validated()['is_read_notifications']) {
+            $notification->update(['is_read_notifications' => true]);
         }
 
         return new NotificationResource($notification);

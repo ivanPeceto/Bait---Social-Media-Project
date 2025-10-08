@@ -27,8 +27,9 @@ class ChatController extends Controller
      *             @OA\Property(
      *                 property="participants",
      *                 type="array",
-     *                 description="An array of user IDs.",
-     *                 @OA\Items(type="integer", example=2)
+     *                 minItems=1,
+     *                 description="An array of at least one user ID (must exist in the users table).",
+     *                 @OA\Items(type="integer", example=1)
      *             )
      *         )
      *     ),
@@ -102,7 +103,7 @@ class ChatController extends Controller
      *         in="path",
      *         required=true,
      *         description="The ID of the chat.",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *     @OA\Response(
      *         response=200,

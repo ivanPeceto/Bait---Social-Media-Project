@@ -2533,12 +2533,13 @@
                                 ],
                                 "properties": {
                                     "participants": {
-                                        "description": "An array of user IDs.",
+                                        "description": "An array of at least one user ID (must exist in the users table).",
                                         "type": "array",
                                         "items": {
                                             "type": "integer",
-                                            "example": 2
-                                        }
+                                            "example": 1
+                                        },
+                                        "minItems": 1
                                     }
                                 },
                                 "type": "object"
@@ -2586,7 +2587,8 @@
                         "description": "The ID of the chat.",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -2639,7 +2641,7 @@
                                     "following_id": {
                                         "description": "The ID of the user to be followed.",
                                         "type": "integer",
-                                        "example": 2
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -2694,7 +2696,7 @@
                                     "following_id": {
                                         "description": "The ID of the user to be unfollowed.",
                                         "type": "integer",
-                                        "example": 2
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -2738,7 +2740,8 @@
                         "description": "The ID of the chat.",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -2786,7 +2789,8 @@
                         "description": "The ID of the chat where the message will be sent.",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -2891,7 +2895,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid"
+                            "example": 1
                         }
                     }
                 ],
@@ -2937,7 +2941,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid"
+                            "example": 1
                         }
                     }
                 ],
@@ -2951,7 +2955,7 @@
                                     "is_read"
                                 ],
                                 "properties": {
-                                    "is_read": {
+                                    "is_read_notifications": {
                                         "type": "boolean",
                                         "example": true
                                     }
