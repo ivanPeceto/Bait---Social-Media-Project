@@ -31,7 +31,6 @@ use App\Modules\Healthcheck\Http\Controllers\PingController;
 
 /*Healthcheck routes*/
 
-#Route::get('/healthcheck',  [HealthcheckController::class, 'status']);
 Route::get('/ping',        [PingController::class, 'ping']);
 
 /*----End Healthcheck routes--------------*/
