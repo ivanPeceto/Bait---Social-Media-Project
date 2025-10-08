@@ -225,4 +225,4 @@ if [ "$INIT_API" = true ] && [ "$SERVICES" = "backend mysql mysql_test phpmyadmi
     initialize_laravel_backend
 fi
 
-echo -e "${GREEN} Server is running in background. Ports: Backend (8000), Front
+echo -e "${GREEN} Server is running in background. Ports: Backend (8000), Front"

@@ -2,30 +2,20 @@
 
 namespace Database\Seeders;
 
-<<<<<<< HEAD
 use App\Modules\UserData\Domain\Models\User;
 use App\Modules\UserData\Domain\Models\UserRole;
 use App\Modules\UserData\Domain\Models\UserState;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-=======
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
->>>>>>> feature/backend/documentation
 
 class DatabaseSeeder extends Seeder
 {
     /**
-<<<<<<< HEAD
      * Seed the application's database.
-=======
-     * Run the database seeds.
->>>>>>> feature/backend/documentation
      */
     public function run(): void
     {
         $this->call([
-<<<<<<< HEAD
             UserRolesSeeder::class,
             UserStateSeeder::class,
             ReactionTypesSeeder::class,
@@ -56,14 +46,3 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 }
-=======
-            AvatarSeeder::class,
-            BannerSeeder::class,
-            UserRolesSeeder::class,
-            UserStateSeeder::class,
-            ReactionTypesSeeder::class,
-            AdminUserSeeder::class
-        ]);
-    }
-}
->>>>>>> feature/backend/documentation
