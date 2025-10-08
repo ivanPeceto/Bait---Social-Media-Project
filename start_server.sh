@@ -60,7 +60,7 @@ wait_for_db() {
 
 run_migrations() {
     wait_for_db
-    sleep 10
+    sleep 15
     echo -e "${YELLOW}Ejecutando migraciones y seeders...${NC}"
     OUTPUT=$(docker compose exec backend php artisan migrate --seed 2>&1) || true
 

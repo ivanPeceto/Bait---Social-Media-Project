@@ -214,15 +214,20 @@ class BannerController extends Controller
 
     private function destroyForUser(User $user): void
     {
-        $defaultBanner = Banner::where('url_banners', 'banners/default.jpg')->firstOrFail();
+        $defaultBanner = Banner::firstOrCreate(
+            ['url_banners' => 'banners/default.jpg']
+        );
 
         if ($user->banner && $user->banner_id !== $defaultBanner->id) {
-            $temp = $user->banner;
+            $currentBanner = $user->banner;
+            
             $user->update(['banner_id' => $defaultBanner->id]);
 
-            Storage::disk('public')->delete($temp->url_banners);
-            $temp->delete();
-        } elseif (!$user->banner) {
+            Storage::disk('public')->delete($currentBanner->url_banners);
+            
+            $currentBanner->delete();
+        } 
+        elseif (!$user->banner) {
             $user->update(['banner_id' => $defaultBanner->id]);
         }
     }

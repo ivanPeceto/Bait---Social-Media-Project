@@ -70,14 +70,13 @@ class ChatController extends Controller
     public function store(CreateChatRequest $request): ChatResource|JsonResponse
     {
         $participants = $request->validated('participants');
+        $allParticipants = array_merge($participants, [auth()->id()]);
+        $uniqueParticipants = array_unique($allParticipants);
         
         $chat = Chat::create();
         
-        // Attach authenticated user
-        $chat->users()->attach(auth()->id());
-        
         // Attach other participants
-        $chat->users()->attach($participants);
+        $chat->users()->attach($uniqueParticipants);
         
         $chat->load('users', 'messages');
 

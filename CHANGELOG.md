@@ -9,17 +9,22 @@ _(Cambios realizados por @ivanPeceto)_
 * Se detectó la falta de validación de estado de usuario para el caso de los usuarios que están suspendidos. 
 * Queda pendiente añadir un middleware que invalide cualquier JWT generado antes de la suspensión de la cuenta.
 * Se detectó problemas con la dependencia de swagger al crear los contenedores desde 0.
+* Se detectó la incorrecta representación de las respuestas de la api en algunos schema de la documentación de swagger
+* Se observó la falta de un endpoint crucial en el módulo de comentarios, el de devolver todos aquellos asociados a un posteo.
+* El modelo de Notification entra en conflicto con el estándar de Laravel, por lo que hubo que añadir métodos que "adapten" su funcionamiento.
 
 ### Added
 
 * Nuevo seeder `DatabaseSeeder.php` para generar un usuario administrador y uno moderador iniciales
 * Nuevo archivo `.dockerignore` para resolver problemas de buildeo de contenedores con la dependencia de swagger.
+* Nueva colección de postman `Bait_API.postman_collection.json` para testear manualmente el funcionamiento de todos los endpoints.
 
 ### Changed
 
 * Método `login` en `AuthController.php` para verificar el estado del usuario.
 * Comentado Swagger dentro de los providers de `app.php`
 * Volúmenes generados en `docker-compose.yml` 
+* Se añadió el método `showFromPost` a `CommentController.php` junto a un nuevo endpoint asociado.
 
 ## [1.1.3] - 2025-10-06
 

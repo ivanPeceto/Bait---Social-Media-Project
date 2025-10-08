@@ -196,18 +196,22 @@ class AvatarController extends Controller
         return response()->json(['message' => "Avatar for user {$user->username} destroyed. Replaced with default."], 200);
     }
 
-
     private function destroyForUser(User $user): void
     {
-        $defaultAvatar = Avatar::where('url_avatars', 'avatars/default.jpg')->firstOrFail();
+        $defaultAvatar = Avatar::firstOrCreate(
+            ['url_avatars' => 'avatars/default.jpg']
+        );
 
-        if($user->avatar && $user->avatar_id !== $defaultAvatar->id){
-            $temp = $user->avatar;
+        if ($user->avatar && $user->avatar_id !== $defaultAvatar->id) {
+            $currentAvatar = $user->avatar;
+            
             $user->update(['avatar_id' => $defaultAvatar->id]);
 
-            Storage::disk('public')->delete($temp->url_avatars);
-            $temp->delete();
-        } elseif (!$user->avatar) {
+            Storage::disk('public')->delete($currentAvatar->url_avatars);
+            
+            $currentAvatar->delete();
+        } 
+        elseif (!$user->avatar) {
             $user->update(['avatar_id' => $defaultAvatar->id]);
         }
     }
