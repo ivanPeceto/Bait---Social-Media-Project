@@ -34,11 +34,7 @@ class AuthController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="User registered and authenticated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="access_token", type="string", example="eyJ0eXAiOiJKV1QiLCJh..."),
-     *             @OA\Property(property="token_type", type="string", example="bearer"),
-     *             @OA\Property(property="expires_in", type="integer", example=3600)
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UserSchema")
      *     ),
      *     @OA\Response(
      *         response=500,
@@ -46,14 +42,31 @@ class AuthController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Registration succeeded but login failed.")
      *         )
-     *     )
      *     ),
      *     @OA\Response(
      *         response=422,
      *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The email field is required.")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The password must be at least 8 characters.")
+     *                 )
+     *             )
+     *         )
      *     )
      * )
      */
+
 
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -77,18 +90,14 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"email","password"},
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="secret123")
+     *             @OA\Property(property="email", type="string", format="email", example="admin@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="admin123")
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful login, returns JWT token",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="access_token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOi..."),
-     *             @OA\Property(property="token_type", type="string", example="bearer"),
-     *             @OA\Property(property="expires_in", type="integer", example=3600)
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UserSchema")
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -116,7 +125,7 @@ class AuthController extends Controller
     }
 
 
-    /**
+    /*
      * @OA\Get(
      *     path="/api/auth/me",
      *     summary="Get authenticated user details",
@@ -128,16 +137,7 @@ class AuthController extends Controller
      *         description="Authenticated user details",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="id", type="integer", example=1),
-     *             @OA\Property(property="username", type="string", example="john_doe"),
-     *             @OA\Property(property="name", type="string", example="John Doe"),
-     *             @OA\Property(property="email", type="string", example="john@example.com"),
-     *             @OA\Property(property="role", ref="#/components/schemas/UserRoleSchema"),
-     *             @OA\Property(property="state", ref="#/components/schemas/UserStateSchema"),
-     *             @OA\Property(property="avatar", ref="#/components/schemas/AvatarSchema"),
-     *             @OA\Property(property="banner", ref="#/components/schemas/BannerSchema"),
-     *             @OA\Property(property="created_at", type="string", format="date-time", example="2025-10-05T14:48:00.000Z"),
-     *             @OA\Property(property="updated_at", type="string", format="date-time", example="2025-10-05T15:00:00.000Z")
+     *             @OA\JsonContent(ref="#/components/schemas/UserSchema")
      *         )
      *     ),
      *     @OA\Response(
@@ -149,12 +149,13 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function me(): UserResource
+
+    /* public function me(): UserResource
     {
         $user = auth('api')->user();
         $user->load(['role', 'state', 'avatar', 'banner']);
         return new UserResource($user);
-    }
+    } */ #DEPRECATED
 
 
 
@@ -168,11 +169,7 @@ class AuthController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Token refreshed successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="access_token", type="string", example="new.jwt.token"),
-     *             @OA\Property(property="token_type", type="string", example="bearer"),
-     *             @OA\Property(property="expires_in", type="integer", example=3600)
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UserSchema")
      *     ),
      *     @OA\Response(
      *         response=401,

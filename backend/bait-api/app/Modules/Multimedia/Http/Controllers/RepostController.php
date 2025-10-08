@@ -24,7 +24,7 @@ class RepostController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"post_id"},
-     *             @OA\Property(property="post_id", type="integer", example=12)
+     *             @OA\Property(property="post_id", type="integer", example=1)
      *         )
      *     ),
      *
@@ -33,7 +33,10 @@ class RepostController extends Controller
      *         description="Repost created successfully",
      *         @OA\JsonContent(ref="#/components/schemas/RepostSchema")
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Original post not found"
@@ -44,7 +47,7 @@ class RepostController extends Controller
      *     )
      * )
      */
-
+    
     public function store(CreateRepostRequest $request): JsonResponse
     {
         $post_id = $request->validated('post_id');
@@ -73,12 +76,16 @@ class RepostController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the repost to delete",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
      *         response=204,
      *         description="Repost deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     ),
      *     @OA\Response(
      *         response=403,

@@ -14,6 +14,8 @@ class BannerSeeder extends Seeder
     {
         DB::table('banners')->insert([
             'url_banners' => 'banners/default.jpg',
+            'created_at' => now(), 
+            'updated_at' => now()
         ]);
     }
 }

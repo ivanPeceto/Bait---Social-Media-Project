@@ -19,14 +19,10 @@ use App\Modules\UserData\Http\Resources\UserResource;
  * @OA\Property(property="created_at", type="string", format="date-time", description="Timestamp when the notification was created.", example="2025-10-05T18:45:00.000000Z")
  * )
  */
+
 class NotificationResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(Request $request): array
+    public function toArray($request)
     {
         return [
             'id' => $this->id,

@@ -12,21 +12,6 @@
         }
     ],
     "paths": {
-        "/api/healthcheck": {
-            "get": {
-                "tags": [
-                    "Health"
-                ],
-                "summary": "Healthcheck Endpoint",
-                "description": "Returns a simple status message to confirm that the backend is operational.",
-                "operationId": "4038403bb04dda3fd3824d2209bd550f",
-                "responses": {
-                    "200": {
-                        "description": "OK status"
-                    }
-                }
-            }
-        },
         "/api/ping": {
             "get": {
                 "tags": [
@@ -63,6 +48,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     }
                 },
                 "security": [
@@ -94,7 +82,7 @@
                                     },
                                     "post_id": {
                                         "type": "integer",
-                                        "example": 42
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -112,6 +100,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "422": {
                         "description": "Validation failed"
@@ -186,7 +177,8 @@
                         "description": "ID of the comment to retrieve",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -200,6 +192,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "404": {
                         "description": "Comment not found"
@@ -225,7 +220,8 @@
                         "description": "ID of the comment to update",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -259,6 +255,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "403": {
                         "description": "Unauthorized action"
                     },
@@ -286,13 +285,17 @@
                         "description": "ID of the comment to delete",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "204": {
                         "description": "Comment deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "403": {
                         "description": "Unauthorized action"
@@ -382,7 +385,8 @@
                         "description": "ID of the multimedia content to delete",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -390,109 +394,14 @@
                     "204": {
                         "description": "Multimedia content deleted"
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "403": {
                         "description": "Unauthorized - only post creator can delete the content"
                     },
                     "404": {
                         "description": "Multimedia content not found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/privileged/multimedia/post/{post}": {
-            "delete": {
-                "tags": [
-                    "Multimedia Management"
-                ],
-                "summary": "Delete a post and its associated multimedia",
-                "operationId": "dbc21d5541a2c57ef0269117c2067325",
-                "parameters": [
-                    {
-                        "name": "post",
-                        "in": "path",
-                        "description": "ID of the post to delete",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Post and associated content deleted successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Post and all associated content deleted successfully."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Post not found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/privileged/multimedia/comment/{comment}": {
-            "delete": {
-                "tags": [
-                    "Multimedia Management"
-                ],
-                "summary": "Delete a comment",
-                "operationId": "24340f2348f6cc052eabdedb2a9ba8c7",
-                "parameters": [
-                    {
-                        "name": "comment",
-                        "in": "path",
-                        "description": "ID of the comment to delete",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Comment deleted successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Comment deleted successfully."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Comment not found"
                     }
                 },
                 "security": [
@@ -516,7 +425,8 @@
                         "description": "ID of the repost to delete",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -537,8 +447,11 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "403": {
-                        "description": "Unauthorized"
+                        "description": "Forbidden - insufficient privileges"
                     },
                     "404": {
                         "description": "Repost not found"
@@ -565,7 +478,8 @@
                         "description": "ID of the reaction to delete",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -586,11 +500,120 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "403": {
-                        "description": "Unauthorized"
+                        "description": "Forbidden - insufficient privileges"
                     },
                     "404": {
                         "description": "Reaction not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/multimedia/comment/{comment}": {
+            "delete": {
+                "tags": [
+                    "Multimedia Management"
+                ],
+                "summary": "Delete a comment",
+                "operationId": "24340f2348f6cc052eabdedb2a9ba8c7",
+                "parameters": [
+                    {
+                        "name": "comment",
+                        "in": "path",
+                        "description": "ID of the comment to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Comment deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient privileges"
+                    },
+                    "404": {
+                        "description": "Comment not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/privileged/multimedia/post/{post}": {
+            "delete": {
+                "tags": [
+                    "Multimedia Management"
+                ],
+                "summary": "Delete a post and its associated multimedia",
+                "operationId": "dbc21d5541a2c57ef0269117c2067325",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "ID of the post to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post and associated content deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Post and all associated content deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient privileges"
+                    },
+                    "404": {
+                        "description": "Post not found"
                     }
                 },
                 "security": [
@@ -621,6 +644,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     }
                 },
                 "security": [
@@ -666,6 +692,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "422": {
                         "description": "Validation error"
                     }
@@ -692,7 +721,8 @@
                         "description": "ID of the post",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -706,6 +736,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "404": {
                         "description": "Post not found"
@@ -731,7 +764,8 @@
                         "description": "ID of the post",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -765,6 +799,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "403": {
                         "description": "Unauthorized action"
                     },
@@ -792,13 +829,17 @@
                         "description": "ID of the post",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "204": {
                         "description": "Post deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "403": {
                         "description": "Unauthorized action"
@@ -834,21 +875,11 @@
                                 "properties": {
                                     "post_id": {
                                         "type": "integer",
-                                        "example": 12
+                                        "example": 1
                                     },
                                     "reaction_type_id": {
                                         "type": "integer",
                                         "example": 3
-                                    },
-                                    "action": {
-                                        "description": "Action to perform on the reaction",
-                                        "type": "string",
-                                        "enum": [
-                                            "create",
-                                            "update",
-                                            "delete"
-                                        ],
-                                        "example": "create"
                                     }
                                 },
                                 "type": "object"
@@ -890,6 +921,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "422": {
                         "description": "Validation error"
                     },
@@ -923,7 +957,7 @@
                                 "properties": {
                                     "post_id": {
                                         "type": "integer",
-                                        "example": 12
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -941,6 +975,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "404": {
                         "description": "Original post not found"
@@ -971,13 +1008,17 @@
                         "description": "ID of the repost to delete",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "204": {
                         "description": "Repost deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "403": {
                         "description": "Unauthorized - not the owner of the repost"
@@ -1049,21 +1090,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "access_token": {
-                                            "type": "string",
-                                            "example": "eyJ0eXAiOiJKV1QiLCJh..."
-                                        },
-                                        "token_type": {
-                                            "type": "string",
-                                            "example": "bearer"
-                                        },
-                                        "expires_in": {
-                                            "type": "integer",
-                                            "example": 3600
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UserSchema"
                                 }
                             }
                         }
@@ -1077,6 +1104,41 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Registration succeeded but login failed."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email field is required."
+                                                    }
+                                                },
+                                                "password": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The password must be at least 8 characters."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1108,12 +1170,12 @@
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "john@example.com"
+                                        "example": "admin@example.com"
                                     },
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "example": "secret123"
+                                        "example": "admin123"
                                     }
                                 },
                                 "type": "object"
@@ -1127,21 +1189,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "access_token": {
-                                            "type": "string",
-                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOi..."
-                                        },
-                                        "token_type": {
-                                            "type": "string",
-                                            "example": "bearer"
-                                        },
-                                        "expires_in": {
-                                            "type": "integer",
-                                            "example": 3600
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UserSchema"
                                 }
                             }
                         }
@@ -1165,89 +1213,6 @@
                 }
             }
         },
-        "/api/auth/me": {
-            "get": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Get authenticated user details",
-                "description": "Returns the details of the currently authenticated user including role, state, avatar, and banner.",
-                "operationId": "dd9ba33c645e3c6e906ded89bbe9763a",
-                "responses": {
-                    "200": {
-                        "description": "Authenticated user details",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "username": {
-                                            "type": "string",
-                                            "example": "john_doe"
-                                        },
-                                        "name": {
-                                            "type": "string",
-                                            "example": "John Doe"
-                                        },
-                                        "email": {
-                                            "type": "string",
-                                            "example": "john@example.com"
-                                        },
-                                        "role": {
-                                            "$ref": "#/components/schemas/UserRoleSchema"
-                                        },
-                                        "state": {
-                                            "$ref": "#/components/schemas/UserStateSchema"
-                                        },
-                                        "avatar": {
-                                            "$ref": "#/components/schemas/AvatarSchema"
-                                        },
-                                        "banner": {
-                                            "$ref": "#/components/schemas/BannerSchema"
-                                        },
-                                        "created_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2025-10-05T14:48:00.000Z"
-                                        },
-                                        "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2025-10-05T15:00:00.000Z"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - user not authenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/auth/refresh": {
             "post": {
                 "tags": [
@@ -1262,21 +1227,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "access_token": {
-                                            "type": "string",
-                                            "example": "new.jwt.token"
-                                        },
-                                        "token_type": {
-                                            "type": "string",
-                                            "example": "bearer"
-                                        },
-                                        "expires_in": {
-                                            "type": "integer",
-                                            "example": 3600
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UserSchema"
                                 }
                             }
                         }
@@ -1383,7 +1334,7 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Avatar uploaded successfully",
                         "content": {
                             "application/json": {
@@ -1422,7 +1373,8 @@
                         "description": "ID of the avatar to retrieve",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
@@ -1437,10 +1389,31 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - JWT token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Avatar not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/avatars/self": {
@@ -1479,14 +1452,14 @@
                 ]
             }
         },
-        "api/privileged/users/{user}/avatar": {
+        "/api/privileged/users/{user}/avatar": {
             "delete": {
                 "tags": [
                     "User Management"
                 ],
-                "summary": "Delete avatar for a specified user (admin/moderator only)",
+                "summary": "Delete avatar for a specified user",
                 "description": "Deletes the avatar for the given user and replaces it with a default avatar.",
-                "operationId": "1ebe67f721cd292677e4f6f602042f0b",
+                "operationId": "13b71cb6f9c7648762f17bb49184ef6e",
                 "parameters": [
                     {
                         "name": "user",
@@ -1494,7 +1467,8 @@
                         "description": "ID of the user whose avatar will be deleted",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
@@ -1508,6 +1482,22 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Avatar for user johndoe destroyed. Replaced with default."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Cannot delete the default avatar",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cannot delete the default avatar."
                                         }
                                     },
                                     "type": "object"
@@ -1558,7 +1548,7 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Successfully uploaded banner",
                         "content": {
                             "application/json": {
@@ -1597,7 +1587,8 @@
                         "description": "ID of the banner to retrieve",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
@@ -1612,10 +1603,18 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid token"
+                    },
                     "404": {
                         "description": "Banner not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/banners/self": {
@@ -1659,7 +1658,7 @@
                 "tags": [
                     "User Management"
                 ],
-                "summary": "Delete a specific user's banner (admin/moderator only)",
+                "summary": "Delete a specific user's banner",
                 "description": "Deletes the specified user's banner and replaces it with the default banner. Only accessible to admins or moderators.",
                 "operationId": "5eb1484e20561bae204c64476ba23c76",
                 "parameters": [
@@ -1669,7 +1668,8 @@
                         "description": "ID of the user whose banner will be deleted",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
@@ -1740,7 +1740,7 @@
                     "Profile"
                 ],
                 "summary": "Update the authenticated user's profile",
-                "description": "Updates the authenticated user's profile fields. Only fields allowed by validation will be updated.",
+                "description": "Updates the authenticated user's profile. Only 'name', 'username', and 'email' can be changed.",
                 "operationId": "514d6028989771b7cbaa85cda3d66cc2",
                 "requestBody": {
                     "required": true,
@@ -1750,21 +1750,16 @@
                                 "properties": {
                                     "username": {
                                         "type": "string",
-                                        "example": "johndoe"
+                                        "example": "SuperAdmin"
                                     },
                                     "name": {
                                         "type": "string",
-                                        "example": "John Doe"
+                                        "example": "Super Admin"
                                     },
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "john@example.com"
-                                    },
-                                    "state_id": {
-                                        "description": "ID of the new state to assign to the user",
-                                        "type": "integer",
-                                        "example": 2
+                                        "example": "superadmin@example.com"
                                     }
                                 },
                                 "type": "object"
@@ -1820,19 +1815,19 @@
                                         "description": "The user's current password",
                                         "type": "string",
                                         "format": "password",
-                                        "example": "secret123"
+                                        "example": "admin123"
                                     },
                                     "new_password": {
                                         "description": "The new password the user wants to set",
                                         "type": "string",
                                         "format": "password",
-                                        "example": "secret456"
+                                        "example": "superadmin123"
                                     },
                                     "new_password_confirmation": {
                                         "description": "Confirmation of the new password",
                                         "type": "string",
                                         "format": "password",
-                                        "example": "secret456"
+                                        "example": "superadmin123"
                                     }
                                 },
                                 "type": "object"
@@ -1876,7 +1871,7 @@
                 "tags": [
                     "User Management"
                 ],
-                "summary": "Update a user's profile (admin/moderator only)",
+                "summary": "Update a user's profile",
                 "description": "Allows admins and moderators to update a user's profile. Moderators can only update limited fields (e.g., name).",
                 "operationId": "ea815b53cffaaca971c03382641fdeba",
                 "parameters": [
@@ -1886,7 +1881,8 @@
                         "description": "ID of the user to update",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
@@ -1898,19 +1894,24 @@
                                 "properties": {
                                     "username": {
                                         "type": "string",
-                                        "example": "johndoe"
+                                        "example": "janedoe"
                                     },
                                     "name": {
                                         "type": "string",
-                                        "example": "John Doe"
+                                        "example": "Jane Doe"
                                     },
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "john@example.com"
+                                        "example": "jane@example.com"
                                     },
                                     "state_id": {
                                         "description": "ID of the new state for the user",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "role_id": {
+                                        "description": "ID of the new role for the user",
                                         "type": "integer",
                                         "example": 2
                                     }
@@ -1953,7 +1954,7 @@
                 "tags": [
                     "User Management"
                 ],
-                "summary": "Change password for a specified user (admin/moderator only)",
+                "summary": "Change password for a specified user *ADMIN Only",
                 "description": "Allows admins or moderators to update the password of a specified user.",
                 "operationId": "727402a3c29eb8a371f35333ec748863",
                 "parameters": [
@@ -1963,7 +1964,8 @@
                         "description": "ID of the user whose password is to be changed",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
@@ -2027,7 +2029,7 @@
                 "tags": [
                     "User Management"
                 ],
-                "summary": "Suspend a user (admin/moderator only)",
+                "summary": "Suspend a user",
                 "description": "Sets the state of the specified user to 'suspended'. Fails if the 'suspended' state is not defined in the database.",
                 "operationId": "8081468a8fefb1bcad2fa66c16d5976f",
                 "parameters": [
@@ -2037,7 +2039,8 @@
                         "description": "ID of the user to suspend",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
@@ -2051,6 +2054,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "403": {
                         "description": "Forbidden - insufficient permissions"
@@ -2087,7 +2093,7 @@
                 "tags": [
                     "User Management"
                 ],
-                "summary": "Activate a user (admin/moderator only)",
+                "summary": "Activate a user",
                 "description": "Sets the state of the specified user to 'active'. Fails if the 'active' state is not defined in the database.",
                 "operationId": "4607c301d8e83d0e1118bf0457237b65",
                 "parameters": [
@@ -2097,7 +2103,8 @@
                         "description": "ID of the user to activate",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
@@ -2111,6 +2118,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "403": {
                         "description": "Forbidden - insufficient permissions"
@@ -2163,6 +2173,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     }
                 },
                 "security": [
@@ -2208,6 +2221,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "422": {
                         "description": "Validation error"
                     }
@@ -2234,7 +2250,8 @@
                         "description": "ID of the role to update",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 4
                         }
                     }
                 ],
@@ -2268,6 +2285,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "404": {
                         "description": "Role not found"
                     },
@@ -2295,13 +2315,17 @@
                         "description": "ID of the role to delete",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 4
                         }
                     }
                 ],
                 "responses": {
                     "204": {
                         "description": "Role deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "404": {
                         "description": "Role not found"
@@ -2335,6 +2359,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     }
                 },
                 "security": [
@@ -2361,7 +2388,7 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "active"
+                                        "example": "muted"
                                     }
                                 },
                                 "type": "object"
@@ -2379,6 +2406,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "422": {
                         "description": "Validation error"
@@ -2406,7 +2436,8 @@
                         "description": "ID of the state to update",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 4
                         }
                     }
                 ],
@@ -2440,6 +2471,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
+                    },
                     "404": {
                         "description": "State not found"
                     },
@@ -2467,13 +2501,17 @@
                         "description": "ID of the state to delete",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 4
                         }
                     }
                 ],
                 "responses": {
                     "204": {
                         "description": "State deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not authenticated"
                     },
                     "404": {
                         "description": "State not found"
@@ -2536,12 +2574,13 @@
                                 ],
                                 "properties": {
                                     "participants": {
-                                        "description": "An array of user IDs.",
+                                        "description": "An array of at least one user ID (must exist in the users table).",
                                         "type": "array",
                                         "items": {
                                             "type": "integer",
-                                            "example": 2
-                                        }
+                                            "example": 1
+                                        },
+                                        "minItems": 1
                                     }
                                 },
                                 "type": "object"
@@ -2589,7 +2628,8 @@
                         "description": "The ID of the chat.",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -2642,7 +2682,7 @@
                                     "following_id": {
                                         "description": "The ID of the user to be followed.",
                                         "type": "integer",
-                                        "example": 2
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -2697,7 +2737,7 @@
                                     "following_id": {
                                         "description": "The ID of the user to be unfollowed.",
                                         "type": "integer",
-                                        "example": 2
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -2741,7 +2781,8 @@
                         "description": "The ID of the chat.",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -2800,7 +2841,8 @@
                         "description": "The ID of the chat where the message will be sent.",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -2905,7 +2947,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid"
+                            "example": 1
                         }
                     }
                 ],
@@ -2951,7 +2993,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid"
+                            "example": 1
                         }
                     }
                 ],
@@ -2965,7 +3007,7 @@
                                     "is_read"
                                 ],
                                 "properties": {
-                                    "is_read": {
+                                    "is_read_notifications": {
                                         "type": "boolean",
                                         "example": true
                                     }
@@ -3768,11 +3810,6 @@
                 "type": "object"
             }
         },
-        "responses": {
-            "422": {
-                "description": "Validation Error"
-            }
-        },
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
@@ -3790,42 +3827,28 @@
             "name": "Auth"
         },
         {
+            "name": "Profile"
+        },
+        {
             "name": "Avatar"
         },
         {
             "name": "Banner"
         },
         {
-            "name": "Profile"
-        },
-        {
-            "name": "User Roles"
-        },
-        {
-            "name": "User States"
-        },
-        {
-            "name": "Comments"
-        },
-        {
-            "name": "Multimedia Content"
-        },
-        {
             "name": "Posts"
-        },
-        {
-            "name": "Post Reactions"
         },
         {
             "name": "Reposts"
         },
         {
-            "name": "Multimedia Management",
-            "description": "Privileged"
+            "name": "Comments"
         },
         {
-            "name": "User Management",
-            "description": "Privileged"
+            "name": "Post Reactions"
+        },
+        {
+            "name": "Multimedia Content"
         },
         {
             "name": "Chats",
@@ -3840,8 +3863,23 @@
             "description": "Messages"
         },
         {
-            "name": "Notifications",
-            "description": "Notifications"
+            "name": "Notifications"
+        },
+        {
+            "name": "Multimedia Management",
+            "description": "PRIVILEGED - Admin/Moderator"
+        },
+        {
+            "name": "User Management",
+            "description": "PRIVILEGED - Admin/Moderator"
+        },
+        {
+            "name": "User Roles",
+            "description": "PRIVILEGED - Admin Only"
+        },
+        {
+            "name": "User States",
+            "description": "PRIVILEGED - Admin Only"
         }
     ]
 }

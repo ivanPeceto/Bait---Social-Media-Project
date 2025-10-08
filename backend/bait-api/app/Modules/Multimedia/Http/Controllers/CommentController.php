@@ -13,6 +13,51 @@ use Illuminate\Http\JsonResponse;
 class CommentController extends Controller
 {
     /**
+     * @OA\Post(
+     *     path="/api/comments",
+     *     summary="Create a new comment",
+     *     description="Creates a new comment on a post. Authenticated users only.",
+     *     tags={"Comments"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"content_comments", "post_id"},
+     *             @OA\Property(property="content_comments", type="string", example="Nice post!"),
+     *             @OA\Property(property="post_id", type="integer", example=1)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Comment created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/CommentSchema")
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed"
+     *     )
+     * )
+     */
+
+    public function store(CreateCommentRequest $request): JsonResponse
+    {
+        $comment = Comment::create([
+            'content_comments' => $request->validated('content_comments'),
+            'user_id' => auth()->id(),
+            'post_id' => $request->validated('post_id'),
+        ]);
+
+        return response()->json(new CommentResource($comment), 201);
+    }
+
+
+    /**
      * @OA\Get(
      *     path="/api/comments",
      *     summary="List all comments",
@@ -27,9 +72,14 @@ class CommentController extends Controller
      *             type="array",
      *             @OA\Items(ref="#/components/schemas/CommentSchema")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     )
      * )
      */
+
     public function index(): JsonResponse
     {
         $comments = Comment::with('user')->get();
@@ -76,46 +126,6 @@ class CommentController extends Controller
     }
 
     /**
-     * @OA\Post(
-     *     path="/api/comments",
-     *     summary="Create a new comment",
-     *     description="Creates a new comment on a post. Authenticated users only.",
-     *     tags={"Comments"},
-     *     security={{"bearerAuth":{}}},
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"content_comments", "post_id"},
-     *             @OA\Property(property="content_comments", type="string", example="Nice post!"),
-     *             @OA\Property(property="post_id", type="integer", example=42)
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=201,
-     *         description="Comment created successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/CommentSchema")
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation failed"
-     *     )
-     * )
-     */
-    public function store(CreateCommentRequest $request): JsonResponse
-    {
-        $comment = Comment::create([
-            'content_comments' => $request->validated('content_comments'),
-            'user_id' => auth()->id(),
-            'post_id' => $request->validated('post_id'),
-        ]);
-
-        return response()->json(new CommentResource($comment), 201);
-    }
-
-
-    /**
      * @OA\Get(
      *     path="/api/comments/{comment}",
      *     summary="Get a specific comment",
@@ -128,7 +138,7 @@ class CommentController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the comment to retrieve",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
@@ -137,11 +147,16 @@ class CommentController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/CommentSchema")
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Comment not found"
      *     )
      * )
      */
+
     public function show(Comment $comment): JsonResponse
     {
         return response()->json(new CommentResource($comment));
@@ -161,7 +176,7 @@ class CommentController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the comment to update",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\RequestBody(
@@ -178,6 +193,10 @@ class CommentController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/CommentSchema")
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
+     *     @OA\Response(
      *         response=403,
      *         description="Unauthorized action"
      *     ),
@@ -187,6 +206,7 @@ class CommentController extends Controller
      *     )
      * )
      */
+
     public function update(UpdateCommentRequest $request, Comment $comment): JsonResponse
     {
         if ($request->user()->id !== $comment->user_id) {
@@ -211,12 +231,16 @@ class CommentController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the comment to delete",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
      *         response=204,
      *         description="Comment deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     ),
      *     @OA\Response(
      *         response=403,
@@ -228,6 +252,7 @@ class CommentController extends Controller
      *     )
      * )
      */
+
     public function destroy(Comment $comment): JsonResponse
     {
         if (auth()->id() !== $comment->user_id) {

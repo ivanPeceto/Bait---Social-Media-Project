@@ -1,6 +1,17 @@
 # Changelog
 
-## [1.1.4] - 2025-10-07
+## [1.1.7] - 2025-10-08
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Changed
+
+* Se corrigió la relación `user()` en el modelo `Post` para que devuelva una relación `belongsTo` hacia el modelo `User`, reflejando correctamente que un post pertenece a un único usuario.
+* Se agregó la relación `multimediaContents()` en el modelo `Post` como una relación `hasMany` hacia el modelo `MultimediaContent`, permitiendo acceder a todos los contenidos multimedia asociados a un post.
+* Se actualizaron los imports en el modelo `Post` para incluir `MultimediaContent` y las clases de relaciones `BelongsTo` y `HasMany` de Eloquent.
+* Se mejoró la estructura y legibilidad del código en el modelo `Post` para facilitar su mantenimiento y comprensión.
+
+## [1.1.6] - 2025-10-07
 
 _(Cambios realizados por @ivanPeceto)_
 
@@ -26,6 +37,66 @@ _(Cambios realizados por @ivanPeceto)_
 * Volúmenes generados en `docker-compose.yml` 
 * Se añadió el método `showFromPost` a `CommentController.php` junto a un nuevo endpoint asociado.
 
+## [1.1.5] - 2025-10-07
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Changed
+
+* Se actualizó el método `uploadAvatar` para preservar los avatares previamente subidos en base de datos y almacenamiento:
+  * La lógica anterior eliminaba el registro y archivo del avatar anterior.
+  * Ahora, los nuevos avatares se agregan y el campo `avatar_id` en la tabla `users` se actualiza para apuntar al nuevo, manteniendo así un historial y evitando pérdida de datos.
+* Se modificó el `role_id` en `AdminUserSeeder` para reflejar correctamente el rol de administrador (cambio de 1 a 3).
+* Se cambió el método HTTP en las rutas de `PostController` de `patch` a `put`.
+* Se corrigió la obtención del ID del usuario autenticado en la función `store` de `PostReactionController`: de `$user_id = auth()->user()->id()` a `$user_id = auth()->user()->id`.
+* Se mejoró el formato y claridad de los comentarios en el módulo `UserInteractions`.
+
+### Added
+
+* Se añadieron los campos `created_at` y `updated_at` en los Seeders, excepto en `ReactionTypesSeeders`.
+* Se documentó el error 401 en los módulos `UserData` y `Multimedia`, que no estaba contemplado previamente.
+* Se agregaron las reglas `role_id` y `state_id` en la validación de `UpdateProfileRequest`.
+
+### Deprecated
+
+* Se deshabilitó el método `me()` en `AuthController`, dado que su funcionalidad es duplicada por `ProfileController::show`, junto con su documentación.
+* Se deshabilitó la prueba `it_returns_the_authenticated_user_data()` en `tests/Feature/UserData/AuthTest.php`.
+* Se comentaron las rutas:  
+  - `Route::get('me', [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me')`  
+  - `Route::get('/ping', [PingController::class, 'ping'])`  
+  en el archivo `routes/api.php`.
+
+### Documentation
+
+* Se completó la documentación en los siguientes controladores y módulos:  
+  `ProfileController`, `UserRoleController`, `UserStateController`, `UserManagementController`, `RepostController`, `PostReactionController`, `PostController`, `MultimediaContentController`, `CommentController`.
+
+
+## [1.1.4] - 2025-10-07
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Added
+
+* Se creó `AdminUserSeeder` para generar un usuario administrador por defecto:  
+  - Email: `admin@example.com`  
+  - Contraseña: `admin`
+
+* Se creó `DatabaseSeeder`, el cual invoca todos los seeders, permitiendo ejecutar `php artisan db:seed` una sola vez para poblar toda la base de datos.
+
+* Se agregó el servicio `phpmyadmin` al archivo `docker-compose.yml`, utilizando las variables `DB_USERNAME` y `DB_PASSWORD` del archivo `.env` para la conexión a la base de datos.
+
+### Changed
+
+* Se modificó el script `start_server.sh` para que inicie PhpMyAdmin junto con el resto de los servicios Docker.
+* Se modificó el script `start_server.sh` para que ejecute automáticamente los siguientes comandos de Laravel al utilizar los flags `--build` o `--api`:
+  - `php artisan key:generate`
+  - `php artisan jwt:secret --force`
+  - `php artisan migrate`
+  - `php artisan db:seed`
+
+  Esto permite inicializar completamente el backend de Laravel sin pasos manuales adicionales después de levantar los servicios.
+
 ## [1.1.3] - 2025-10-06
 
 _(Cambios realizados por @jmrodriguezspinker)_
@@ -39,7 +110,7 @@ _(Cambios realizados por @jmrodriguezspinker)_
 ### Documentation
 
 * Se finalizó la documentación del módulo `Multimedia`.
-  
+
 ## [1.1.2] - 2025-10-05
 
 ### Fixed

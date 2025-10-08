@@ -13,7 +13,7 @@ class UserManagementController extends Controller
     /**
      * @OA\Post(
      *     path="/api/privileged/users/{user}/suspend",
-     *     summary="Suspend a user (admin/moderator only)",
+     *     summary="Suspend a user",
      *     description="Sets the state of the specified user to 'suspended'. Fails if the 'suspended' state is not defined in the database.",
      *     tags={"User Management"},
      *     security={{"bearerAuth":{}}},
@@ -23,7 +23,7 @@ class UserManagementController extends Controller
      *         in="path",
      *         description="ID of the user to suspend",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=2)
      *     ),
      *
      *     @OA\Response(
@@ -31,17 +31,18 @@ class UserManagementController extends Controller
      *         description="User successfully suspended",
      *         @OA\JsonContent(ref="#/components/schemas/UserSchema")
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=403,
      *         description="Forbidden - insufficient permissions"
      *     ),
-     *
      *     @OA\Response(
      *         response=404,
      *         description="User not found"
      *     ),
-     *
      *     @OA\Response(
      *         response=500,
      *         description="The 'suspended' state is not defined in the database",
@@ -73,7 +74,7 @@ class UserManagementController extends Controller
     /**
      * @OA\Post(
      *     path="/api/privileged/users/{user}/activate",
-     *     summary="Activate a user (admin/moderator only)",
+     *     summary="Activate a user",
      *     description="Sets the state of the specified user to 'active'. Fails if the 'active' state is not defined in the database.",
      *     tags={"User Management"},
      *     security={{"bearerAuth":{}}},
@@ -83,7 +84,7 @@ class UserManagementController extends Controller
      *         in="path",
      *         description="ID of the user to activate",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=2)
      *     ),
      *
      *     @OA\Response(
@@ -91,17 +92,18 @@ class UserManagementController extends Controller
      *         description="User successfully activated",
      *         @OA\JsonContent(ref="#/components/schemas/UserSchema")
      *     ),
-     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
      *     @OA\Response(
      *         response=403,
      *         description="Forbidden - insufficient permissions"
      *     ),
-     *
      *     @OA\Response(
      *         response=404,
      *         description="User not found"
      *     ),
-     *
      *     @OA\Response(
      *         response=500,
      *         description="The 'active' state is not defined in the database",
@@ -116,7 +118,6 @@ class UserManagementController extends Controller
      *     )
      * )
      */
-
 
     public function activate(User $user): UserResource|JsonResponse
     {

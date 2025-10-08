@@ -14,6 +14,7 @@ class MultimediaContentController extends Controller
 {
     /**
      * @OA\Post(
+<<<<<<< HEAD
      * path="/api/multimedia-contents",
      * summary="Upload and attach multimedia to a post",
      * description="Uploads a file (image/video) and links it to a post.",
@@ -47,6 +48,44 @@ class MultimediaContentController extends Controller
      * ),
      * @OA\Response(response=422, description="Validation Error"),
      * @OA\Response(response=401, description="Unauthenticated")
+=======
+     *     path="/api/multimedia-contents",
+     *     summary="Attach multimedia to a post",
+     *     description="Creates a multimedia content item (image/video) and links it to a post created by the authenticated user.",
+     *     tags={"Multimedia Content"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"url_multimedia_contents", "type_multimedia_contents", "post_id"},
+     *             @OA\Property(property="url_multimedia_contents", type="string", example="https://msmk.university/wp-content/uploads/2025/05/byte-1-e1539273122454.jpg"),
+     *             @OA\Property(property="type_multimedia_contents", type="string", example="image"),
+     *             @OA\Property(property="post_id", type="integer", example=1)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Multimedia content created and linked to post",
+     *         @OA\JsonContent(ref="#/components/schemas/MultimediaContentSchema")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized - only post creator can attach multimedia"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+>>>>>>> feature/backend/documentation
      * )
      */
     public function store(UploadMultimediaContentRequest $request): JsonResponse
@@ -80,12 +119,17 @@ class MultimediaContentController extends Controller
      *         in="path",
      *         required=true,
      *         description="ID of the multimedia content to delete",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
      *         response=204,
      *         description="Multimedia content deleted"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
      *     ),
      *
      *     @OA\Response(

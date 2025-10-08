@@ -24,9 +24,8 @@ class PostReactionController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"post_id", "reaction_type_id"},
-     *             @OA\Property(property="post_id", type="integer", example=12),
+     *             @OA\Property(property="post_id", type="integer", example=1),
      *             @OA\Property(property="reaction_type_id", type="integer", example=3),
-     *             @OA\Property(property="action", type="string", enum={"create", "update", "delete"}, example="create", description="Action to perform on the reaction")
      *         )
      *     ),
      *
@@ -50,6 +49,11 @@ class PostReactionController extends Controller
      *     ),
      *
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - user not authenticated"
+     *     ),
+     *
+     *     @OA\Response(
      *         response=422,
      *         description="Validation error"
      *     ),
@@ -60,10 +64,14 @@ class PostReactionController extends Controller
      *     )
      * )
      */
-    
+
     public function store(CreatePostReactionRequest $request): JsonResponse
     {
+<<<<<<< HEAD
         $user_id = auth()->id();
+=======
+        $user_id = auth()->user()->id;  // <- Se asume que hay middleware de autenticación
+>>>>>>> feature/backend/documentation
         $post_id = $request->validated('post_id');
         $reaction_type_id = $request->validated('reaction_type_id');
         $action = $request->action;
@@ -73,14 +81,17 @@ class PostReactionController extends Controller
                         ->where('post_id', $post_id)
                         ->where('reaction_type_id', $reaction_type_id)
                         ->delete();
+
             return response()->json(['message' => 'Reaction removed successfully.'], 200);
         }
 
         if ($action === 'update') {
             $reaction = PostReaction::where('user_id', $user_id)
-                                  ->where('post_id', $post_id)
-                                  ->first();
+                                    ->where('post_id', $post_id)
+                                    ->first();
+
             $reaction->update(['reaction_type_id' => $reaction_type_id]);
+
             return response()->json(new PostReactionResource($reaction->load('reactionType')), 200);
         }
 
