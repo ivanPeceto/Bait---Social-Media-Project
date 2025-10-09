@@ -29,19 +29,17 @@ class NewReactionNotification extends Notification implements ShouldBroadcast
     }
 
     /**
-     * Get the array representation of the notification.
+     * Get the array representation of the notification for the database.
      *
      * @return array<string, mixed>
      */
     public function toDatabase(object $notifiable): array
     {
+        // Devuelve solo el contenido. El "type" se manejará automáticamente.
         return [
-            'type_notifications' => 'new_reaction',
-            'content_notifications' => json_encode([
-                'user_id' => $this->user->id,
-                'post_id' => $this->post->id,
-                'message' => "{$this->user->name} reaccionó a tu publicación."
-            ]),
+            'follower_id' => $this->follower->id,
+            'follower_name' => $this->follower->name,
+            'message' => "{$this->follower->name} reaccionó a tu publicación."
         ]; 
     }
 

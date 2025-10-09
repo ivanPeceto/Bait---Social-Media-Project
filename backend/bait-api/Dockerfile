@@ -22,10 +22,19 @@ WORKDIR /var/www
 
 COPY composer.json composer.lock ./
 
-RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist
+RUN composer install --no-interaction --no-plugins --no-scripts --no-autoloader --prefer-dist
 COPY . .
 
+RUN rm -f bootstrap/cache/*.php
+
 RUN composer dump-autoload --no-scripts --optimize
+
+RUN php artisan package:discover --ansi
+
+RUN php artisan config:cache
+
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 8000
 

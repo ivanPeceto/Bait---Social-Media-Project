@@ -8,62 +8,64 @@ use App\Modules\Multimedia\Domain\Models\Post;
 use App\Modules\Multimedia\Http\Requests\MultimediaContent\CreateMultimediaContentRequest;
 use App\Modules\Multimedia\Http\Resources\MultimediaContentResource;
 use Illuminate\Http\JsonResponse;
+use App\Modules\Multimedia\Http\Requests\MultimediaContent\UploadMultimediaContentRequest;
 
 class MultimediaContentController extends Controller
 {
     /**
      * @OA\Post(
-     *     path="/api/multimedia-contents",
-     *     summary="Attach multimedia to a post",
-     *     description="Creates a multimedia content item (image/video) and links it to a post created by the authenticated user.",
-     *     tags={"Multimedia Content"},
-     *     security={{"bearerAuth":{}}},
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"url_multimedia_contents", "type_multimedia_contents", "post_id"},
-     *             @OA\Property(property="url_multimedia_contents", type="string", example="uploads/posts/media123.jpg"),
-     *             @OA\Property(property="type_multimedia_contents", type="string", example="image"),
-     *             @OA\Property(property="post_id", type="integer", example=10)
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=201,
-     *         description="Multimedia content created and linked to post",
-     *         @OA\JsonContent(ref="#/components/schemas/MultimediaContentSchema")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=403,
-     *         description="Unauthorized - only post creator can attach multimedia"
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     )
+     * path="/api/multimedia-contents",
+     * summary="Upload and attach multimedia to a post",
+     * description="Uploads a file (image/video) and links it to a post.",
+     * tags={"Multimedia Content"},
+     * security={{"bearerAuth":{}}},
+     * @OA\RequestBody(
+     * required=true,
+     * @OA\MediaType(
+     * mediaType="multipart/form-data",
+     * @OA\Schema(
+     * required={"file", "post_id"},
+     * @OA\Property(
+     * property="file",
+     * type="string",
+     * format="binary",
+     * description="The image or video file to upload."
+     * ),
+     * @OA\Property(
+     * property="post_id",
+     * type="integer",
+     * description="The ID of the post to attach the media to.",
+     * example=1
+     * )
+     * )
+     * )
+     * ),
+     * @OA\Response(
+     * response=201,
+     * description="Multimedia uploaded and linked successfully.",
+     * @OA\JsonContent(ref="#/components/schemas/MultimediaContentSchema")
+     * ),
+     * @OA\Response(response=422, description="Validation Error"),
+     * @OA\Response(response=401, description="Unauthenticated")
      * )
      */
-
-    public function store(CreateMultimediaContentRequest $request): JsonResponse
+    public function store(UploadMultimediaContentRequest $request): JsonResponse
     {
-        $post = Post::find($request->validated('post_id'));
-
-        if (auth()->id() !== $post->user_id) {
-            return response()->json(['message' => 'Unauthorized action.'], 403);
-        }
+        $file = $request->file('file');
+        $postId = $request->validated('post_id');
+        
+        $fileType = str_starts_with($file->getMimeType(), 'video') ? 'video' : 'image';
+        
+        $path = $file->store('multimedia', 'public');
 
         $multimediaContent = MultimediaContent::create([
-            'url_multimedia_contents' => $request->validated('url_multimedia_contents'),
-            'type_multimedia_contents' => $request->validated('type_multimedia_contents'),
-            'post_id' => $request->validated('post_id'),
+            'url_multimedia_contents' => $path,
+            'type_multimedia_contents' => $fileType,
+            'post_id' => $postId,
         ]);
 
         return response()->json(new MultimediaContentResource($multimediaContent), 201);
     }
-
 
     /**
      * @OA\Delete(

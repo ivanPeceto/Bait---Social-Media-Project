@@ -17,9 +17,9 @@ class MessageController extends Controller
      * @OA\Get(
      * path="/api/chats/{chat}/messages",
      * operationId="getChatMessages",
-     * tags={"Messages"},
+     * tags={"Messages"}, 
      * summary="List messages in a specific chat",
-     * description="Retrieves a paginated list of messages for a given chat. The authenticated user must be a participant of the chat.",
+     * description="Retrieves a paginated list of messages for a given chat.",
      * security={{"bearerAuth":{}}},
      * @OA\Parameter(
      * name="chat",
@@ -30,14 +30,26 @@ class MessageController extends Controller
      * ),
      * @OA\Response(
      * response=200,
-     * description="Successful operation",
+     * description="A paginated list of messages.",
      * @OA\JsonContent(
+     * type="object",
+     * @OA\Property(
+     * property="data",
      * type="array",
      * @OA\Items(ref="#/components/schemas/MessageSchema")
+     * ),
+     * @OA\Property(
+     * property="links",
+     * ref="#/components/schemas/PaginatedLinksSchema"
+     * ),
+     * @OA\Property(
+     * property="meta",
+     * ref="#/components/schemas/PaginatedMetaSchema"
+     * )
      * )
      * ),
      * @OA\Response(response=401, description="Unauthenticated"),
-     * @OA\Response(response=403, description="Forbidden - User is not a participant of this chat"),
+     * @OA\Response(response=403, description="Forbidden"),
      * @OA\Response(response=404, description="Chat not found")
      * )
      */
