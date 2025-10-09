@@ -1,34 +1,32 @@
-// /frontend/src/app/app.config.ts (MODIFICADO)
+// app.config.ts
 
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http'; // Importaciones necesarias
-
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { routes } from './app.routes'; 
+import { AuthErrorInterceptor } from './core/interceptors/auth-error.interceptor'; 
+import { JwtInterceptor } from './core/interceptors/jwt.interceptor'; 
 
-// Importamos los interceptores
-//import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
-//import { authErrorInterceptor } from './core/interceptors/auth-error.interceptor';
-
-/**
- * @const appConfig
- * @description Configuración principal de la aplicación Angular Standalone.
- * Registra el sistema de routing y configura el cliente HTTP con los interceptores.
- */
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    // La constante 'routes' aquí se resuelve con el array importado de app.routes.ts
+    provideRouter(routes), 
     
-    /**
-     * @brief Configuración del cliente HTTP con interceptores.
-     * @description Se registran los interceptores de forma funcional (nueva práctica).
-     * El orden es importante para las respuestas (se ejecutan en orden inverso).
-     */
+    // 1. Provee el cliente HTTP y habilita el uso de interceptores basados en DI
     provideHttpClient(
-      withInterceptors([
-        //authErrorInterceptor, // 1. Se ejecuta de último en la respuesta para manejar el 401.
-        //jwtInterceptor        // 2. Se ejecuta de primero en la petición para inyectar el token.
-      ])
-    )
+      withInterceptorsFromDi()
+    ),
+
+    // 2. Registra los interceptores en el orden correcto
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthErrorInterceptor,
+      multi: true,
+    }
   ]
 };

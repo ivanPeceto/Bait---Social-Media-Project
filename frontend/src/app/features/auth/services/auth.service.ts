@@ -1,116 +1,165 @@
 /**
  * @file auth.service.ts
- * @description This file contains the centralized authentication service for the application.
- * It manages the user's login state, as well as the storage and retrieval of JWT tokens.
+ * @brief Centralized service for managing user session state and authentication workflow.
+ * @details This service is responsible for handling JWT storage in browser's local storage,
+ * providing the current authentication status reactively via Observable, and implementing 
+ * essential safeguards to prevent Server-Side Rendering (SSR) failures.
  */
+import { Injectable, inject, PLATFORM_ID } from '@angular/core'; 
+import { isPlatformBrowser } from '@angular/common'; 
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap, BehaviorSubject } from 'rxjs'; 
+import { Router } from '@angular/router';
 
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-
-/**
- * @interface AuthToken
- * @description Defines the structure of the token object received from the API and stored locally.
- */
-export interface AuthToken {
-  /**
-   * @property {string} access_token - The JWT used to authenticate API requests.
-   */
+// NOTE: Interfaces matching the backend API contract are defined here.
+interface AuthResponse {
   access_token: string;
-  /**
-   * @property {string} token_type - The type of token, typically 'Bearer'.
-   */
-  token_type: string;
-  /**
-   * @property {number} expires_in - The time in seconds until the access token expires.
-   */
+  refresh_token?: string;
   expires_in: number;
+  user: { 
+    id: number; 
+    name: string; 
+    email: string; 
+  };
 }
+
+interface Credentials {
+  email: string;
+  password: string;
+}
+
+const API_URL = 'http://localhost:8000/api/auth'; // API base URL for authentication endpoints
 
 /**
  * @class AuthService
- * @description Injectable service to manage authentication state and JWT tokens.
- * It provides a reactive way for components to be aware of the authentication status.
- * @Injectable
+ * @description Provides reactive session management and handles API calls for login/register.
+ * It centralizes all state management and storage logic.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
+  private readonly JWT_TOKEN_KEY = 'accessToken';
+  private readonly REFRESH_TOKEN_KEY = 'refreshToken';
+  private platformId = inject(PLATFORM_ID);
+  
   /**
    * @private
-   * @readonly
-   * @property {string} JWT_TOKEN_KEY - The key used to store the AuthToken object in localStorage.
+   * @property {BehaviorSubject<boolean>} isLoggedIn - Internal reactive source holding the authentication state.
+   * @description Initialized to 'false' on the server (SSR) to prevent errors.
    */
-  private readonly JWT_TOKEN_KEY = 'bait_jwt_token';
-
-  /**
-   * @private
-   * @property {BehaviorSubject<boolean>} isLoggedIn - Private BehaviorSubject that holds the current authentication state.
-   */
-  private isLoggedIn = new BehaviorSubject<boolean>(this.hasToken());
+  private isLoggedIn = new BehaviorSubject<boolean>(false); 
 
   /**
    * @public
-   * @property {Observable<boolean>} isLoggedIn$ - Public Observable of the authentication state. Components subscribe to it to react to login/logout changes.
+   * @property {Observable<boolean>} isLoggedIn$ - Public observable for components and guards to react to session changes.
    */
-  public isLoggedIn$: Observable<boolean> = this.isLoggedIn.asObservable();
+  public isLoggedIn$: Observable<boolean> = this.isLoggedIn.asObservable(); 
+
+  private http = inject(HttpClient);
+  private router = inject(Router); 
 
   /**
    * @constructor
-   * @description Initializes the service. The initial state of isLoggedIn is set in the property's own constructor.
+   * @description Initializes the service. Checks for existing tokens in storage only if running in the browser.
    */
-  constructor() { }
-
-  /**
-   * @brief Handles a successful login.
-   * @description Stores the JWT in localStorage and updates the authentication state to `true`, notifying all subscribed components.
-   * @param {AuthToken} token - The token object received from the API after a successful login.
-   * @returns {void}
-   */
-  login(token: AuthToken): void {
-    localStorage.setItem(this.JWT_TOKEN_KEY, JSON.stringify(token));
-    this.isLoggedIn.next(true);
-  }
-
-  /**
-   * @brief Handles the user logout process.
-   * @description Removes the JWT from localStorage and updates the authentication state to `false`, notifying all subscribed components.
-   * @returns {void}
-   */
-  logout(): void {
-    localStorage.removeItem(this.JWT_TOKEN_KEY);
-    this.isLoggedIn.next(false);
-  }
-
-  /**
-   * @brief Retrieves the full token object from localStorage.
-   * @returns {AuthToken | null} The AuthToken object if it exists, or `null` if no token is stored.
-   */
-  getToken(): AuthToken | null {
-    const tokenString = localStorage.getItem(this.JWT_TOKEN_KEY);
-    if (tokenString) {
-      return JSON.parse(tokenString) as AuthToken;
+  constructor() {
+    // Check authentication status only after the browser environment is confirmed, preventing SSR failures.
+    if (isPlatformBrowser(this.platformId)) {
+        this.isLoggedIn.next(this.isAuthenticated());
     }
-    return null;
+  }
+
+  // ----------------------------------------------------
+  // PUBLIC METHODS (API and State Control)
+  // ----------------------------------------------------
+
+  /**
+   * @brief Attempts to log the user in by calling the backend API.
+   * @details If successful, it saves session data and updates the reactive state.
+   * @param {Credentials} credentials - The user's email and password.
+   * @returns {Observable<AuthResponse>} An Observable of the successful response, containing tokens and user data.
+   */
+  public login(credentials: Credentials): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API_URL}/api/auth//login`, credentials).pipe(
+      tap(response => {
+        this.saveSessionData(response);
+        this.isLoggedIn.next(true);
+      })
+    );
+  }
+
+  /**
+   * @brief Registers a new user account by calling the backend API.
+   * @details If successful, it performs an automatic login, saves session data, and updates the reactive state.
+   * @param {any} userData - User's registration details.
+   * @returns {Observable<AuthResponse>} An Observable of the successful response.
+   */
+  public register(userData: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API_URL}/api/auth/register`, userData).pipe(
+      tap(response => {
+        this.saveSessionData(response);
+        this.isLoggedIn.next(true);
+      })
+    );
+  }
+
+  /**
+   * @brief Clears all authentication data from local storage and redirects the user to the login page.
+   */
+  public logout(): void {
+    this.removeSessionData();
+    this.isLoggedIn.next(false);
+    this.router.navigate(['/auth/login']);
+  }
+
+  /**
+   * @brief Retrieves the access token from storage.
+   * @details This method is used primarily by the JwtInterceptor to attach the token to request headers.
+   * @returns {string | null} The access token string or null, protected against SSR environment access.
+   */
+  getAccessToken(): string | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    return localStorage.getItem(this.JWT_TOKEN_KEY);
   }
   
   /**
-   * @brief Helper method to get only the `access_token`.
-   * @description This method is particularly useful for HTTP interceptors that need to attach the 'Bearer' token to request headers.
-   * @returns {string | null} The access_token string if it exists, otherwise `null`.
+   * @brief Checks if the user is currently authenticated (i.e., if a token is present).
+   * @returns {boolean} True if a token exists, false otherwise, protected against SSR.
    */
-  getAccessToken(): string | null {
-    return this.getToken()?.access_token || null;
+  isAuthenticated(): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
+    // Simple token presence check
+    return !!this.getAccessToken();
+  }
+
+  // ----------------------------------------------------
+  // PRIVATE METHODS (Storage Handling)
+  // ----------------------------------------------------
+
+  /**
+   * @private
+   * @brief Saves the authentication response data (tokens) to the browser's local storage.
+   * @param {AuthResponse} authData - The response object containing tokens and user details.
+   */
+  private saveSessionData(authData: AuthResponse): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    localStorage.setItem(this.JWT_TOKEN_KEY, authData.access_token);
+    if (authData.refresh_token) {
+        localStorage.setItem(this.REFRESH_TOKEN_KEY, authData.refresh_token);
+    }
+    localStorage.setItem('currentUser', JSON.stringify(authData.user));
   }
 
   /**
    * @private
-   * @brief Checks if a token exists in localStorage.
-   * @description Private helper method to determine the initial authentication state.
-   * @returns {boolean} `true` if the token exists, `false` otherwise.
+   * @brief Removes all authentication data from local storage.
    */
-  private hasToken(): boolean {
-    return !!localStorage.getItem(this.JWT_TOKEN_KEY);
+  private removeSessionData(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    localStorage.removeItem(this.JWT_TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem('currentUser');
   }
 }

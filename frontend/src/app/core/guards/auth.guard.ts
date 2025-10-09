@@ -1,54 +1,29 @@
 /**
  * @file auth.guard.ts
- * @description Functional route guard to protect routes that should only be accessible
- * by authenticated users.
+ * @brief Route Guard to protect private routes that require user authentication.
+ * @details This guard is implemented as a functional guard (CanActivateFn). It synchronously 
+ * checks the user's session status using AuthService.isAuthenticated(). If the user is 
+ * not authenticated, it ensures a clean logout state and redirects them to the login route.
  */
-
-import { inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { CanActivateFn, Router, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../../features/auth/services/auth.service';
 
 /**
- * @brief Authentication Route Guard (CanActivateFn).
- * @description Determines if a route can be activated. It checks the user's authentication
- * status and handles Server-Side Rendering (SSR) by allowing rendering on the server
- * but enforcing the check on the browser.
- *
- * @returns {Observable<boolean | UrlTree>} Observable that emits `true` (allow access)
- * or a `UrlTree` (redirect to login).
+ * @brief Functional Guard implementation for checking authentication status.
+ * @param route The activated route snapshot.
+ * @param state The router state snapshot.
+ * @returns {boolean | UrlTree} True if the user is authenticated, otherwise redirects via a UrlTree.
  */
-export const authGuard: CanActivateFn = ():
-  | Observable<boolean | UrlTree>
-  | Promise<boolean | UrlTree>
-  | boolean
-  | UrlTree => {
-
-  const platformId = inject(PLATFORM_ID);
-  
-  // 1. SSR Protection: If running on the server (Node.js), allow access.
-  // This enables pre-rendering of the protected component for better SEO/performance.
-  if (!isPlatformBrowser(platformId)) {
-      return true; 
-  }
-
-  // 2. Browser Logic: Inject services and apply security check.
+export const AuthGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Subscribe to the reactive login state
-  return authService.isLoggedIn$.pipe(
-    map((isLoggedIn: boolean) => {
-      if (isLoggedIn) {
-        // If authenticated, grant access.
-        return true;
-      } else {
-        // If not authenticated, redirect to the login route.
-        return router.createUrlTree(['/auth/login']);
-      }
-    })
-  );
+  if (authService.isAuthenticated()) {
+    return true; // Access granted
+  } else {
+    // Access denied: ensure the session state is clean and redirect.
+    authService.logout(); 
+    return router.createUrlTree(['/auth/login']); // Redirect to the login route
+  }
 };

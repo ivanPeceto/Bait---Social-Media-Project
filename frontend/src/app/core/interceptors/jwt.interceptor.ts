@@ -1,49 +1,42 @@
 /**
  * @file jwt.interceptor.ts
- * @description Functional interceptor to attach the JWT access token to all outgoing HTTP requests.
- * This is a key component of security best practices in Angular.
+ * @brief Interceptor responsible for attaching the JWT access token to outgoing API requests.
+ * @details This interceptor reads the stored access token and injects it into the 
+ * Authorization header for all authenticated routes. It prevents injecting 
+ * the token for public endpoints like login and token refresh to avoid errors.
  */
-
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { AuthService } from '../../features/auth/services/auth.service';
+@Injectable()
+export class JwtInterceptor implements HttpInterceptor {
 
-/**
- * @brief Functional interceptor for injecting the JWT into request headers.
- * @description Uses `AuthService.getAccessToken()` to retrieve the token and attaches it as
- * 'Bearer <token>' in the 'Authorization' header for all outgoing requests.
- *
- * @param {HttpRequest<unknown>} req The outgoing HTTP request.
- * @param {HttpHandlerFn} next The next interceptor/handler in the chain.
- * @returns {Observable<HttpEvent<unknown>>} An Observable of HTTP events.
- */
-export const jwtInterceptor: HttpInterceptorFn = (
-  req: HttpRequest<unknown>,
-  next: HttpHandlerFn
-): Observable<HttpEvent<unknown>> => {
+  constructor(/* private authService: AuthService */) {}
 
-  // Inject the authentication service
-  const authService = inject(AuthService);
+  /**
+   * @brief Intercepts an outgoing request and attaches the Authorization header.
+   * * @param request The outgoing request object.
+   * @param next The next interceptor or the final handler.
+   * @returns An Observable of the HTTP events.
+   */
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // 1. Retrieve the access token. 
+    const accessToken = localStorage.getItem('accessToken'); 
+    
+    // 2. Define public URL keywords that should not receive a token.
+    const publicUrls = ['login', 'register', 'refresh'];
+    const isPublicUrl = publicUrls.some(url => request.url.includes(url));
 
-  // Get the access token
-  const accessToken = authService.getAccessToken(); //
+    // 3. Inject the token if available and the URL is not public.
+    if (accessToken && !isPublicUrl) {
+      request = request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    }
 
-  // If the token exists, clone the request and add the header
-  if (accessToken) {
-    // Clone the immutable request object to modify headers
-    const cloned = req.clone({
-      setHeaders: {
-        // Standard format for JWT Bearer tokens (RFC 6750)
-        Authorization: `Bearer ${accessToken}` 
-      }
-    });
-
-    // Pass the cloned request (with the token) to the next handler
-    return next(cloned);
+    return next.handle(request);
   }
-
-  // If there is no token, pass the original request unchanged.
-  return next(req);
-};
+}

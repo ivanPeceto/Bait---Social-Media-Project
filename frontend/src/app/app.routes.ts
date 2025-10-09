@@ -6,7 +6,7 @@
 
 import { Routes } from '@angular/router';
 
-// import { authGuard } from './core/guards/auth.guard'; 
+import { AuthGuard } from './core/guards/auth.guard'; 
 
 /**
  * @const routes
@@ -18,18 +18,15 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
 
-  // 2. PROTECTED ROUTES (Main Application Content)
+  // 2. PROTECTED ROUTES 
   {
     path: '', 
-    /**
-     * @property {CanActivateFn[]} canActivate - Applies the authGuard to this route and its children.
-     * If the guard returns false or a UrlTree, navigation is canceled or redirected.
-     */
+    canActivate: [AuthGuard],
     loadChildren: () => import('./features/home/home.routes').then(m => m.HOME_ROUTES)
   },
   
   {
     path: '**',
-    redirectTo: '' // Redirects unmatched paths to the base route (which is protected)
+    redirectTo: '' 
   }
 ];
