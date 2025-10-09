@@ -25,7 +25,8 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './register.html', 
   styleUrls: ['./register.scss'] 
 })
-export default class RegisterComponent {
+
+export default class Register{
 
   private authService = inject(AuthService);
   private router = inject(Router);
