@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Support\Str;
 
-class AdminUserSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     public function run()
     {
