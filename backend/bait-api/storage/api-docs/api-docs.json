@@ -1864,11 +1864,6 @@
                                         "format": "email",
                                         "example": "jane@example.com"
                                     },
-                                    "state_id": {
-                                        "description": "ID of the new state for the user",
-                                        "type": "integer",
-                                        "example": 2
-                                    },
                                     "role_id": {
                                         "description": "ID of the new role for the user",
                                         "type": "integer",
