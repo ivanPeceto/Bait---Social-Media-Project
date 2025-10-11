@@ -189,12 +189,6 @@ class ProfileController extends Controller
      *             @OA\Property(property="name", type="string", example="Jane Doe"),
      *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
      *             @OA\Property(
-     *                 property="state_id",
-     *                 type="integer",
-     *                 example=2,
-     *                 description="ID of the new state for the user"
-     *             ),
-     *             @OA\Property(
      *                 property="role_id",
      *                 type="integer",
      *                 example=2,
