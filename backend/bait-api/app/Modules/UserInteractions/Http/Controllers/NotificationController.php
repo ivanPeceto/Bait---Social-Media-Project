@@ -67,7 +67,7 @@ class NotificationController extends Controller
 
     public function show(Notification $notification): NotificationResource|JsonResponse
     {
-        if (auth()->id() !== $notification->notifiable_id) {
+        if (auth()->id() !== $notification->user_id) {
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
 
