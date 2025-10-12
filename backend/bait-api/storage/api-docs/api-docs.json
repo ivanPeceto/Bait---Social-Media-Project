@@ -3439,7 +3439,7 @@
                 "type": "object"
             },
             "UserResource": {
-                "title": "User Schema",
+                "title": "User Resource",
                 "description": "Represents a user in the system.",
                 "properties": {
                     "id": {
@@ -3489,7 +3489,7 @@
                 "type": "object"
             },
             "ChatResource": {
-                "title": "Chat Schema",
+                "title": "Chat Resource",
                 "description": "Represents a chat conversation.",
                 "properties": {
                     "id": {
@@ -3530,7 +3530,7 @@
                 "type": "object"
             },
             "FollowResource": {
-                "title": "Follow Schema",
+                "title": "Follow Resource",
                 "description": "Represents a follow relationship between two users.",
                 "properties": {
                     "id": {
@@ -3554,7 +3554,7 @@
                 "type": "object"
             },
             "MessageResource": {
-                "title": "Message Schema",
+                "title": "Message Resource",
                 "description": "Represents a message within a chat.",
                 "properties": {
                     "id": {
@@ -3580,7 +3580,7 @@
                 "type": "object"
             },
             "NotificationResource": {
-                "title": "Notification Schema",
+                "title": "Notification Resource",
                 "description": "Represents a user notification.",
                 "properties": {
                     "id": {
@@ -3680,16 +3680,20 @@
             "description": "Privileged"
         },
         {
-            "name": "Chats"
+            "name": "Chats",
+            "description": "Chats"
         },
         {
-            "name": "Follows"
+            "name": "Follows",
+            "description": "Follows"
         },
         {
-            "name": "Messages"
+            "name": "Messages",
+            "description": "Messages"
         },
         {
-            "name": "Notifications"
+            "name": "Notifications",
+            "description": "Notifications"
         }
     ]
 }
