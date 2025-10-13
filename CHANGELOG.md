@@ -1,5 +1,49 @@
 # Changelog
 
+## [2.1.2]
+
+**Author:** _@jmrodriguezspinker_
+**Date:** 2025-10-12
+**Branch:** `feature/frontend/auth-ui`
+
+#### 🚀 Added
+
+* Se agregó la variable global `API_URL` en Angular (`environment.ts`) para facilitar la configuración de endpoints.
+* Se añadió un botón de **logout** en el frontend, junto con su lógica de cierre de sesión.
+* Se habilitó **CORS** en el backend (`config/cors.php`) para permitir peticiones cruzadas durante el desarrollo.
+
+#### 🛠️ Changed
+
+* Se modificó `.env.example` cambiando `REVERB_SECRET` por `REVERB_APP_SECRET` para que funcione correctamente **Reverb**.
+* Se actualizó la documentación (`api-docs.json`) con cambios menores.
+* Se actualizó el script `start` en `package.json` agregando `--poll` para habilitar **hot reload** en entornos donde el file watcher no detecta cambios.
+* Se adaptó el interceptor de errores de autenticación y el servicio `auth.service.ts` para permitir definir rutas dinámicas desde el `environment`.
+* Se ajustó la lógica de **login** y **registro** para que se conecten correctamente con el backend.
+* Se modificó el mínimo de caracteres para contraseñas a **8** en login y register.
+* Se actualizó el `registerController` para incluir el campo `name` y ajustar validaciones.
+
+#### 🧹 Chore
+
+* Se corrigió la importación del componente `Login` eliminando los `{}` innecesarios.
+
+
+## [2.1.1]
+
+**Author:** _@jmrodriguezspinker_
+**Date:** 2025-10-11
+**Branch:** `feature/frontend/auth-ui`
+
+#### 🚀 Added
+
+* Se agregaron los seeders `DatabaseSeeder` y `UserSeeder` en `backend/api-bait/database/seeders`.
+
+#### 🛠️ Changed
+
+* Se modificó el archivo `docker-compose.yml` para incluir el servicio de **phpMyAdmin**.
+* Se agregó el script `start_server_mod` para incluir los comandos `flads init-api` y `fresh`.
+* Se actualizó `.env.example` cambiando la variable `REVERB_SECRET` a `REVERB_APP_SECRET`.
+* Se añadió la línea comentada `# AUTH_GUARD` en `.env.example` como referencia para futuras configuraciones.
+
 ## [1.1.3] - 2025-10-06
 
 _(Cambios realizados por @jmrodriguezspinker)_
