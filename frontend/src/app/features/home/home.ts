@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth/services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -7,5 +8,11 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './home.html',
 })
 export class Home {
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
+  logout() {
+    this.authService.logout(); // Limpia token / sesión
+    this.router.navigate(['/auth/login']); // Redirige al login
+  }
 }
