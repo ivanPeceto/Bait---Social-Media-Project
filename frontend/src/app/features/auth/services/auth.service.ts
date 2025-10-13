@@ -10,6 +10,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, BehaviorSubject } from 'rxjs'; 
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 // NOTE: Interfaces matching the backend API contract are defined here.
 interface AuthResponse {
@@ -28,7 +29,7 @@ interface Credentials {
   password: string;
 }
 
-const API_URL = 'http://localhost:8000/api/auth'; // API base URL for authentication endpoints
+const API_URL = environment.API_URL; // API base URL for authentication endpoints
 
 /**
  * @class AuthService
@@ -82,7 +83,7 @@ export class AuthService {
    * @returns {Observable<AuthResponse>} An Observable of the successful response, containing tokens and user data.
    */
   public login(credentials: Credentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API_URL}/api/auth//login`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${API_URL}/auth/login`, credentials).pipe(
       tap(response => {
         this.saveSessionData(response);
         this.isLoggedIn.next(true);
@@ -97,7 +98,7 @@ export class AuthService {
    * @returns {Observable<AuthResponse>} An Observable of the successful response.
    */
   public register(userData: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API_URL}/api/auth/register`, userData).pipe(
+    return this.http.post<AuthResponse>(`${API_URL}/auth/register`, userData).pipe(
       tap(response => {
         this.saveSessionData(response);
         this.isLoggedIn.next(true);

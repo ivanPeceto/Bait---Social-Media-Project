@@ -1,19 +1,25 @@
 /**
  * @file auth-error.interceptor.ts
  * @brief Handles HTTP 401 Unauthorized errors to automatically refresh JWT access tokens.
- * @details This interceptor centralizes the logic for token renewal, preventing multiple 
- * simultaneous refresh attempts (race condition) and ensuring subsequent 
+ * @details This interceptor centralizes the logic for token renewal, preventing multiple
+ * simultaneous refresh attempts (race condition) and ensuring subsequent
  * failed requests are retried with the newly acquired access token.
  */
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse, HttpClient } from '@angular/common/http'; 
+import {
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpInterceptor,
+  HttpErrorResponse,
+  HttpClient,
+} from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, take, switchMap, finalize } from 'rxjs/operators';
-
+import { environment } from '../../../environments/environment';
 
 @Injectable()
 export class AuthErrorInterceptor implements HttpInterceptor {
-
   private isRefreshing = false;
   /** Stores the new access token and broadcasts it to queued requests upon success. */
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -22,7 +28,9 @@ export class AuthErrorInterceptor implements HttpInterceptor {
    * @brief Injects the HttpClient service.
    * @param http Provides HTTP methods necessary for token renewal.
    */
-  constructor(private http: HttpClient /*, private authService: AuthService, private router: Router */) {}
+  constructor(
+    private http: HttpClient /*, private authService: AuthService, private router: Router */
+  ) { }
 
   /**
    * @brief Intercepts the HTTP response stream to catch 401 errors.
@@ -72,11 +80,11 @@ export class AuthErrorInterceptor implements HttpInterceptor {
           this.isRefreshing = false;
           // Assumes Laravel/Backend returns: { access_token: '...', refresh_token: '...' }
           const newAccessToken = response.access_token;
-          
+
           // Implement Auth Service method here:
-          // this.authService.saveTokens(response); 
+          // this.authService.saveTokens(response);
           localStorage.setItem('accessToken', newAccessToken); // Temporary storage update
-          
+
           this.refreshTokenSubject.next(newAccessToken); // Desbloquea y emite nuevo token
 
           // Retry the original failed request with the new access token
@@ -94,9 +102,9 @@ export class AuthErrorInterceptor implements HttpInterceptor {
     } else {
       // If refresh is already in progress, queue the current request.
       return this.refreshTokenSubject.pipe(
-        filter(token => token !== null), // Wait until the new token is emitted
+        filter((token) => token !== null), // Wait until the new token is emitted
         take(1), // Only process the first emitted token
-        switchMap(token => {
+        switchMap((token) => {
           // Retry the queued request with the new token
           return next.handle(this.addToken(request, token));
         })
@@ -104,17 +112,17 @@ export class AuthErrorInterceptor implements HttpInterceptor {
     }
   }
 
-/**
- * @brief Calls the backend endpoint to exchange the refresh token for a new access token.
- * @param refreshToken The expired refresh token.
- * @returns An Observable with the new token data.
- */
-private callRefreshEndpoint(refreshToken: string): Observable<any> { 
+  /**
+   * @brief Calls the backend endpoint to exchange the refresh token for a new access token.
+   * @param refreshToken The expired refresh token.
+   * @returns An Observable with the new token data.
+   */
+  private callRefreshEndpoint(refreshToken: string): Observable<any> {
 
-  const refreshUrl = 'YOUR_API_BASE_URL/api/auth/refresh'; 
+    const refreshUrl = `${environment.API_URL}/auth/refresh`;
 
-  return this.http.post(refreshUrl, { refresh_token: refreshToken });
-}
+    return this.http.post(refreshUrl, { refresh_token: refreshToken });
+  }
 
   /**
    * @brief Clones the request and adds the Authorization header.
@@ -136,16 +144,16 @@ private callRefreshEndpoint(refreshToken: string): Observable<any> {
    * @returns True if the URL is the refresh endpoint.
    */
   private isRefreshAttempt(url: string): boolean {
-    const refreshUrlKeyword = 'refresh_token'; 
+    const refreshUrlKeyword = 'refresh_token';
     return url.includes(refreshUrlKeyword);
   }
-  
+
   /**
    * @brief Cleans up tokens and redirects to the login page.
    */
   private handleLogout(): void {
-    // this.authService.removeTokens(); 
-    // this.router.navigate(['/login']); 
+    // this.authService.removeTokens();
+    // this.router.navigate(['/login']);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
   }
