@@ -50,7 +50,8 @@ export default class RegisterComponent {
     username: new FormControl('', [Validators.required, Validators.minLength(3)]),
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
     email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required, Validators.minLength(6)])
+    password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+    password_confirmation: new FormControl('', [Validators.required, Validators.minLength(8)])
   });
 
   /**
