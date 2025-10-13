@@ -9,15 +9,13 @@ import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // La constante 'routes' aquí se resuelve con el array importado de app.routes.ts
+
     provideRouter(routes), 
     
-    // 1. Provee el cliente HTTP y habilita el uso de interceptores basados en DI
     provideHttpClient(
       withInterceptorsFromDi()
     ),
 
-    // 2. Registra los interceptores en el orden correcto
     {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,

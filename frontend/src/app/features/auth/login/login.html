@@ -1,11 +1,17 @@
 <div class="background-shape shape1"></div>
 <div class="background-shape shape2"></div>
 
+<div class="flex flex-col items-center text-gray-300/70 perspective-container">
+  </div>
+
 <div class="login-container relative w-full max-w-xs rounded-2xl">
   <div class="login-blur-background absolute top-0 left-0 w-full h-full rounded-2xl border border-white/10"></div>
-
   <div class="login-form-content relative p-6 text-center">
-    <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="mx-auto h-20 w-auto mb-2">
+
+    <div class="flex justify-center mb-6">
+      <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="h-20">
+    </div>
+
 
     <p class="slogan text-sm text-gray-400 mb-6 tracking-wide">Enganchate y conectá.</p>
 
@@ -20,26 +26,37 @@
       </div>
     </div>
 
-    <form>
-      <div class="form-group relative text-left mb-4">
-        <input type="email" id="email" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Email o usuario" required>
-        <div class="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400 hidden">
-          </div>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
+      
+      <div class="form-group relative">
+        <input type="email" formControlName="email" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Email" required>
+        <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="text-red-400 text-xs mt-1 pl-1">
+          <div *ngIf="email?.errors?.['required']">El email es requerido.</div>
+          <div *ngIf="email?.errors?.['email']">El formato del email no es válido.</div>
+        </div>
       </div>
-      <div class="form-group relative text-left mb-6">
-        <input type="password" id="password" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Contraseña" required>
-        <div class="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400 hidden">
-          </div>
+      
+      <div class="form-group relative">
+        <input type="password" formControlName="password" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Contraseña" required>
+        <div *ngIf="password?.invalid && (password?.dirty || password?.touched)" class="text-red-400 text-xs mt-1 pl-1">
+          <div *ngIf="password?.errors?.['required']">La contraseña es requerida.</div>
+        </div>
       </div>
-      <button type="submit" class="cta-button w-full p-3 mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium rounded-lg transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/40 active:scale-[0.99]">Iniciar Sesión</button>
+      
+      <div *ngIf="errorMessage" class="text-red-400 text-sm text-center bg-red-900/30 p-2 rounded-lg">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="loginForm.invalid" class="cta-button w-full p-3 mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium rounded-lg transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/40 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed">Iniciar sesión</button>
     </form>
 
-    <div class="secondary-links mt-5 text-sm">
-      <a href="#" class="text-gray-400 hover:text-white">¿Olvidaste tu contraseña?</a>
+    <div class="form-divider relative mt-7 pt-7 text-sm">
+      <span class="text-gray-400">¿No tenés una cuenta?</span>
+      <a routerLink="/auth/register" class="font-medium text-blue-400 hover:text-blue-300 ml-2">Registrate</a>
     </div>
 
-    <div class="form-divider relative mt-7 pt-7 text-sm">
-      <span>¿No tenés cuenta? <a [routerLink]="['/auth/register']" class="font-medium text-blue-200 hover:text-white">Registrate</a></span>
   </div>
 </div>
 
+<div class="flex flex-col items-center text-gray-300/70 perspective-container">
+    </div>

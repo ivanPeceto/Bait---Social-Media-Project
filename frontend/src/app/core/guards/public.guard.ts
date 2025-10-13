@@ -21,14 +21,12 @@ export const publicGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Checks the reactive authentication state stream.
+
   return authService.isLoggedIn$.pipe(
     map((isLoggedIn: boolean) => {
       if (isLoggedIn) {
-        // If AUTHENTICATED, redirect to the main application route ('/').
         return router.createUrlTree(['/']);
       } else {
-        // If UN-AUTHENTICATED, allow access to the public route.
         return true;
       }
     })

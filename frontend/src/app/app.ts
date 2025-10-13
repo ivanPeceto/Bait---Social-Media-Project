@@ -15,5 +15,5 @@ export class App {
   /**
    * @brief The title of the application.
    */
-  protected readonly title = signal('frontend');
+  protected readonly title = signal('Bait');
 }
