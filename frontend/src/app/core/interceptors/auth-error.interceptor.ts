@@ -15,7 +15,6 @@ import { catchError, filter, take, switchMap, finalize } from 'rxjs/operators';
 export class AuthErrorInterceptor implements HttpInterceptor {
 
   private isRefreshing = false;
-  /** Stores the new access token and broadcasts it to queued requests upon success. */
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   /**
@@ -34,9 +33,7 @@ export class AuthErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error) => {
         if (error instanceof HttpErrorResponse && error.status === 401) {
-          // Check if it's a 401 error caused by an expired token.
           if (this.isRefreshAttempt(request.url)) {
-            // Error 401 on refresh call: the refresh token is also invalid/expired.
             this.handleLogout();
             return throwError(() => error);
           }
@@ -57,34 +54,31 @@ export class AuthErrorInterceptor implements HttpInterceptor {
   private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
-      this.refreshTokenSubject.next(null); // Clears subject to hold new waiting requests
+      this.refreshTokenSubject.next(null); 
 
-      const refreshToken = localStorage.getItem('refreshToken'); // Get refresh token
+      const refreshToken = localStorage.getItem('refreshToken'); 
 
       if (!refreshToken) {
         this.handleLogout();
         return throwError(() => new Error('Refresh token missing. Cannot renew.'));
       }
 
-      // Chain the token renewal process
+
       return this.callRefreshEndpoint(refreshToken).pipe(
         switchMap((response: any) => {
           this.isRefreshing = false;
-          // Assumes Laravel/Backend returns: { access_token: '...', refresh_token: '...' }
           const newAccessToken = response.access_token;
           
-          // Implement Auth Service method here:
-          // this.authService.saveTokens(response); 
-          localStorage.setItem('accessToken', newAccessToken); // Temporary storage update
+          localStorage.setItem('accessToken', newAccessToken); 
           
-          this.refreshTokenSubject.next(newAccessToken); // Desbloquea y emite nuevo token
+          this.refreshTokenSubject.next(newAccessToken);
 
-          // Retry the original failed request with the new access token
+
           return next.handle(this.addToken(request, newAccessToken));
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          this.handleLogout(); // If refresh fails, force logout
+          this.handleLogout(); 
           return throwError(() => err);
         }),
         finalize(() => {
@@ -92,12 +86,10 @@ export class AuthErrorInterceptor implements HttpInterceptor {
         })
       );
     } else {
-      // If refresh is already in progress, queue the current request.
       return this.refreshTokenSubject.pipe(
-        filter(token => token !== null), // Wait until the new token is emitted
-        take(1), // Only process the first emitted token
+        filter(token => token !== null), 
+        take(1), 
         switchMap(token => {
-          // Retry the queued request with the new token
           return next.handle(this.addToken(request, token));
         })
       );
@@ -144,8 +136,6 @@ private callRefreshEndpoint(refreshToken: string): Observable<any> {
    * @brief Cleans up tokens and redirects to the login page.
    */
   private handleLogout(): void {
-    // this.authService.removeTokens(); 
-    // this.router.navigate(['/login']); 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
   }

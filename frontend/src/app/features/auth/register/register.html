@@ -24,21 +24,52 @@
       Crea tu cuenta
     </h2>
 
-    <form class="space-y-4 text-left">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
+
       <div class="form-group relative">
-        <input type="text" id="username" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Usuario" required>
-      </div>
-      <div class="form-group relative">
-        <input type="email" id="email" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Email" required>
-      </div>
-      <div class="form-group relative">
-        <input type="password" id="password" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Contraseña" required>
-      </div>
-      <div class="form-group relative">
-        <input type="password" id="confirm-password" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Repetir contraseña" required>
+        <input type="text" formControlName="name" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Nombre completo" required>
+        <div *ngIf="name?.invalid && (name?.dirty || name?.touched)" class="text-red-400 text-xs mt-1 pl-1">
+          <div *ngIf="name?.errors?.['required']">Tu nombre es requerido.</div>
+        </div>
       </div>
       
-      <button type="submit" class="cta-button w-full p-3 mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium rounded-lg transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/40 active:scale-[0.99]">Crear cuenta</button>
+      <div class="form-group relative">
+        <input type="text" formControlName="username" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Usuario" required>
+        <div *ngIf="name?.invalid && (name?.dirty || name?.touched)" class="text-red-400 text-xs mt-1 pl-1">
+          <div *ngIf="name?.errors?.['required']">El nombre es requerido.</div>
+          <div *ngIf="name?.errors?.['minlength']">El nombre debe tener al menos 3 caracteres.</div>
+        </div>
+      </div>
+
+      <div class="form-group relative">
+        <input type="email" formControlName="email" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Email" required>
+        <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="text-red-400 text-xs mt-1 pl-1">
+          <div *ngIf="email?.errors?.['required']">El email es requerido.</div>
+          <div *ngIf="email?.errors?.['email']">El formato del email no es válido.</div>
+        </div>
+      </div>
+
+      <div class="form-group relative">
+        <input type="password" formControlName="password" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Contraseña" required>
+        <div *ngIf="password?.invalid && (password?.dirty || password?.touched)" class="text-red-400 text-xs mt-1 pl-1">
+          <div *ngIf="password?.errors?.['required']">La contraseña es requerida.</div>
+          <div *ngIf="password?.errors?.['minlength']">La contraseña debe tener al menos 8 caracteres.</div>
+        </div>
+      </div>
+
+      <div class="form-group relative">
+        <input type="password" formControlName="password_confirmation" class="form-input w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" placeholder="Repetir contraseña" required>
+        <div *ngIf="password_confirmation?.invalid && (password_confirmation?.dirty || password_confirmation?.touched)" class="text-red-400 text-xs mt-1 pl-1">
+          <div *ngIf="password_confirmation?.errors?.['required']">Debes confirmar la contraseña.</div>
+          <div *ngIf="password_confirmation?.errors?.['passwordMismatch']">Las contraseñas no coinciden.</div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="text-red-400 text-sm text-center bg-red-900/30 p-2 rounded-lg">
+        {{ errorMessage }}
+      </div>
+      
+      <button type="submit" [disabled]="registerForm.invalid" class="cta-button w-full p-3 mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium rounded-lg transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/40 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed">Crear cuenta</button>
     </form>
 
     <div class="form-divider relative mt-7 pt-7 text-sm">

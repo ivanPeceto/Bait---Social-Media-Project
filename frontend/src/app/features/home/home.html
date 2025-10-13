@@ -15,73 +15,98 @@
         />
       </div>
 
-      <div class="flex items-center space-x-4 text-sm">
-        <a href="#" class="p-2 rounded-full hover:bg-gray-700">Notificaciones</a>
-        <a href="#" class="p-2 rounded-full hover:bg-gray-700">Mensajes</a>
-        
-        <a href="#" class="block">
-          <img 
-            class="h-8 w-8 rounded-full object-cover ring-2 ring-gray-600 hover:ring-blue-500" 
-            src="assets/images/iconousuario.png" 
-            alt="Mi Perfil">
+      <div class="flex items-center space-x-2">
+        <a href="#" class="p-2 rounded-full hover:bg-gray-700" aria-label="Notificaciones">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </a>
+        <a href="#" class="p-2 rounded-full hover:bg-gray-700" aria-label="Mensajes">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
         </a>
       </div>
     </nav>
   </header>
 
-  <main class="w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
-
-    <aside class="md:col-span-1 bg-gray-800 p-4 rounded-lg h-fit">
-      <div class="flex items-center mb-4">
-        <img class="w-12 h-12 rounded-full mr-4" src="assets/images/usuario2.png" alt="Avatar">
-        <div>
-          <p class="font-bold">Nombre Usuario</p>
-          <p class="text-sm text-gray-400">@usuario</p>
-        </div>
-      </div>
-      <ul class="space-y-2 text-sm">
-        <li><a href="#" class="block hover:bg-gray-700 p-2 rounded-md">Inicio</a></li>
-        <li><a href="#" class="block hover:bg-gray-700 p-2 rounded-md">Explorar</a></li>
-        <li><a href="#" class="block hover:bg-gray-700 p-2 rounded-md">Guardados</a></li>
+  <main class="w-full px-4 sm:px-6 lg:px-8 py-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6">
+    
+    <nav class="hidden md:block md:col-span-1 bg-gray-800 p-4 rounded-lg h-fit sticky top-20">
+      <ul class="space-y-2">
+        <li>
+          <a href="#" class="flex items-center p-2 rounded-md hover:bg-gray-700 font-semibold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+            Inicio
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center p-2 rounded-md hover:bg-gray-700 font-semibold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            Explorar
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center p-2 rounded-md hover:bg-gray-700 font-semibold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            Mi Cuenta
+          </a>
+        </li>
+        <li>
+          <a (click)="logout()" class="flex items-center p-2 rounded-md hover:bg-gray-700 font-semibold cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+            Cerrar Sesión
+          </a>
+        </li>
       </ul>
-    </aside>
+    </nav>
 
-    <section class="md:col-span-2">
-      <div class="bg-gray-800 p-4 rounded-lg mb-6">
-        <textarea
-          class="bg-gray-700 text-white w-full p-3 rounded-md focus:outline-none placeholder-gray-400"
-          rows="3"
-          placeholder="¿Qué estás pensando?"></textarea>
-        <div class="text-right mt-3">
-          <button class="bg-blue-600 px-6 py-2 rounded-md hover:bg-blue-700 font-semibold text-sm">
-            Publicar
-          </button>
-        </div>
-      </div>
-
+    <section class="col-span-1 md:col-span-2 space-y-6">
+      
       <div class="bg-gray-800 p-4 rounded-lg">
-        <div class="flex items-center mb-3">
-          <img class="w-10 h-10 rounded-full mr-3" src="assets/images/usuario2.png" alt="Avatar">
-          <div>
-            <p class="font-semibold text-sm">Otro Usuario</p>
-            <p class="text-xs text-gray-400">hace 10 minutos</p>
+        <form [formGroup]="postForm" (ngSubmit)="onPostSubmit()">
+          <textarea 
+            formControlName="content_posts"
+            class="w-full p-3 bg-gray-700 rounded-md focus:outline-none placeholder-gray-400"
+            rows="3"
+            placeholder="¿Qué estás pensando?"></textarea>
+          
+          <div *ngIf="apiErrors.content_posts" class="text-red-400 text-xs mt-1 pl-1">
+            <div *ngFor="let message of apiErrors.content_posts">
+              {{ message }}
+            </div>
           </div>
-        </div>
-        <p class="text-gray-300 text-sm">¡Este es mi primer post en Bait! Estoy emocionado de probar esta nueva red social. 🚀</p>
+          
+          <div class="text-right mt-3">
+            <button 
+              type="submit" 
+              [disabled]="postForm.invalid"
+              class="bg-blue-600 px-6 py-2 rounded-md hover:bg-blue-700 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+              Publicar
+            </button>
+          </div>
+        </form>
       </div>
+
+      <div *ngFor="let post of posts" class="bg-gray-800 p-4 rounded-lg">
+        <div class="flex items-center mb-3">
+          <img class="w-10 h-10 rounded-full mr-3" src="assets/images/iconousuario.png" alt="Avatar">
+          
+          <div>
+            <p class="font-semibold text-sm">
+              {{ post.user }}
+              <span class="text-xs font-normal text-gray-400 ml-2">{{ post.created_at | date:'mediumDate' }}</span>
+            </p> 
+          </div>
+
+        </div>
+        <p class="text-gray-300 text-sm whitespace-pre-wrap">{{ post.content_posts }}</p>
+      </div>
+
     </section>
 
-    <aside class="hidden md:block md:col-span-1 bg-gray-800 p-4 rounded-lg h-fit">
+    <aside class="hidden lg:block lg:col-span-1 bg-gray-800 p-4 rounded-lg h-fit sticky top-20">
       <h3 class="text-base font-semibold mb-4">A quién seguir</h3>
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center">
-            <img class="w-10 h-10 rounded-full mr-3" src="assets/images/usuario2.png" alt="Avatar">
-            <p class="text-sm">Sugerencia1</p>
-        </div>
-        <button class="bg-transparent border border-blue-500 text-blue-500 px-3 py-1 rounded-full text-xs hover:bg-blue-500 hover:text-white">
-          Seguir
-        </button>
-      </div>
     </aside>
 
   </main>

@@ -20,10 +20,9 @@ export const AuthGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (authService.isAuthenticated()) {
-    return true; // Access granted
+    return true; 
   } else {
-    // Access denied: ensure the session state is clean and redirect.
     authService.logout(); 
-    return router.createUrlTree(['/auth/login']); // Redirect to the login route
+    return router.createUrlTree(['/auth/login']); 
   }
 };

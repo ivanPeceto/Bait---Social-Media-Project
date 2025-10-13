@@ -13,7 +13,7 @@ import { appConfig } from './app.config';
  */
 const serverConfig: ApplicationConfig = {
   providers: [
-    provideServerRendering() // This is the only provider needed for SSR
+    provideServerRendering()
   ]
 };
 
