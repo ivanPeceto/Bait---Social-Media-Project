@@ -15,43 +15,42 @@ class AvatarController extends Controller
 {
     /**
      * @OA\Post(
-     *     path="/api/avatars/upload",
-     *     operationId="uploadAvatar",
-     *     tags={"Avatar"},
-     *     summary="Upload user avatar",
-     *     description="Uploads an image file to be used as the user's avatar. Replaces any existing avatar.",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 required={"avatar"},
-     *                 @OA\Property(
-     *                     property="avatar",
-     *                     type="string",
-     *                     format="binary",
-     *                     description="Image file to upload"
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Avatar uploaded successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/AvatarSchema")
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated"
-     *     )
+     * path="/api/avatars/upload",
+     * operationId="uploadAvatar",
+     * tags={"Avatar"},
+     * summary="Upload user avatar",
+     * description="Uploads an image file to be used as the user's avatar. Replaces any existing avatar.",
+     * security={{"bearerAuth":{}}},
+     * @OA\RequestBody(
+     * required=true,
+     * @OA\MediaType(
+     * mediaType="multipart/form-data",
+     * @OA\Schema(
+     * required={"avatar"},
+     * @OA\Property(
+     * property="avatar",
+     * type="string",
+     * format="binary",
+     * description="Image file to upload"
+     * )
+     * )
+     * )
+     * ),
+     * @OA\Response(
+     * response=201,
+     * description="Avatar created successfully",
+     * @OA\JsonContent(ref="#/components/schemas/AvatarSchema")
+     * ),
+     * @OA\Response(
+     * response=422,
+     * description="Validation error"
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated"
+     * )
      * )
      */
-
     public function upload(AvatarUploadRequest $request): AvatarResource
     {
         $file = $request->file('avatar');
@@ -60,10 +59,19 @@ class AvatarController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        if ($user->avatar) {
+        // --- INICIO DE LA MODIFICACIÓN ---
+        // Se busca el avatar por defecto para evitar que sea eliminado.
+        // Se usa first() en lugar de firstOrFail() para no causar un error si no existe.
+        $defaultAvatar = Avatar::where('url_avatars', 'avatars/default.jpg')->first();
+
+        // Se comprueba si el usuario tiene un avatar asignado.
+        // Y MUY IMPORTANTE: se comprueba que el avatar actual NO SEA el de por defecto.
+        // Solo si se cumplen ambas condiciones, se procede a eliminar el avatar anterior.
+        if ($user->avatar && (!$defaultAvatar || $user->avatar->id !== $defaultAvatar->id)) {
             Storage::disk('public')->delete($user->avatar->url_avatars);
             $user->avatar->delete();
         }
+        // --- FIN DE LA MODIFICACIÓN ---
 
         $avatar = Avatar::create([
             'url_avatars' => $path,
@@ -79,29 +87,29 @@ class AvatarController extends Controller
     
     /**
      * @OA\Get(
-     *     path="/api/avatars/{avatar}",
-     *     summary="Get a specific avatar",
-     *     description="Returns a single avatar resource by ID",
-     *     tags={"Avatar"},
+     * path="/api/avatars/{avatar}",
+     * summary="Get a specific avatar",
+     * description="Returns a single avatar resource by ID",
+     * tags={"Avatar"},
+     * security={{"bearerAuth":{}}},
+     * @OA\Parameter(
+     * name="avatar",
+     * in="path",
+     * required=true,
+     * description="ID of the avatar to retrieve",
+     * @OA\Schema(type="integer")
+     * ),
      *
-     *     @OA\Parameter(
-     *         name="avatar",
-     *         in="path",
-     *         required=true,
-     *         description="ID of the avatar to retrieve",
-     *         @OA\Schema(type="integer")
-     *     ),
+     * @OA\Response(
+     * response=200,
+     * description="Successful response",
+     * @OA\JsonContent(ref="#/components/schemas/AvatarSchema")
+     * ),
      *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful response",
-     *         @OA\JsonContent(ref="#/components/schemas/AvatarSchema")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=404,
-     *         description="Avatar not found"
-     *     )
+     * @OA\Response(
+     * response=404,
+     * description="Avatar not found"
+     * )
      * )
      */
     public function show(Avatar $avatar): AvatarResource
@@ -113,29 +121,27 @@ class AvatarController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/avatars/self",
-     *     summary="Delete the authenticated user's avatar",
-     *     description="Deletes the avatar of the currently authenticated user and replaces it with a default avatar.",
-     *     tags={"Avatar"},
-     *     
-     *     security={{"bearerAuth":{}}},
-     * 
-     *     @OA\Response(
-     *         response=200,
-     *         description="Avatar destroyed and replaced with default",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="Avatar destroyed. Replaced with default."
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized - user not authenticated"
-     *     )
+     * path="/api/avatars/self",
+     * summary="Delete the authenticated user's avatar",
+     * description="Deletes the avatar of the currently authenticated user and replaces it with a default avatar.",
+     * tags={"Avatar"},
+     * * security={{"bearerAuth":{}}},
+     * * @OA\Response(
+     * response=200,
+     * description="Avatar destroyed and replaced with default",
+     * @OA\JsonContent(
+     * type="object",
+     * @OA\Property(
+     * property="message",
+     * type="string",
+     * example="Avatar destroyed. Replaced with default."
+     * )
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthorized - user not authenticated"
+     * )
      * )
      */
     public function destroySelf(): JsonResponse
@@ -150,43 +156,38 @@ class AvatarController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="api/privileged/users/{user}/avatar",
-     *     summary="Delete avatar for a specified user (admin/moderator only)",
-     *     description="Deletes the avatar for the given user and replaces it with a default avatar.",
-     *     tags={"User Management"},
-     * 
-     *     security={{"bearerAuth":{}}},
-     * 
-     *     @OA\Parameter(
-     *         name="user",
-     *         in="path",
-     *         required=true,
-     *         description="ID of the user whose avatar will be deleted",
-     *         @OA\Schema(type="integer")
-     *     ),
-     * 
-     *     @OA\Response(
-     *         response=200,
-     *         description="Avatar destroyed and replaced with default",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="Avatar for user johndoe destroyed. Replaced with default."
-     *             )
-     *         )
-     *     ),
-     * 
-     *     @OA\Response(
-     *         response=403,
-     *         description="Forbidden - user does not have permission"
-     *     ),
-     * 
-     *     @OA\Response(
-     *         response=404,
-     *         description="User not found"
-     *     )
+     * path="/api/privileged/users/{user}/avatar",
+     * summary="Delete avatar for a specified user (admin/moderator only)",
+     * description="Deletes the avatar for the given user and replaces it with a default avatar.",
+     * tags={"User Management"},
+     * * security={{"bearerAuth":{}}},
+     * * @OA\Parameter(
+     * name="user",
+     * in="path",
+     * required=true,
+     * description="ID of the user whose avatar will be deleted",
+     * @OA\Schema(type="integer")
+     * ),
+     * * @OA\Response(
+     * response=200,
+     * description="Avatar destroyed and replaced with default",
+     * @OA\JsonContent(
+     * type="object",
+     * @OA\Property(
+     * property="message",
+     * type="string",
+     * example="Avatar for user johndoe destroyed. Replaced with default."
+     * )
+     * )
+     * ),
+     * * @OA\Response(
+     * response=403,
+     * description="Forbidden - user does not have permission"
+     * ),
+     * * @OA\Response(
+     * response=404,
+     * description="User not found"
+     * )
      * )
      */
     public function destroyUserAvatar(User $user): JsonResponse
