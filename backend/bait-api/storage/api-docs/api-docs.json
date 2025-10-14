@@ -124,6 +124,53 @@
                 ]
             }
         },
+        "/api/comments/post/{post}": {
+            "get": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "List Comments for a Post",
+                "description": "Retrieves a list of all comments associated with a specific post ID.",
+                "operationId": "listCommentsForPost",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "The ID of the post.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of comments for the specified post.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CommentSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Post not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/comments/{comment}": {
             "get": {
                 "tags": [
@@ -266,31 +313,28 @@
                 "tags": [
                     "Multimedia Content"
                 ],
-                "summary": "Attach multimedia to a post",
-                "description": "Creates a multimedia content item (image/video) and links it to a post created by the authenticated user.",
+                "summary": "Upload and attach multimedia to a post",
+                "description": "Uploads a file (image/video) and links it to a post.",
                 "operationId": "f9d88d3d79b6a7a71c4a8e9b4153b72d",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "url_multimedia_contents",
-                                    "type_multimedia_contents",
+                                    "file",
                                     "post_id"
                                 ],
                                 "properties": {
-                                    "url_multimedia_contents": {
+                                    "file": {
+                                        "description": "The image or video file to upload.",
                                         "type": "string",
-                                        "example": "uploads/posts/media123.jpg"
-                                    },
-                                    "type_multimedia_contents": {
-                                        "type": "string",
-                                        "example": "image"
+                                        "format": "binary"
                                     },
                                     "post_id": {
+                                        "description": "The ID of the post to attach the media to.",
                                         "type": "integer",
-                                        "example": 10
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -300,7 +344,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Multimedia content created and linked to post",
+                        "description": "Multimedia uploaded and linked successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -309,11 +353,11 @@
                             }
                         }
                     },
-                    "403": {
-                        "description": "Unauthorized - only post creator can attach multimedia"
-                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation Error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
@@ -2693,7 +2737,7 @@
                     "Messages"
                 ],
                 "summary": "List messages in a specific chat",
-                "description": "Retrieves a paginated list of messages for a given chat. The authenticated user must be a participant of the chat.",
+                "description": "Retrieves a paginated list of messages for a given chat.",
                 "operationId": "getChatMessages",
                 "parameters": [
                     {
@@ -2708,14 +2752,25 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "A paginated list of messages.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/MessageSchema"
-                                    }
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/MessageSchema"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginatedLinksSchema"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginatedMetaSchema"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -2724,7 +2779,7 @@
                         "description": "Unauthenticated"
                     },
                     "403": {
-                        "description": "Forbidden - User is not a participant of this chat"
+                        "description": "Forbidden"
                     },
                     "404": {
                         "description": "Chat not found"
@@ -3010,7 +3065,7 @@
                         "description": "List of users participating in the chat.",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/UserSchema"
+                            "$ref": "#/components/schemas/UserOnCommentSchema"
                         }
                     },
                     "last_message": {
@@ -3034,28 +3089,17 @@
             "CommentSchema": {
                 "title": "Comment Schema",
                 "description": "Represents a user comment on a post.",
-                "required": [
-                    "id",
-                    "content_comments",
-                    "post_id",
-                    "user_id"
-                ],
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 101
                     },
-                    "content_comments": {
+                    "content": {
                         "type": "string",
                         "example": "This is a great post!"
                     },
-                    "post_id": {
-                        "type": "integer",
-                        "example": 42
-                    },
-                    "user_id": {
-                        "type": "integer",
-                        "example": 7
+                    "user": {
+                        "$ref": "#/components/schemas/UserOnCommentSchema"
                     },
                     "created_at": {
                         "type": "string",
@@ -3109,7 +3153,7 @@
                         "example": "Hello, how are you?"
                     },
                     "user": {
-                        "$ref": "#/components/schemas/UserSchema"
+                        "$ref": "#/components/schemas/UserOnCommentSchema"
                     },
                     "created_at": {
                         "description": "Timestamp when the message was sent.",
@@ -3191,6 +3235,71 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2025-10-05T18:45:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatedLinksSchema": {
+                "title": "Paginated Links Schema",
+                "description": "Defines the links object for paginated responses.",
+                "properties": {
+                    "first": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "http://localhost:8001/api/chats/1/messages?page=1"
+                    },
+                    "last": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "http://localhost:8001/api/chats/1/messages?page=1"
+                    },
+                    "prev": {
+                        "type": "string",
+                        "format": "url",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "next": {
+                        "type": "string",
+                        "format": "url",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatedMetaSchema": {
+                "title": "Paginated Meta Schema",
+                "description": "Defines the meta object for paginated responses.",
+                "properties": {
+                    "current_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "from": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "last_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "path": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "http://localhost:8001/api/chats/1/messages"
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "to": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 1
                     }
                 },
                 "type": "object"
@@ -3336,6 +3445,45 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2025-10-06T14:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "UserOnCommentSchema": {
+                "title": "User On Comment Schema",
+                "required": [
+                    "id",
+                    "username",
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T12:34:56Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T12:34:56Z"
                     }
                 },
                 "type": "object"

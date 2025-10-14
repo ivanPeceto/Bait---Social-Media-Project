@@ -129,6 +129,7 @@ Route::middleware('auth:api')->prefix('comments')->group(function () {
     Route::get('/',             [CommentController::class, 'index']);
     Route::post('/',            [CommentController::class, 'store']);
     Route::get('/{comment}',    [CommentController::class, 'show']);
+    Route::get('/post/{post}',    [CommentController::class, 'showFromPost']);
     Route::put('/{comment}',    [CommentController::class, 'update']);
     Route::delete('/{comment}', [CommentController::class, 'destroy']);
 });
@@ -175,11 +176,8 @@ Route::middleware('auth:api')->prefix('chats')->group(function () {
     Route::get('/',         [ChatController::class, 'index']);
     Route::post('/',        [ChatController::class, 'store']);
     Route::get('/{chat}',   [ChatController::class, 'show']);
-});
-
-Route::middleware('auth:api')->prefix('chats/{chat}')->group(function () {
-    Route::get('messages',  [MessageController::class, 'index']); 
-    Route::post('messages', [MessageController::class, 'store']); 
+    Route::get('{chat}/messages',  [MessageController::class, 'index']); 
+    Route::post('{chat}/messages', [MessageController::class, 'store']); 
 });
 
 /*end UserInteractions routes*/

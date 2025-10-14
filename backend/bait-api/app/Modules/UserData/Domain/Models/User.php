@@ -10,6 +10,7 @@ use Database\Factories\UserFactory;
 use App\Modules\UserInteractions\Domain\Models\Chat;
 use App\Modules\UserInteractions\Domain\Models\Follow;
 use App\Modules\UserInteractions\Domain\Models\Notification;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements JWTSubject
 {

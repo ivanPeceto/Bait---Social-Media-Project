@@ -37,8 +37,10 @@ class MultimediaManagementController extends Controller
      */
     public function destroyPost(Post $post): JsonResponse
     {
-        foreach ($post->multimediaContents as $content) {
-            Storage::disk('public')->delete($content->url_multimedia_contents);
+        if($post->multimediaContents !== null){
+            foreach ($post->multimediaContents as $content) {
+                Storage::disk('public')->delete($content->url_multimedia_contents);
+            }
         }
 
         $post->delete();
