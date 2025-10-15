@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\UserData\Http\Requests\User\UpdateProfileRequest;
 use App\Modules\UserData\Http\Requests\User\ChangePasswordRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
+use App\Modules\Multimedia\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Http\Request;
@@ -314,4 +315,87 @@ class ProfileController extends Controller
 
         return response()->json(['message'=>"Password for user {$user->username} updated successfully."]);
     }
+
+
+    /**
+     * @OA\Get(
+     * path="/api/users/{user}/posts",
+     * summary="Get all posts from a specific user",
+     * description="Returns a paginated list of all posts created by a specific user.",
+     * tags={"Profile"},
+     * security={{"bearerAuth":{}}},
+     *
+     * @OA\Parameter(
+     * name="user",
+     * in="path",
+     * required=true,
+     * description="ID of the user whose posts are to be retrieved",
+     * @OA\Schema(type="integer")
+     * ),
+     *
+     * @OA\Response(
+     * response=200,
+     * description="A paginated list of the user's posts.",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/PostSchema")
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated"
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="User not found"
+     * )
+     * )
+     */
+    public function getUserPosts(User $user)
+    {
+        // Usamos la relación 'posts' del modelo User para obtener sus posts.
+        // 'latest()' los ordena del más nuevo al más viejo.
+        // 'paginate(15)' divide los resultados en páginas para un mejor rendimiento.
+        $posts = $user->posts()->latest()->paginate(15);
+
+        // Usamos PostResource para formatear la colección de posts antes de devolverla.
+        return PostResource::collection($posts);
+    }
+
+    /**
+     * @OA\Get(
+     * path="/api/users/{user}",
+     * summary="Get a user's public profile",
+     * description="Returns the public profile information for a specific user.",
+     * tags={"Users"},
+     * security={{"bearerAuth":{}}},
+     *
+     * @OA\Parameter(
+     * name="user",
+     * in="path",
+     * required=true,
+     * description="ID of the user to retrieve",
+     * @OA\Schema(type="integer")
+     * ),
+     *
+     * @OA\Response(
+     * response=200,
+     * description="User profile retrieved successfully.",
+     * @OA\JsonContent(ref="#/components/schemas/UserSchema")
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="User not found"
+     * )
+     * )
+     */
+    public function showPublicProfile(User $user): UserResource
+    {
+        $user->load(['role', 'state', 'avatar', 'banner']);
+
+        return new UserResource($user);
+    }
+
+
 }
+

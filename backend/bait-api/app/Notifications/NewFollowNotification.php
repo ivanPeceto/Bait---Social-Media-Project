@@ -11,13 +11,12 @@ class NewFollowNotification extends Notification implements ShouldBroadcast
 {
     use Queueable;
 
-    protected $follower;
     /**
      * Create a new notification instance.
      */
-    public function __construct(public User $follwr)
+    public function __construct(public User $follower)
     {
-        $this->follower = $follwr;
+        $this->follower = $follower;
     }
 
     /**

@@ -37,9 +37,9 @@ class NewReactionNotification extends Notification implements ShouldBroadcast
     {
         // Devuelve solo el contenido. El "type" se manejará automáticamente.
         return [
-            'follower_id' => $this->follower->id,
-            'follower_name' => $this->follower->name,
-            'message' => "{$this->follower->name} reaccionó a tu publicación."
+            'follower_id' => $this->user->id,
+            'follower_name' => $this->user->name,
+            'message' => "{$this->user->name} reaccionó a tu publicación."
         ]; 
     }
 

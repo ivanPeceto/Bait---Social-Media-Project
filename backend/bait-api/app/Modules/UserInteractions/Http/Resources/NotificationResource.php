@@ -30,9 +30,9 @@ class NotificationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'type' => $this->type_notifications, 
-            'content' => json_decode($this->content_notifications),
- '          is_read' => $this->is_read_notifications, 
+            'type' => $this->type, 
+            'data' => $this->data,
+            'read_at' => $this->read_at,
             'user' => new UserResource($this->whenLoaded('notifiable')),
             'created_at' => $this->created_at,
         ];

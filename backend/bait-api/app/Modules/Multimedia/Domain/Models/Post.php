@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Modules\UserData\Domain\Models\User;
 use Database\Factories\PostFactory; 
 use Illuminate\Database\Eloquent\Relations\HasMany; 
+use App\Modules\Multimedia\Domain\Models\PostReaction;
+
 
 class Post extends Model
 {
@@ -38,5 +40,10 @@ class Post extends Model
     protected static function newFactory()
     {
         return PostFactory::new();
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(PostReaction::class);
     }
 }

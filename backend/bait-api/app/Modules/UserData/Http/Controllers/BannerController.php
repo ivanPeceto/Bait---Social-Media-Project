@@ -80,42 +80,6 @@ class BannerController extends Controller
         return new BannerResource($banner);
     }
 
-    /**
-     * @OA\Get(
-     * path="/api/banners/{banner}",
-     * summary="Get a specific banner",
-     * description="Returns a single banner resource by ID",
-     * tags={"Banner"},
-     * security={{"bearerAuth":{}}},
-     *
-     * @OA\Parameter(
-     * name="banner",
-     * in="path",
-     * required=true,
-     * description="ID of the banner to retrieve",
-     * @OA\Schema(type="integer")
-     * ),
-     *
-     * @OA\Response(
-     * response=200,
-     * description="Banner retrieved successfully",
-     * @OA\JsonContent(ref="#/components/schemas/BannerSchema")
-     * ),
-     * @OA\Response(
-     * response=404,
-     * description="Banner not found"
-     * ),
-     * @OA\Response(
-     * response=401,
-     * description="Unauthenticated"
-     * )
-     * )
-     */
-    public function show(Banner $banner): BannerResource
-    {
-        // No se necesita ningún cambio aquí, el middleware ya protege la ruta.
-        return new BannerResource($banner);
-    }
 
     /**
      * @OA\Delete(

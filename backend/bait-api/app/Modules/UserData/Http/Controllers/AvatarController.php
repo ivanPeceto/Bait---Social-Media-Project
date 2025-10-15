@@ -84,39 +84,6 @@ class AvatarController extends Controller
         return new AvatarResource($avatar);
     }
 
-    
-    /**
-     * @OA\Get(
-     * path="/api/avatars/{avatar}",
-     * summary="Get a specific avatar",
-     * description="Returns a single avatar resource by ID",
-     * tags={"Avatar"},
-     * security={{"bearerAuth":{}}},
-     * @OA\Parameter(
-     * name="avatar",
-     * in="path",
-     * required=true,
-     * description="ID of the avatar to retrieve",
-     * @OA\Schema(type="integer")
-     * ),
-     *
-     * @OA\Response(
-     * response=200,
-     * description="Successful response",
-     * @OA\JsonContent(ref="#/components/schemas/AvatarSchema")
-     * ),
-     *
-     * @OA\Response(
-     * response=404,
-     * description="Avatar not found"
-     * )
-     * )
-     */
-    public function show(Avatar $avatar): AvatarResource
-    {
-        return new AvatarResource($avatar);
-    }
-
 
 
     /**

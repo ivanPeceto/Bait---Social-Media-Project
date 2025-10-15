@@ -11,6 +11,7 @@ use App\Modules\UserInteractions\Domain\Models\Chat;
 use App\Modules\UserInteractions\Domain\Models\Follow;
 use App\Modules\UserInteractions\Domain\Models\Notification;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Modules\Multimedia\Domain\Models\Post;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -86,9 +87,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(Banner::class, 'banner_id');
     }
 
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class);
-    }
 
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
 }

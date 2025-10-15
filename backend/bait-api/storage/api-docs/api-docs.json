@@ -814,6 +814,61 @@
                 ]
             }
         },
+        "/api/posts/{post}/user-reaction": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Check user's reaction to a post",
+                "description": "Checks if the currently authenticated user has reacted to a specific post, and if so, which reaction they used.",
+                "operationId": "771c7a6585b293602847ed1b47425e2c",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "ID of the post to check",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the user's reaction status.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "has_reacted": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "reaction_type_id": {
+                                            "type": "integer",
+                                            "example": 1,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/post-reactions": {
             "post": {
                 "tags": [
@@ -1165,89 +1220,6 @@
                 }
             }
         },
-        "/api/auth/me": {
-            "get": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Get authenticated user details",
-                "description": "Returns the details of the currently authenticated user including role, state, avatar, and banner.",
-                "operationId": "dd9ba33c645e3c6e906ded89bbe9763a",
-                "responses": {
-                    "200": {
-                        "description": "Authenticated user details",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "username": {
-                                            "type": "string",
-                                            "example": "john_doe"
-                                        },
-                                        "name": {
-                                            "type": "string",
-                                            "example": "John Doe"
-                                        },
-                                        "email": {
-                                            "type": "string",
-                                            "example": "john@example.com"
-                                        },
-                                        "role": {
-                                            "$ref": "#/components/schemas/UserRoleSchema"
-                                        },
-                                        "state": {
-                                            "$ref": "#/components/schemas/UserStateSchema"
-                                        },
-                                        "avatar": {
-                                            "$ref": "#/components/schemas/AvatarSchema"
-                                        },
-                                        "banner": {
-                                            "$ref": "#/components/schemas/BannerSchema"
-                                        },
-                                        "created_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2025-10-05T14:48:00.000Z"
-                                        },
-                                        "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2025-10-05T15:00:00.000Z"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - user not authenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/auth/refresh": {
             "post": {
                 "tags": [
@@ -1407,47 +1379,6 @@
                 ]
             }
         },
-        "/api/avatars/{avatar}": {
-            "get": {
-                "tags": [
-                    "Avatar"
-                ],
-                "summary": "Get a specific avatar",
-                "description": "Returns a single avatar resource by ID",
-                "operationId": "63c25395d0eed70c5e530ffd98cec771",
-                "parameters": [
-                    {
-                        "name": "avatar",
-                        "in": "path",
-                        "description": "ID of the avatar to retrieve",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AvatarSchema"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Avatar not found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/avatars/self": {
             "delete": {
                 "tags": [
@@ -1564,7 +1495,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Successfully uploaded banner",
+                        "description": "Banner created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1585,42 +1516,6 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/api/banners/{banner}": {
-            "get": {
-                "tags": [
-                    "Banner"
-                ],
-                "summary": "Get a specific banner",
-                "description": "Returns a single banner resource by ID",
-                "operationId": "45147c2d2d2d70a997124ee6009411c9",
-                "parameters": [
-                    {
-                        "name": "banner",
-                        "in": "path",
-                        "description": "ID of the banner to retrieve",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Banner retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BannerSchema"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Banner not found"
-                    }
-                }
             }
         },
         "/api/banners/self": {
@@ -2018,6 +1913,94 @@
                     },
                     "422": {
                         "description": "Validation error - e.g., password too short"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{user}/posts": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get all posts from a specific user",
+                "description": "Returns a paginated list of all posts created by a specific user.",
+                "operationId": "f3bfefa495de1c95c0951e431089594a",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user whose posts are to be retrieved",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of the user's posts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PostSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{user}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get a user's public profile",
+                "description": "Returns the public profile information for a specific user.",
+                "operationId": "e954c26a376c2d7a097d7ea939b83f9d",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User profile retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
                     }
                 },
                 "security": [
@@ -3608,6 +3591,7 @@
                         "example": "johndoe"
                     },
                     "email": {
+                        "description": "The user's email. Only visible to the owner of the profile.",
                         "type": "string",
                         "format": "email",
                         "example": "john.doe@example.com"
@@ -3831,6 +3815,10 @@
         {
             "name": "User Management",
             "description": "Privileged"
+        },
+        {
+            "name": "Users",
+            "description": "Users"
         },
         {
             "name": "Chats",

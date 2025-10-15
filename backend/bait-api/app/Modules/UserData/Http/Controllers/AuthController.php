@@ -116,47 +116,6 @@ class AuthController extends Controller
     }
 
 
-    /**
-     * @OA\Get(
-     *     path="/api/auth/me",
-     *     summary="Get authenticated user details",
-     *     description="Returns the details of the currently authenticated user including role, state, avatar, and banner.",
-     *     tags={"Auth"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Authenticated user details",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="id", type="integer", example=1),
-     *             @OA\Property(property="username", type="string", example="john_doe"),
-     *             @OA\Property(property="name", type="string", example="John Doe"),
-     *             @OA\Property(property="email", type="string", example="john@example.com"),
-     *             @OA\Property(property="role", ref="#/components/schemas/UserRoleSchema"),
-     *             @OA\Property(property="state", ref="#/components/schemas/UserStateSchema"),
-     *             @OA\Property(property="avatar", ref="#/components/schemas/AvatarSchema"),
-     *             @OA\Property(property="banner", ref="#/components/schemas/BannerSchema"),
-     *             @OA\Property(property="created_at", type="string", format="date-time", example="2025-10-05T14:48:00.000Z"),
-     *             @OA\Property(property="updated_at", type="string", format="date-time", example="2025-10-05T15:00:00.000Z")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized - user not authenticated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
-     *         )
-     *     )
-     * )
-     */
-    public function me(): UserResource
-    {
-        $user = auth('api')->user();
-        $user->load(['role', 'state', 'avatar', 'banner']);
-        return new UserResource($user);
-    }
-
-
 
     /**
      * @OA\Post(

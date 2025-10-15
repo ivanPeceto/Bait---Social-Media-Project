@@ -38,9 +38,9 @@ class NewRepostNotification extends Notification implements ShouldBroadcast
     public function toDatabase(object $notifiable): array
     {
         return [
-            'follower_id' => $this->follower->id,
-            'follower_name' => $this->follower->name,
-            'message' => "{$this->follower->name} reposteó tu publicación."
+            'follower_id' => $this->user->id,
+            'follower_name' => $this->user->name,
+            'message' => "{$this->user->name} reposteó tu publicación."
         ]; 
     }
 

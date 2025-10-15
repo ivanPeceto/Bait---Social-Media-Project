@@ -50,7 +50,6 @@ Route::prefix('auth')->group(function () {
     Route::post('login',    [AuthController::class, 'login'])->name('auth.login');
     Route::post('refresh',  [AuthController::class, 'refresh'])->middleware('auth:api')->name('auth.refresh');
     Route::post('logout',   [AuthController::class, 'logout'])->middleware('auth:api')->name('auth.logout');
-    Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api')->name('auth.me');
 });
 
 Route::prefix('privileged/users/{user}')->middleware(['auth:api'])->group(function () {
@@ -85,6 +84,11 @@ Route::middleware('auth:api')->prefix('profile')->group(function () {
     Route::put('/password',    [ProfileController::class, 'changeSelfPassword'])->name('profile.password');
 });
 
+Route::middleware('auth:api')->prefix('users')->group(function () {
+    Route::get('/{user}/posts', [ProfileController::class, 'getUserPosts'])->name('users.posts');
+    Route::get('/{user}', [ProfileController::class, 'showPublicProfile'])->name('users.show');
+});
+
 Route::prefix('roles')->middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('/',          [UserRoleController::class, 'index'])->name('roles.index');
     Route::post('/',         [UserRoleController::class, 'create'])->name('roles.create');
@@ -101,13 +105,11 @@ Route::prefix('states')->middleware(['auth:api', 'role:admin'])->group(function 
 
 Route::prefix('avatars')->middleware('auth:api')->group(function () {
     Route::post('/upload',  [AvatarController::class, 'upload'])->name('avatars.upload');
-    Route::get('/{avatar}', [AvatarController::class, 'show'])->name('avatars.show');
     Route::delete('/self',  [AvatarController::class, 'destroySelf'])->name('avatars.destroySelf');
 });
 
 Route::prefix('banners')->middleware('auth:api')->group(function () {
     Route::post('/upload',  [BannerController::class, 'upload'])->name('banner.upload');
-    Route::get('/{banner}', [BannerController::class, 'show'])->name('banner.show');
     Route::delete('/self',  [BannerController::class, 'destroySelf'])->name('banner.destroySelf');
 });
 
@@ -121,7 +123,8 @@ Route::middleware('auth:api')->prefix('posts')->group(function () {
     Route::get('/',         [PostController::class, 'index'])->name('posts.');
     Route::post('/',        [PostController::class, 'store']);
     Route::get('/{post}',   [PostController::class, 'show']);
-    Route::patch('/{post}', [PostController::class, 'update']);
+    Route::get('/{post}/user-reaction', [PostController::class, 'checkUserReaction']);
+    Route::put('/{post}', [PostController::class, 'update']);
     Route::delete('/{post}',[PostController::class, 'destroy']);
 });
 
