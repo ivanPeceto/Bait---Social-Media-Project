@@ -12,9 +12,7 @@ class BannerSeeder extends Seeder
      */
     public function run(): void
     {
-        // Corregido a 'banners' (plural) para que coincida con la tabla
         DB::table('banners')->insert([
-            // Corregido a 'url_banners' (plural) para que coincida con la columna
             'url_banners' => 'banners/default.jpg',
         ]);
     }

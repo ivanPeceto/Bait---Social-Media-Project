@@ -8,11 +8,13 @@ use App\Modules\UserData\Domain\Models\Avatar;
 
 class AvatarSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        Avatar::firstOrCreate(
-            ['url_avatars' => 'avatars/default.jpg'],
-            ['url_avatars' => 'avatars/default.jpg']
-        );
+        DB::table('avatars')->insert([
+            'url_avatars' => 'avatars/default.jpg',
+        ]);
     }
 }

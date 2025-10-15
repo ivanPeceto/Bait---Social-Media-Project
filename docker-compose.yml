@@ -8,8 +8,10 @@ services:
     working_dir: /var/www
     volumes:
       - ./backend/bait-api:/var/www
+      - /var/www/vendor         
+      - /var/www/bootstrap/cache
     ports:
-      - "8000:8000"
+      - "8001:8000"
     depends_on:
       - mysql
       - mysql_test

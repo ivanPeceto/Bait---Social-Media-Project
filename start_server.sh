@@ -60,9 +60,9 @@ wait_for_db() {
 
 run_migrations() {
     wait_for_db
-    sleep 10
-    echo -e "${YELLOW}Ejecutando migraciones...${NC}"
-    OUTPUT=$(docker compose exec backend php artisan migrate 2>&1) || true
+    sleep 15
+    echo -e "${YELLOW}Ejecutando migraciones y seeders...${NC}"
+    OUTPUT=$(docker compose exec backend php artisan migrate --seed 2>&1) || true
 
     # Verificamos si la salida contiene la palabra "ERROR".
     if echo "$OUTPUT" | grep -q "ERROR"; then

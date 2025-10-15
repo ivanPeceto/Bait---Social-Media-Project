@@ -14,9 +14,8 @@ class UpdateNotificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'is_read_notifications' => ['required', 'boolean'],
+            'is_read' => 'required|boolean',
         ];
     }
 }
 
-//El tipo que inicie sesion y este en la app solo la va a marcar como leida

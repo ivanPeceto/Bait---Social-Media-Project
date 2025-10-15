@@ -13,7 +13,7 @@ namespace App\Docs;
  * property="participants",
  * type="array",
  * description="List of users participating in the chat.",
- * @OA\Items(ref="#/components/schemas/UserSchema")
+ * @OA\Items(ref="#/components/schemas/UserOnCommentSchema")
  * ),
  * @OA\Property(property="last_message", ref="#/components/schemas/MessageSchema", description="The most recent message in the chat.", nullable=true),
  * @OA\Property(

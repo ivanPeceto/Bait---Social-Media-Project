@@ -1,5 +1,66 @@
 # Changelog
 
+## [mergetest/docs-tests] - 2025-10-15
+
+_(Cambios realizados por @juancruzct)_
+
+### Observations
+
+* Se detectó un bug crítico en la lógica de subida de avatares y banners: al reemplazar una imagen, si el usuario tenía asignada la imagen por defecto, esta era eliminada de la base de datos, provocando errores en operaciones posteriores.
+* Se observó que el `BannerController` devolvía un error `401 Unauthenticated` de forma inconsistente debido a la forma en que se inicializaba la autenticación en su constructor.
+* Se identificó que el sistema de notificaciones utilizaba una implementación personalizada incompatible con el estándar de Laravel, lo que causaba múltiples errores al crear y consultar notificaciones.
+
+### Added
+
+* Nuevo endpoint `GET /api/posts/{post}/user-reaction` para verificar la reacción de un usuario a un post específico.
+* Nuevo endpoint `GET /api/users/{user}/posts` para obtener todos los posts de un usuario.
+* Nuevo endpoint `GET /api/users/{user}` para visualizar perfiles públicos de otros usuarios.
+
+### Changed
+
+* **Refactorización del `BannerController`**: Se eliminó la inyección del guard de autenticación en el constructor para usar el helper `auth()` estándar, solucionando errores `401`.
+* **Limpieza de API**: Se eliminaron los endpoints redundantes `GET /api/auth/me`, `GET /api/avatars/{avatar}` y `GET /api/banners/{banner}` para simplificar la API.
+* Se cambió el método de la ruta para actualizar posts de `PATCH` a `PUT` en `routes/api.php` para coincidir con la documentación de Swagger.
+* **Mejora de Privacidad en `UserResource`**: Se modificó el `UserResource` para que el campo `email` solo sea visible para el propietario del perfil, ocultándolo en las vistas de perfiles públicos.
+
+### Fixed
+
+* **Corrección en `AvatarController` y `BannerController`**: Se añadió una verificación para prevenir que la imagen por defecto sea eliminada durante el proceso de subida de una nueva.
+* **Corrección de Relaciones Faltantes**:
+    * Se añadió la relación `posts()` al modelo `User`.
+    * Se añadió la relación `reactions()` al modelo `Post`.
+* **Corrección de Namespaces**: Se añadieron los `use` statements correctos en `ProfileController` y `User` para importar `PostResource` y `Post` desde el módulo `Multimedia`.
+* **Refactorización del Sistema de Notificaciones**: Se migró el sistema de notificaciones a la implementación estándar de Laravel para usar UUIDs. Esto incluyó la corrección de la migración `create_notifications_table`, la actualización del `NotificationController`, `NotificationResource`, `UpdateNotificationRequest` y la eliminación de relaciones personalizadas en el modelo `User`.
+* **Corrección en Clases de Notificación**: Se solucionaron errores de `Undefined property` y de sintaxis en `NewRepostNotification`, `NewReactionNotification` y `NewFollowNotification`.
+* **Documentación de Swagger**: Se corrigieron los códigos de respuesta esperados en los endpoints de subida de `Avatar` y `Banner` a `201 Created`.
+
+
+## [1.1.4] - 2025-10-07
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Observations
+
+* Se detectó la falta de validación de estado de usuario para el caso de los usuarios que están suspendidos. 
+* Queda pendiente añadir un middleware que invalide cualquier JWT generado antes de la suspensión de la cuenta.
+* Se detectó problemas con la dependencia de swagger al crear los contenedores desde 0.
+* Se detectó la incorrecta representación de las respuestas de la api en algunos schema de la documentación de swagger
+* Se observó la falta de un endpoint crucial en el módulo de comentarios, el de devolver todos aquellos asociados a un posteo.
+* El modelo de Notification entra en conflicto con el estándar de Laravel, por lo que hubo que añadir métodos que "adapten" su funcionamiento.
+
+### Added
+
+* Nuevo seeder `DatabaseSeeder.php` para generar un usuario administrador y uno moderador iniciales
+* Nuevo archivo `.dockerignore` para resolver problemas de buildeo de contenedores con la dependencia de swagger.
+* Nueva colección de postman `Bait_API.postman_collection.json` para testear manualmente el funcionamiento de todos los endpoints.
+
+### Changed
+
+* Método `login` en `AuthController.php` para verificar el estado del usuario.
+* Comentado Swagger dentro de los providers de `app.php`
+* Volúmenes generados en `docker-compose.yml` 
+* Se añadió el método `showFromPost` a `CommentController.php` junto a un nuevo endpoint asociado.
+
 ## [1.1.3] - 2025-10-06
 
 _(Cambios realizados por @jmrodriguezspinker)_

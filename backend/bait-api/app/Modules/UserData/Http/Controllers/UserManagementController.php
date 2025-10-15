@@ -59,7 +59,7 @@ class UserManagementController extends Controller
 
     public function suspend(User $user): UserResource|JsonResponse
     {
-        $suspendedState = UserState::where('name', 'suspended')->first();
+        $suspendedState = UserState::where('name', 'suspended')->firstOrFail();
 
         if (!$suspendedState) {
             return response()->json(['message' => '"suspended" state not found in database.'], 500);

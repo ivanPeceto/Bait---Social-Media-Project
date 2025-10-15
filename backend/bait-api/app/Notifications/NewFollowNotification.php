@@ -16,7 +16,7 @@ class NewFollowNotification extends Notification implements ShouldBroadcast
      */
     public function __construct(public User $follower)
     {
-        //
+        $this->follower = $follower;
     }
 
     /**
@@ -30,19 +30,16 @@ class NewFollowNotification extends Notification implements ShouldBroadcast
     }
 
     /**
-     * Get the array representation of the notification.
+     * Get the array representation of the notification for the database.
      *
      * @return array<string, mixed>
      */
     public function toDatabase(object $notifiable): array
     {
         return [
-            'type_notifications' => 'new_follower',
-            'content_notifications' => json_encode([
-                'follower_id' => $this->follower->id,
-                'follower_name' => $this->follower->name,
-                'message' => "{$this->follower->name} ha comenzado a seguirte."
-            ]),
+            'follower_id' => $this->follower->id,
+            'follower_name' => $this->follower->name,
+            'message' => "{$this->follower->name} ha comenzado a seguirte."
         ]; 
     }
 

@@ -31,19 +31,16 @@ class NewRepostNotification extends Notification implements ShouldBroadcast
     }
 
     /**
-     * Get the array representation of the notification.
+     * Get the array representation of the notification for the database.
      *
      * @return array<string, mixed>
      */
     public function toDatabase(object $notifiable): array
     {
         return [
-            'type_notifications' => 'new_repost',
-            'content_notifications' => json_encode([
-                'user_id' => $this->user->id,
-                'post_id' => $this->post->id,
-                'message' => "{$this->user->name} reposteó tu publicación."
-            ]),
+            'follower_id' => $this->user->id,
+            'follower_name' => $this->user->name,
+            'message' => "{$this->user->name} reposteó tu publicación."
         ]; 
     }
 
