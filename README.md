@@ -76,8 +76,8 @@ To get the project up and running, follow these steps:
 
 5. Access the application:
     - The frontend will be available at `http://localhost:4200`.
-    - The backend API will be available at `http://localhost:8000`. 
-    - The API documentation can be accessed at `http://localhost:8000/api/documentation`.
+    - The backend API will be available at `http://localhost:8001`. 
+    - The API documentation can be accessed at `http://localhost:8001/api/documentation`.
 
     
 
