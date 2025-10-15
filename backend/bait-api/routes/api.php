@@ -64,7 +64,7 @@ Route::prefix('privileged/users/{user}')->middleware(['auth:api'])->group(functi
 
     Route::delete('/avatar', [AvatarController::class, 'destroyUserAvatar'])
         ->middleware('role:admin,moderator')
-        ->name('privileged.users.destroyBanner');
+        ->name('privileged.users.destroyAvatar');
 
     Route::delete('/banner', [BannerController::class, 'destroyUserBanner'])
         ->middleware('role:admin,moderator')
@@ -84,6 +84,8 @@ Route::middleware('auth:api')->prefix('profile')->group(function () {
     Route::put('/update',      [ProfileController::class, 'updateSelf'])->name('profile.update');
     Route::put('/password',    [ProfileController::class, 'changeSelfPassword'])->name('profile.password');
 });
+
+
 
 Route::prefix('roles')->middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('/',          [UserRoleController::class, 'index'])->name('roles.index');

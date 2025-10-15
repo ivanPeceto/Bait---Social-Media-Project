@@ -1,0 +1,42 @@
+<ng-container *ngIf="userProfile$ | async as user; else loading">
+  <div class="profile-page">
+
+<a routerLink="/home" class="home-link">
+  <img 
+    class="arrow-icon" 
+    src="assets/images/arrow-left-solid-full.svg" 
+    alt="Volver al Home">
+</a>
+    <div class="profile-header-container">
+      <div class="profile-banner">
+        <img [src]="user.banner?.url || 'assets/images/images.png'" alt="Banner de {{ user.name }}">
+      </div>
+
+      <div class="profile-header-content">
+        <div class="avatar-info-group">
+          <div class="profile-avatar">
+            <img [src]="user.avatar?.url || 'assets/images/iconousuario.png'" alt="Avatar de {{ user.name }}">
+          </div>
+          <h2 class="name">{{ user.name }}</h2>
+          <p class="username">@{{ user.username }}</p>
+        </div>
+        
+        <div class="profile-actions" *ngIf="isOwnProfile">
+          <button class="btn btn-edit">Editar Perfil</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="profile-main-content">
+      <div class="posts-placeholder">
+        <h3>Posts</h3>
+        <p>Los posts aparecerán aquí en el futuro.</p>
+      </div>
+    </div>
+
+  </div>
+</ng-container>
+
+<ng-template #loading>
+  <p>Cargando perfil...</p>
+</ng-template>

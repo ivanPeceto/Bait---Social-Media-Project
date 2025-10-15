@@ -24,7 +24,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     loadChildren: () => import('./features/home/home.routes').then(m => m.HOME_ROUTES)
   },
-  
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./features/profile/profile.component').then(
+        (m) => m.ProfileComponent
+      ),
+    canActivate: [AuthGuard], 
+  },
   {
     path: '**',
     redirectTo: '' 
