@@ -124,6 +124,53 @@
                 ]
             }
         },
+        "/api/comments/post/{post}": {
+            "get": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "List Comments for a Post",
+                "description": "Retrieves a list of all comments associated with a specific post ID.",
+                "operationId": "listCommentsForPost",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "The ID of the post.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of comments for the specified post.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CommentSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Post not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/comments/{comment}": {
             "get": {
                 "tags": [
@@ -266,31 +313,28 @@
                 "tags": [
                     "Multimedia Content"
                 ],
-                "summary": "Attach multimedia to a post",
-                "description": "Creates a multimedia content item (image/video) and links it to a post created by the authenticated user.",
+                "summary": "Upload and attach multimedia to a post",
+                "description": "Uploads a file (image/video) and links it to a post.",
                 "operationId": "f9d88d3d79b6a7a71c4a8e9b4153b72d",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "url_multimedia_contents",
-                                    "type_multimedia_contents",
+                                    "file",
                                     "post_id"
                                 ],
                                 "properties": {
-                                    "url_multimedia_contents": {
+                                    "file": {
+                                        "description": "The image or video file to upload.",
                                         "type": "string",
-                                        "example": "uploads/posts/media123.jpg"
-                                    },
-                                    "type_multimedia_contents": {
-                                        "type": "string",
-                                        "example": "image"
+                                        "format": "binary"
                                     },
                                     "post_id": {
+                                        "description": "The ID of the post to attach the media to.",
                                         "type": "integer",
-                                        "example": 10
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -300,7 +344,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Multimedia content created and linked to post",
+                        "description": "Multimedia uploaded and linked successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -309,11 +353,11 @@
                             }
                         }
                     },
-                    "403": {
-                        "description": "Unauthorized - only post creator can attach multimedia"
-                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation Error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
@@ -770,6 +814,61 @@
                 ]
             }
         },
+        "/api/posts/{post}/user-reaction": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Check user's reaction to a post",
+                "description": "Checks if the currently authenticated user has reacted to a specific post, and if so, which reaction they used.",
+                "operationId": "771c7a6585b293602847ed1b47425e2c",
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "description": "ID of the post to check",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the user's reaction status.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "has_reacted": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "reaction_type_id": {
+                                            "type": "integer",
+                                            "example": 1,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/post-reactions": {
             "post": {
                 "tags": [
@@ -1121,89 +1220,6 @@
                 }
             }
         },
-        "/api/auth/me": {
-            "get": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Get authenticated user details",
-                "description": "Returns the details of the currently authenticated user including role, state, avatar, and banner.",
-                "operationId": "dd9ba33c645e3c6e906ded89bbe9763a",
-                "responses": {
-                    "200": {
-                        "description": "Authenticated user details",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "username": {
-                                            "type": "string",
-                                            "example": "john_doe"
-                                        },
-                                        "name": {
-                                            "type": "string",
-                                            "example": "John Doe"
-                                        },
-                                        "email": {
-                                            "type": "string",
-                                            "example": "john@example.com"
-                                        },
-                                        "role": {
-                                            "$ref": "#/components/schemas/UserRoleSchema"
-                                        },
-                                        "state": {
-                                            "$ref": "#/components/schemas/UserStateSchema"
-                                        },
-                                        "avatar": {
-                                            "$ref": "#/components/schemas/AvatarSchema"
-                                        },
-                                        "banner": {
-                                            "$ref": "#/components/schemas/BannerSchema"
-                                        },
-                                        "created_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2025-10-05T14:48:00.000Z"
-                                        },
-                                        "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2025-10-05T15:00:00.000Z"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - user not authenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/auth/refresh": {
             "post": {
                 "tags": [
@@ -1339,8 +1355,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Avatar uploaded successfully",
+                    "201": {
+                        "description": "Avatar created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1361,42 +1377,6 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/api/avatars/{avatar}": {
-            "get": {
-                "tags": [
-                    "Avatar"
-                ],
-                "summary": "Get a specific avatar",
-                "description": "Returns a single avatar resource by ID",
-                "operationId": "63c25395d0eed70c5e530ffd98cec771",
-                "parameters": [
-                    {
-                        "name": "avatar",
-                        "in": "path",
-                        "description": "ID of the avatar to retrieve",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AvatarSchema"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Avatar not found"
-                    }
-                }
             }
         },
         "/api/avatars/self": {
@@ -1435,14 +1415,14 @@
                 ]
             }
         },
-        "api/privileged/users/{user}/avatar": {
+        "/api/privileged/users/{user}/avatar": {
             "delete": {
                 "tags": [
                     "User Management"
                 ],
                 "summary": "Delete avatar for a specified user (admin/moderator only)",
                 "description": "Deletes the avatar for the given user and replaces it with a default avatar.",
-                "operationId": "1ebe67f721cd292677e4f6f602042f0b",
+                "operationId": "13b71cb6f9c7648762f17bb49184ef6e",
                 "parameters": [
                     {
                         "name": "user",
@@ -1514,8 +1494,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Successfully uploaded banner",
+                    "201": {
+                        "description": "Banner created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1536,42 +1516,6 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/api/banners/{banner}": {
-            "get": {
-                "tags": [
-                    "Banner"
-                ],
-                "summary": "Get a specific banner",
-                "description": "Returns a single banner resource by ID",
-                "operationId": "45147c2d2d2d70a997124ee6009411c9",
-                "parameters": [
-                    {
-                        "name": "banner",
-                        "in": "path",
-                        "description": "ID of the banner to retrieve",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Banner retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BannerSchema"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Banner not found"
-                    }
-                }
             }
         },
         "/api/banners/self": {
@@ -1969,6 +1913,94 @@
                     },
                     "422": {
                         "description": "Validation error - e.g., password too short"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{user}/posts": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get all posts from a specific user",
+                "description": "Returns a paginated list of all posts created by a specific user.",
+                "operationId": "f3bfefa495de1c95c0951e431089594a",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user whose posts are to be retrieved",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of the user's posts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PostSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{user}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get a user's public profile",
+                "description": "Returns the public profile information for a specific user.",
+                "operationId": "e954c26a376c2d7a097d7ea939b83f9d",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User profile retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
                     }
                 },
                 "security": [
@@ -2688,7 +2720,7 @@
                     "Messages"
                 ],
                 "summary": "List messages in a specific chat",
-                "description": "Retrieves a paginated list of messages for a given chat. The authenticated user must be a participant of the chat.",
+                "description": "Retrieves a paginated list of messages for a given chat.",
                 "operationId": "getChatMessages",
                 "parameters": [
                     {
@@ -2703,14 +2735,25 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "A paginated list of messages.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/MessageSchema"
-                                    }
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/MessageSchema"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginatedLinksSchema"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginatedMetaSchema"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -2719,7 +2762,7 @@
                         "description": "Unauthenticated"
                     },
                     "403": {
-                        "description": "Forbidden - User is not a participant of this chat"
+                        "description": "Forbidden"
                     },
                     "404": {
                         "description": "Chat not found"
@@ -3005,7 +3048,7 @@
                         "description": "List of users participating in the chat.",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/UserSchema"
+                            "$ref": "#/components/schemas/UserOnCommentSchema"
                         }
                     },
                     "last_message": {
@@ -3029,28 +3072,17 @@
             "CommentSchema": {
                 "title": "Comment Schema",
                 "description": "Represents a user comment on a post.",
-                "required": [
-                    "id",
-                    "content_comments",
-                    "post_id",
-                    "user_id"
-                ],
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 101
                     },
-                    "content_comments": {
+                    "content": {
                         "type": "string",
                         "example": "This is a great post!"
                     },
-                    "post_id": {
-                        "type": "integer",
-                        "example": 42
-                    },
-                    "user_id": {
-                        "type": "integer",
-                        "example": 7
+                    "user": {
+                        "$ref": "#/components/schemas/UserOnCommentSchema"
                     },
                     "created_at": {
                         "type": "string",
@@ -3104,7 +3136,7 @@
                         "example": "Hello, how are you?"
                     },
                     "user": {
-                        "$ref": "#/components/schemas/UserSchema"
+                        "$ref": "#/components/schemas/UserOnCommentSchema"
                     },
                     "created_at": {
                         "description": "Timestamp when the message was sent.",
@@ -3186,6 +3218,71 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2025-10-05T18:45:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatedLinksSchema": {
+                "title": "Paginated Links Schema",
+                "description": "Defines the links object for paginated responses.",
+                "properties": {
+                    "first": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "http://localhost:8001/api/chats/1/messages?page=1"
+                    },
+                    "last": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "http://localhost:8001/api/chats/1/messages?page=1"
+                    },
+                    "prev": {
+                        "type": "string",
+                        "format": "url",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "next": {
+                        "type": "string",
+                        "format": "url",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatedMetaSchema": {
+                "title": "Paginated Meta Schema",
+                "description": "Defines the meta object for paginated responses.",
+                "properties": {
+                    "current_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "from": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "last_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "path": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "http://localhost:8001/api/chats/1/messages"
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "to": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 1
                     }
                 },
                 "type": "object"
@@ -3335,6 +3432,45 @@
                 },
                 "type": "object"
             },
+            "UserOnCommentSchema": {
+                "title": "User On Comment Schema",
+                "required": [
+                    "id",
+                    "username",
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-05T12:34:56Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-06T12:34:56Z"
+                    }
+                },
+                "type": "object"
+            },
             "UserRoleSchema": {
                 "title": "User Role Schema",
                 "required": [
@@ -3439,7 +3575,7 @@
                 "type": "object"
             },
             "UserResource": {
-                "title": "User Schema",
+                "title": "User Resource",
                 "description": "Represents a user in the system.",
                 "properties": {
                     "id": {
@@ -3455,6 +3591,7 @@
                         "example": "johndoe"
                     },
                     "email": {
+                        "description": "The user's email. Only visible to the owner of the profile.",
                         "type": "string",
                         "format": "email",
                         "example": "john.doe@example.com"
@@ -3489,7 +3626,7 @@
                 "type": "object"
             },
             "ChatResource": {
-                "title": "Chat Schema",
+                "title": "Chat Resource",
                 "description": "Represents a chat conversation.",
                 "properties": {
                     "id": {
@@ -3530,7 +3667,7 @@
                 "type": "object"
             },
             "FollowResource": {
-                "title": "Follow Schema",
+                "title": "Follow Resource",
                 "description": "Represents a follow relationship between two users.",
                 "properties": {
                     "id": {
@@ -3554,7 +3691,7 @@
                 "type": "object"
             },
             "MessageResource": {
-                "title": "Message Schema",
+                "title": "Message Resource",
                 "description": "Represents a message within a chat.",
                 "properties": {
                     "id": {
@@ -3580,7 +3717,7 @@
                 "type": "object"
             },
             "NotificationResource": {
-                "title": "Notification Schema",
+                "title": "Notification Resource",
                 "description": "Represents a user notification.",
                 "properties": {
                     "id": {
@@ -3680,16 +3817,24 @@
             "description": "Privileged"
         },
         {
-            "name": "Chats"
+            "name": "Users",
+            "description": "Users"
         },
         {
-            "name": "Follows"
+            "name": "Chats",
+            "description": "Chats"
         },
         {
-            "name": "Messages"
+            "name": "Follows",
+            "description": "Follows"
         },
         {
-            "name": "Notifications"
+            "name": "Messages",
+            "description": "Messages"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
         }
     ]
 }

@@ -4,6 +4,7 @@ namespace App\Modules\Multimedia\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Multimedia\Domain\Models\Comment;
+use App\Modules\Multimedia\Domain\Models\Post;
 use App\Modules\Multimedia\Http\Requests\Comment\CreateCommentRequest;
 use App\Modules\Multimedia\Http\Requests\Comment\UpdateCommentRequest;
 use App\Modules\Multimedia\Http\Resources\CommentResource;
@@ -35,6 +36,44 @@ class CommentController extends Controller
         return response()->json(CommentResource::collection($comments));
     }
 
+    /**
+     * @OA\Get(
+     * path="/api/comments/post/{post}",
+     * operationId="listCommentsForPost",
+     * tags={"Comments"},
+     * summary="List Comments for a Post",
+     * description="Retrieves a list of all comments associated with a specific post ID.",
+     * security={{"bearerAuth":{}}},
+     * @OA\Parameter(
+     * name="post",
+     * in="path",
+     * required=true,
+     * description="The ID of the post.",
+     * @OA\Schema(type="integer")
+     * ),
+     * @OA\Response(
+     * response=200,
+     * description="A list of comments for the specified post.",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/CommentSchema")
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated"
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="Post not found."
+     * )
+     * )
+     */
+    public function showFromPost(Post $post): JsonResponse
+    {
+        $comments = $post->comments()->with('user')->get();
+        return response()->json(CommentResource::collection($comments));
+    }
 
     /**
      * @OA\Post(

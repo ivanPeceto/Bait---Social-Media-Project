@@ -1,0 +1,213 @@
+{
+        "info": {
+                "_postman_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                "name": "Bait API",
+                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+                "_exporter_id": "12345678"
+        },
+        "item": [
+                {
+                        "name": "Auth",
+                        "item": [
+                                {
+                                        "name": "Register User",
+                                        "event": [
+                                                {
+                                                        "listen": "test",
+                                                        "script": {
+                                                                "exec": [
+                                                                        "// Guarda el ID del usuario recién creado para usarlo en otras peticiones",
+                                                                        "const response = pm.response.json();",
+                                                                        "if (response.data && response.data.id) {",
+                                                                        "    pm.collectionVariables.set(\"user_id\", response.data.id);",
+                                                                        "    console.log('User ID guardado:', response.data.id);",
+                                                                        "}"
+                                                                ],
+                                                                "type": "text/javascript"
+                                                        }
+                                                }
+                                        ],
+                                        "request": {
+                                                "method": "POST",
+                                                "header": [],
+                                                "body": {
+                                                        "mode": "raw",
+                                                        "raw": "{\n    \"name\": \"Postman User\",\n    \"username\": \"postmanuser\",\n    \"email\": \"postman@bait.com\",\n    \"password\": \"password1234\",\n    \"password_confirmation\": \"password1234\"\n}",
+                                                        "options": {
+                                                                "raw": {
+                                                                        "language": "json"
+                                                                }
+                                                        }
+                                                },
+                                                "url": {
+                                                        "raw": "{{baseUrl}}/auth/register",
+                                                        "host": [
+                                                                "{{baseUrl}}"
+                                                        ],
+                                                        "path": [
+                                                                "auth",
+                                                                "register"
+                                                        ]
+                                                },
+                                                "description": "Registra un nuevo usuario en la plataforma."
+                                        },
+                                        "response": []
+                                },
+                                {
+                                        "name": "Login User",
+                                        "event": [
+                                                {
+                                                        "listen": "test",
+                                                        "script": {
+                                                                "exec": [
+                                                                        "// Captura el token JWT y lo guarda como una variable de la colección",
+                                                                        "// para que se use automáticamente en todas las demás peticiones.",
+                                                                        "const response = pm.response.json();",
+                                                                        "if (response.access_token) {",
+                                                                        "    pm.collectionVariables.set(\"authToken\", response.access_token);",
+                                                                        "    console.log('Token guardado exitosamente.');",
+                                                                        "}",
+                                                                        "",
+                                                                        "// Prueba para verificar que el login fue exitoso",
+                                                                        "pm.test(\"Status code is 200\", function () {",
+                                                                        "    pm.response.to.have.status(200);",
+                                                                        "});",
+                                                                        "pm.test(\"Response has access_token\", function () {",
+                                                                        "    pm.expect(response).to.have.property('access_token');",
+                                                                        "});"
+                                                                ],
+                                                                "type": "text/javascript"
+                                                        }
+                                                }
+                                        ],
+                                        "request": {
+                                                "method": "POST",
+                                                "header": [],
+                                                "body": {
+                                                        "mode": "raw",
+                                                        "raw": "{\n    \"email\": \"postman@bait.com\",\n    \"password\": \"password1234\"\n}",
+                                                        "options": {
+                                                                "raw": {
+                                                                        "language": "json"
+                                                                }
+                                                        }
+                                                },
+                                                "url": {
+                                                        "raw": "{{baseUrl}}/auth/login",
+                                                        "host": [
+                                                                "{{baseUrl}}"
+                                                        ],
+                                                        "path": [
+                                                                "auth",
+                                                                "login"
+                                                        ]
+                                                },
+                                                "description": "Inicia sesión con un usuario existente y obtiene un token JWT."
+                                        },
+                                        "response": []
+                                },
+                                {
+                                        "name": "Refresh Token",
+                                        "request": {
+                                                "auth": {
+                                                        "type": "bearer",
+                                                        "bearer": [
+                                                                {
+                                                                        "key": "token",
+                                                                        "value": "{{authToken}}",
+                                                                        "type": "string"
+                                                                }
+                                                        ]
+                                                },
+                                                "method": "POST",
+                                                "header": [],
+                                                "url": {
+                                                        "raw": "{{baseUrl}}/auth/refresh",
+                                                        "host": [
+                                                                "{{baseUrl}}"
+                                                        ],
+                                                        "path": [
+                                                                "auth",
+                                                                "refresh"
+                                                        ]
+                                                },
+                                                "description": "Refresca un token JWT existente. Necesita el token actual para funcionar."
+                                        },
+                                        "response": []
+                                },
+                                {
+                                        "name": "Logout User",
+                                        "request": {
+                                                "auth": {
+                                                        "type": "bearer",
+                                                        "bearer": [
+                                                                {
+                                                                        "key": "token",
+                                                                        "value": "{{authToken}}",
+                                                                        "type": "string"
+                                                                }
+                                                        ]
+                                                },
+                                                "method": "POST",
+                                                "header": [],
+                                                "url": {
+                                                        "raw": "{{baseUrl}}/auth/logout",
+                                                        "host": [
+                                                                "{{baseUrl}}"
+                                                        ],
+                                                        "path": [
+                                                                "auth",
+                                                                "logout"
+                                                        ]
+                                                },
+                                                "description": "Cierra la sesión del usuario actual, invalidando su token."
+                                        },
+                                        "response": []
+                                },
+                                {
+                                        "name": "Get Authenticated User (Me)",
+                                        "request": {
+                                                "auth": {
+                                                        "type": "bearer",
+                                                        "bearer": [
+                                                                {
+                                                                        "key": "token",
+                                                                        "value": "{{authToken}}",
+                                                                        "type": "string"
+                                                                }
+                                                        ]
+                                                },
+                                                "method": "GET",
+                                                "header": [],
+                                                "url": {
+                                                        "raw": "{{baseUrl}}/auth/me",
+                                                        "host": [
+                                                                "{{baseUrl}}"
+                                                        ],
+                                                        "path": [
+                                                                "auth",
+                                                                "me"
+                                                        ]
+                                                },
+                                                "description": "Obtiene la información del usuario autenticado actualmente."
+                                        },
+                                        "response": []
+                                }
+                        ]
+                }
+        ],
+        "variable": [
+                {
+                        "key": "baseUrl",
+                        "value": "http://localhost:8001/api"
+                },
+                {
+                        "key": "authToken",
+                        "value": ""
+                },
+                {
+                        "key": "user_id",
+                        "value": ""
+                }
+        ]
+}

@@ -201,4 +201,59 @@ class PostController extends Controller
         $post->delete();
         return response()->json(null, 204);
     }
+
+
+    /**
+     * @OA\Get(
+     * path="/api/posts/{post}/user-reaction",
+     * summary="Check user's reaction to a post",
+     * description="Checks if the currently authenticated user has reacted to a specific post, and if so, which reaction they used.",
+     * tags={"Posts"},
+     * security={{"bearerAuth":{}}},
+     * @OA\Parameter(
+     * name="post",
+     * in="path",
+     * required=true,
+     * description="ID of the post to check",
+     * @OA\Schema(type="integer")
+     * ),
+     * @OA\Response(
+     * response=200,
+     * description="Returns the user's reaction status.",
+     * @OA\JsonContent(
+     * type="object",
+     * @OA\Property(property="has_reacted", type="boolean", example=true),
+     * @OA\Property(property="reaction_type_id", type="integer", nullable=true, example=1)
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated"
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="Post not found"
+     * )
+     * )
+     */
+    public function checkUserReaction(Post $post): JsonResponse
+    {
+        $user = auth()->user();
+
+        // Busca una reacción que coincida con el post y el usuario actual
+        $reaction = $post->reactions()->where('user_id', $user->id)->first();
+
+        if ($reaction) {
+            return response()->json([
+                'has_reacted' => true,
+                'reaction_type_id' => $reaction->reaction_type_id
+            ]);
+        }
+
+        return response()->json([
+            'has_reacted' => false,
+            'reaction_type_id' => null
+        ]);
+    }
+
 }
