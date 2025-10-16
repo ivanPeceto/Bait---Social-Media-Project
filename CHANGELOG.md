@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.5] - 2025-10-15
+## [mergetest/docs-tests] - 2025-10-15
 
 _(Cambios realizados por @juancruzct)_
 
