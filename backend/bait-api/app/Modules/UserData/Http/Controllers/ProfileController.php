@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\UserData\Http\Requests\User\UpdateProfileRequest;
 use App\Modules\UserData\Http\Requests\User\ChangePasswordRequest;
 use App\Modules\UserData\Http\Resources\UserResource;
+use App\Modules\UserData\Http\Resources\SearchResource;
 use App\Modules\Multimedia\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\UserData\Domain\Models\User;
@@ -396,6 +397,120 @@ class ProfileController extends Controller
         return new UserResource($user);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/users/search/username/{username}",
+     *     operationId="getUserByUsername",
+     *     tags={"Profile"},
+     *     summary="Get public user profile by username",
+     *     description="Returns the public profile of a user based on the provided username.",
+     *     security={{"bearerAuth": {}}},
+     *
+     *     @OA\Parameter(
+     *         name="username",
+     *         in="path",
+     *         required=true,
+     *         description="The username of the user to search",
+     *         @OA\Schema(type="string", example="admin")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="User profile found",
+     *         @OA\JsonContent(ref="#/components/schemas/UserSchema")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="User Not Found")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     )
+     * )
+     */
+    public function getUserByUsername(string $username): UserResource
+    {
+        $user = User::where('username', $username)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'No users found'
+            ], 404);
+        }
+
+        return new UserResource($user);
+    } 
+
+    /**
+     * @OA\Get(
+     *     path="/api/users/search/name/{name}",
+     *     summary="Search users by partial username with pagination",
+     *     tags={"Profile"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="path",
+     *         required=true,
+     *         description="Partial or full username to search for",
+     *         @OA\Schema(type="string", example="john")
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         description="Page number for pagination (default is 1)",
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Paginated list of users found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/UserSchema")
+     *             ),
+     *             @OA\Property(
+     *                 property="pagination",
+     *                 ref="#/components/schemas/PaginationSchema"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No users found matching the query",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="No users found")
+     *         )
+     *     )
+     * )
+     */
+    public function getUserByName(string $name): SearchResource
+    {
+        $users = User::where('name', 'like', "%{$name}%")
+                    ->with(['role', 'state', 'avatar', 'banner'])
+                    ->paginate(10);
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'message' => 'No users found'
+            ], 404);
+        }
+
+        return new SearchResource($users);
+    }
+
 
 }
+
 
