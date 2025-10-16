@@ -3,7 +3,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { PostService, Post, PostComment } from '../../features/post/services/post.service';
-import { CommentService } from '../post/services/comment.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -21,7 +20,6 @@ export default class Home implements OnInit {
   private authService = inject(AuthService);
   private postService = inject(PostService);
   private fb = inject(FormBuilder);
-  private commentService = inject(CommentService);
 
   public currentUser: any | null = null;
   public posts: Post[] = [];
@@ -41,19 +39,9 @@ export default class Home implements OnInit {
   }
   loadPosts(): void {
     this.postService.getPosts().subscribe({
-      next: (postsResponse: any) => {
-        const postsFromApi = postsResponse || [];
-        
-        postsFromApi.forEach((post: Post) => {
-          post.comments = [];
-          this.commentService.getCommentsForPost(post.id).subscribe({
-            next: (commentsResponse: any) => {
-              post.comments = commentsResponse.data || [];
-            }
-          });
-        });
-
-        this.posts = postsFromApi;
+      next: (response) => {
+        this.posts = response || [];
+        console.log('Posteos cargados desde el servidor:', this.posts);
       },
       error: (err) => {
         console.error('Error al cargar los posteos:', err);
@@ -92,35 +80,7 @@ export default class Home implements OnInit {
       });
     }
   }
-
-
-onCommentSubmit(postId: number, content: string): void {
-  if (!content || !content.trim()) {
-    return;
-  }
-
-  this.commentService.createComment(postId, content).subscribe({
-    next: (newCommentResponse: any) => {
-      const newCommentData = newCommentResponse.data;
-
-      // Creamos el objeto localmente para una respuesta instantánea
-      const newComment: PostComment = {
-        id: newCommentData.id,
-        content_comments: newCommentData.content_comments,
-        created_at: newCommentData.created_at,
-        user: this.currentUser, // Usamos el usuario actual
-        post_id: newCommentData.post_id,
-        user_id: this.currentUser.id,
-      };
-
-      const post = this.posts.find(p => p.id === postId);
-      if (post) {
-        post.comments.push(newComment); // Añadimos el comentario a la lista
-      }
-    },
-    error: (err) => console.error('Error detallado al crear el comentario:', err)
-  });
-}
+  
   logout(): void {
     this.authService.logout();
   }

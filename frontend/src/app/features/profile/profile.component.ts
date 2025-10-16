@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { User } from '../../core/models/user.model';
 import { ProfileService } from './services/profile.service';
+import { environment } from '../../../environments/environment';
+
 import { map, tap } from 'rxjs';
 
 @Component({
@@ -15,6 +17,7 @@ import { map, tap } from 'rxjs';
 })
 export class ProfileComponent implements OnInit {
   private profileService = inject(ProfileService);
+  private apiUrl = environment.apiUrl;
 
   userProfile$!: Observable<User>;
   
@@ -27,4 +30,5 @@ export class ProfileComponent implements OnInit {
     );
     
   }
+
 }

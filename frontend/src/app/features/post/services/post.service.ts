@@ -47,15 +47,5 @@ export class PostService {
   deletePost(postId: number): Observable<any> {
     return this.http.delete(`${this.API_URL}/${postId}`);
   }
-  likePost(postId: number): Observable<any> {
-    const reactionTypeId = 1;
 
-    return this.http.post(`${this.API_URL}/${postId}/reactions`, {
-      reaction_type_id: reactionTypeId
-    });
-  }
-
-  unlikePost(postId: number): Observable<any> {
-    return this.http.delete(`${this.API_URL}/${postId}/reactions`);
-  }
 }
