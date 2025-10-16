@@ -2,7 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../features/auth/services/auth.service';
-import { PostService, Post } from '../../features/post/services/post.service';
+import { PostService, Post, PostComment } from '../../features/post/services/post.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -10,7 +11,8 @@ import { PostService, Post } from '../../features/post/services/post.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    DatePipe
+    DatePipe,
+    RouterLink
   ],
   templateUrl: './home.html',
 })
@@ -19,6 +21,7 @@ export default class Home implements OnInit {
   private postService = inject(PostService);
   private fb = inject(FormBuilder);
 
+  public currentUser: any | null = null;
   public posts: Post[] = [];
   public postForm: FormGroup;
   public apiErrors: any = {};
@@ -27,12 +30,13 @@ export default class Home implements OnInit {
     this.postForm = this.fb.group({
       content_posts: ['', [Validators.required, Validators.maxLength(280)]]
     });
+    this.currentUser = this.authService.getCurrentUser();
+    console.log('Usuario actual al cargar el componente:', this.currentUser);
   }
 
   ngOnInit(): void {
     this.loadPosts();
   }
-
   loadPosts(): void {
     this.postService.getPosts().subscribe({
       next: (response) => {
@@ -64,6 +68,19 @@ export default class Home implements OnInit {
     });
   }
 
+  onDeletePost(postId: number): void {
+    if (confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
+      this.postService.deletePost(postId).subscribe({
+        next: () => {
+          this.posts = this.posts.filter(post => post.id !== postId);
+        },
+        error: (err) => {
+          console.error('Error al eliminar el post', err);
+        }
+      });
+    }
+  }
+  
   logout(): void {
     this.authService.logout();
   }

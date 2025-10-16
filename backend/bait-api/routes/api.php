@@ -64,7 +64,7 @@ Route::prefix('privileged/users/{user}')->middleware(['auth:api'])->group(functi
 
     Route::delete('/avatar', [AvatarController::class, 'destroyUserAvatar'])
         ->middleware('role:admin,moderator')
-        ->name('privileged.users.destroyBanner');
+        ->name('privileged.users.destroyAvatar');
 
     Route::delete('/banner', [BannerController::class, 'destroyUserBanner'])
         ->middleware('role:admin,moderator')
@@ -91,6 +91,7 @@ Route::middleware('auth:api')->prefix('users')->group(function () {
     Route::get('/{user}/followers', [FollowController::class, 'getFollowers'])->name('users.followers');
     Route::get('/{user}/following', [FollowController::class, 'getFollowing'])->name('users.following');
 });
+
 
 Route::prefix('roles')->middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('/',          [UserRoleController::class, 'index'])->name('roles.index');

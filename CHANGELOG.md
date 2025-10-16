@@ -17,6 +17,18 @@ _(Cambios realizados por @juancruzct)_
 
 * **Corrección en el Feed**: Se solucionó un error de `SQLSTATE[23000]: Integrity constraint violation: 1052 Column 'id' in field list is ambiguous` en el `FeedController` al especificar `users.id` en la consulta.
 
+## [features/frontend/posts] - 2025-10-16
+
+_(Cambios realizados por @facu24fm)_
+
+### Added
+
+- **Visualización de Perfiles:** Se implementó la página de perfil de usuario. Ahora puede mostrar tanto el perfil del usuario que ha iniciado sesión (en la ruta `/profile`) como el perfil público de cualquier otro usuario (en `/profile/:id`).
+- **Eliminación de Posts:** Los usuarios ahora pueden eliminar sus propias publicaciones directamente desde el feed a través de un nuevo ícono.
+
+
+### Corregido (Fixed)
+- **UI (Interfaz de Usuario):** Se corrigió un problema de CSS que causaba que las palabras muy largas en el contenido de un post se salieran de su contenedor.
 
 ## [mergetest/docs-tests] - 2025-10-15
 

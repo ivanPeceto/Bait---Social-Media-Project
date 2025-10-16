@@ -6,11 +6,27 @@ import { environment } from '../../../../environments/environment';
 export interface Post {
   id: number;
   content_posts: string;
-  user: any; 
+  user: User; 
+  user_id: number; 
   created_at: string;
+  reactions_count: number;
+  is_liked_by_user: boolean;
+  comments: PostComment[];
+}
+export interface PostComment {
+  id: number;
+  content_comments: string;
+  user: User;
+  user_id: User; 
+  created_at: string;
+  post_id: number;
 }
 
-const API_URL = `${environment.apiUrl}/posts`;
+export interface User {
+  id: number;
+  name: string;
+  username: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -18,12 +34,18 @@ const API_URL = `${environment.apiUrl}/posts`;
 
 export class PostService {
   private http = inject(HttpClient);
+  private API_URL = `${environment.apiUrl}/posts`;
 
   getPosts(): Observable<Post[]> {
-    return this.http.get<Post[]>(API_URL);
+    return this.http.get<Post[]>(this.API_URL);
   }
 
   createPost(content: string): Observable<Post> {
-    return this.http.post<Post>(API_URL, { content_posts: content });
+    return this.http.post<Post>(this.API_URL, { content_posts: content });
   }
+
+  deletePost(postId: number): Observable<any> {
+    return this.http.delete(`${this.API_URL}/${postId}`);
+  }
+
 }
