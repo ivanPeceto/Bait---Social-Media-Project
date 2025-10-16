@@ -13,6 +13,7 @@ use App\Modules\UserData\Http\Controllers\BannerController;
 use App\Modules\UserData\Http\Controllers\UserStateController;
 
 /*MultiMedia*/
+use App\Modules\Multimedia\Http\Controllers\FeedController;
 use App\Modules\Multimedia\Http\Controllers\PostController;
 use App\Modules\Multimedia\Http\Controllers\CommentController;
 use App\Modules\Multimedia\Http\Controllers\RepostController;
@@ -87,6 +88,8 @@ Route::middleware('auth:api')->prefix('profile')->group(function () {
 Route::middleware('auth:api')->prefix('users')->group(function () {
     Route::get('/{user}/posts', [ProfileController::class, 'getUserPosts'])->name('users.posts');
     Route::get('/{user}', [ProfileController::class, 'showPublicProfile'])->name('users.show');
+    Route::get('/{user}/followers', [FollowController::class, 'getFollowers'])->name('users.followers');
+    Route::get('/{user}/following', [FollowController::class, 'getFollowing'])->name('users.following');
 });
 
 Route::prefix('roles')->middleware(['auth:api', 'role:admin'])->group(function () {
@@ -118,6 +121,8 @@ Route::prefix('banners')->middleware('auth:api')->group(function () {
 /*----------------------------------------------------------------------------------------------*/
 
 /*MultiMedia routes*/
+
+Route::get('/feed', FeedController::class)->middleware('auth:api');
 
 Route::middleware('auth:api')->prefix('posts')->group(function () {
     Route::get('/',         [PostController::class, 'index'])->name('posts.');
