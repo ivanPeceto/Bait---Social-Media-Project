@@ -46,6 +46,7 @@ export class AuthService {
 
   private isLoggedIn = new BehaviorSubject<boolean>(false);
   public isLoggedIn$: Observable<boolean> = this.isLoggedIn.asObservable();
+  private currentUser$ = new BehaviorSubject<any>(null);
 
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -90,6 +91,14 @@ export class AuthService {
     if (!isPlatformBrowser(this.platformId)) return false;
     return !!this.getAccessToken();
   }
+
+  public getCurrentUser(): any | null {
+
+    if (!isPlatformBrowser(this.platformId)) return null;
+    const user = localStorage.getItem('currentUser');
+    return user ? JSON.parse(user) : null;
+}
+
 
   private saveSessionData(authData: AuthResponse): void {
     if (!isPlatformBrowser(this.platformId)) return;
