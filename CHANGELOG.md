@@ -1,5 +1,22 @@
 # Changelog
 
+## [mergetest/docs-tests] - 2025-10-16
+
+_(Cambios realizados por @juancruzct)_
+
+### Added
+
+* **Endpoints de Seguidores/Seguidos**:
+    * Se añadió el endpoint `GET /api/users/{user}/followers` para listar los seguidores de un usuario.
+    * Se añadió el endpoint `GET /api/users/{user}/following` para listar los usuarios a los que sigue un usuario.
+* **Feed Personalizado**:
+    * Se implementó el endpoint `GET /api/feed` para la carga inicial del feed, mostrando posts de los usuarios seguidos y del propio usuario.
+    * Se implementó la actualización del feed en tiempo real mediante websockets, disparando el evento `NewPost` que notifica a los seguidores a través de canales privados.
+
+### Fixed
+
+* **Corrección en el Feed**: Se solucionó un error de `SQLSTATE[23000]: Integrity constraint violation: 1052 Column 'id' in field list is ambiguous` en el `FeedController` al especificar `users.id` en la consulta.
+
 ## [features/frontend/posts] - 2025-10-16
 
 _(Cambios realizados por @facu24fm)_

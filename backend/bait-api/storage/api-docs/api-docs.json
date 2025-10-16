@@ -308,6 +308,39 @@
                 ]
             }
         },
+        "/api/feed": {
+            "get": {
+                "tags": [
+                    "Feed"
+                ],
+                "summary": "Get the user's personalized feed",
+                "description": "Returns a paginated list of posts from users that the authenticated user follows, including their own posts, sorted by most recent.",
+                "operationId": "066b706cfa676e2bfc7d56c20d9fd1c7",
+                "responses": {
+                    "200": {
+                        "description": "The user's feed retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PostSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/multimedia-contents": {
             "post": {
                 "tags": [
@@ -2714,6 +2747,94 @@
                 ]
             }
         },
+        "/api/users/{user}/followers": {
+            "get": {
+                "tags": [
+                    "Follows"
+                ],
+                "summary": "Get a user's followers",
+                "description": "Returns a paginated list of users who are following the specified user.",
+                "operationId": "d01aef42ca93fed048096dbd57e128b0",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of followers.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserResource"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{user}/following": {
+            "get": {
+                "tags": [
+                    "Follows"
+                ],
+                "summary": "Get users a user is following",
+                "description": "Returns a paginated list of users that the specified user is following.",
+                "operationId": "130f2d2a32022a63bcb6f496ed706abd",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of users being followed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserResource"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/chats/{chat}/messages": {
             "get": {
                 "tags": [
@@ -3815,6 +3936,10 @@
         {
             "name": "User Management",
             "description": "Privileged"
+        },
+        {
+            "name": "Feed",
+            "description": "Feed"
         },
         {
             "name": "Users",

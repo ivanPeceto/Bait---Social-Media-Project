@@ -8,6 +8,7 @@ use App\Modules\Multimedia\Http\Requests\Post\CreatePostRequest;
 use App\Modules\Multimedia\Http\Requests\Post\UpdatePostRequest;
 use App\Modules\Multimedia\Http\Resources\PostResource;
 use Illuminate\Http\JsonResponse;
+use App\Events\NewPost;
 
 class PostController extends Controller
 {
@@ -72,6 +73,7 @@ class PostController extends Controller
             'user_id' => auth()->id(),
         ]);
 
+        event(new NewPost($post));
         return response()->json(new PostResource($post), 201);
     }
 

@@ -5,6 +5,7 @@ namespace App\Modules\UserInteractions\Http\Controllers;
 use App\Events\UserFollowed;
 use App\Http\Controllers\Controller;
 use App\Modules\UserData\Domain\Models\User;
+use App\Modules\UserData\Http\Resources\UserResource;
 use App\Modules\UserInteractions\Domain\Models\Follow;
 use App\Modules\UserInteractions\Http\Requests\Follow\CreateFollowRequest;
 use Illuminate\Http\JsonResponse;
@@ -103,5 +104,78 @@ class FollowController extends Controller
 
         $follow->delete();
         return response()->json(null, 204);
+    }
+
+
+    /**
+     * @OA\Get(
+     * path="/api/users/{user}/followers",
+     * summary="Get a user's followers",
+     * description="Returns a paginated list of users who are following the specified user.",
+     * tags={"Follows"},
+     * security={{"bearerAuth":{}}},
+     *
+     * @OA\Parameter(
+     * name="user",
+     * in="path",
+     * required=true,
+     * description="ID of the user",
+     * @OA\Schema(type="integer")
+     * ),
+     *
+     * @OA\Response(
+     * response=200,
+     * description="A paginated list of followers.",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/UserResource")
+     * )
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="User not found"
+     * )
+     * )
+     */
+    public function getFollowers(User $user)
+    {
+        $followers = $user->followers()->paginate(20);
+        return UserResource::collection($followers);
+    }
+
+    /**
+     * @OA\Get(
+     * path="/api/users/{user}/following",
+     * summary="Get users a user is following",
+     * description="Returns a paginated list of users that the specified user is following.",
+     * tags={"Follows"},
+     * security={{"bearerAuth":{}}},
+     *
+     * @OA\Parameter(
+     * name="user",
+     * in="path",
+     * required=true,
+     * description="ID of the user",
+     * @OA\Schema(type="integer")
+     * ),
+     *
+     * @OA\Response(
+     * response=200,
+     * description="A paginated list of users being followed.",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/UserResource")
+     * )
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="User not found"
+     * )
+     * )
+     */
+    public function getFollowing(User $user)
+    {
+        $following = $user->following()->paginate(20);
+        return UserResource::collection($following);
     }
 }
