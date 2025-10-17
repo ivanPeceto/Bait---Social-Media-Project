@@ -10,6 +10,44 @@ use Illuminate\Http\JsonResponse;
 
 class UserManagementController extends Controller
 {
+
+
+
+    /**
+     * @OA\Get(
+     * path="/api/privileged/users",
+     * summary="List all users (admin/moderator only)",
+     * description="Returns a paginated list of all users in the system for the administration panel.",
+     * tags={"User Management"},
+     * security={{"bearerAuth":{}}},
+     * @OA\Response(
+     * response=200,
+     * description="A paginated list of users.",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/UserResource")
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated"
+     * ),
+     * @OA\Response(
+     * response=403,
+     * description="Forbidden - Insufficient permissions"
+     * )
+     * )
+     */
+    public function index()
+    {
+        
+        $users = User::with(['role', 'state', 'avatar', 'banner'])->latest()->paginate(20);
+
+        // Devolvemos la colección de usuarios formateada con UserResource.
+        return UserResource::collection($users);
+    }
+
+
     /**
      * @OA\Post(
      *     path="/api/privileged/users/{user}/suspend",
