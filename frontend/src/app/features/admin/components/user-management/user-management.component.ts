@@ -1,55 +1,173 @@
+// en src/app/features/admin/components/user-management/user-management.component.ts (CÓDIGO FINAL Y ROBUSTO)
+
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AdminUserService, User } from '../../services/admin-user.service';
+import { AdminStateService, UserState } from '../../services/admin-state.service';
+import { AdminRoleService, UserRole } from '../../services/admin-role.service';
 
 @Component({
   selector: 'app-user-management',
-  standalone: true, // Lo hacemos standalone para facilitar las importaciones
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './user-management.component.html',
 })
 export class UserManagementComponent implements OnInit {
   private adminUserService = inject(AdminUserService);
-  
-  public users: User[] = [];
-  public isLoading = true; // Variable para mostrar un mensaje de "Cargando..."
-  public error: string | null = null; // Variable para mostrar errores
+  private adminStateService = inject(AdminStateService);
+  private adminRoleService = inject(AdminRoleService);
+  private fb = inject(FormBuilder);
 
-  ngOnInit(): void {
-    this.loadUsers();
+  public users: User[] = [];
+  public allStates: UserState[] = [];
+  public allRoles: UserRole[] = [];
+
+  public isLoading = true;
+  public error: string | null = null;
+  public activeMenuUserId: number | null = null;
+  
+  public selectedUser: User | null = null;
+  public isEditModalOpen = false;
+  public isPasswordModalOpen = false;
+
+  public editUserForm: FormGroup;
+  public passwordForm: FormGroup;
+
+  constructor() {
+    this.editUserForm = this.fb.group({
+      name: ['', Validators.required],
+      username: ['', [Validators.required, Validators.minLength(3)]],
+    });
+
+    this.passwordForm = this.fb.group({
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      password_confirmation: ['', Validators.required]
+    });
   }
 
-  loadUsers(): void {
+  ngOnInit(): void {
+    this.loadInitialData();
+  }
+
+  loadInitialData(): void {
     this.isLoading = true;
-    this.error = null;
-    this.adminUserService.getUsers().subscribe({
-      next: (data) => {
+    this.adminUserService.getUsers().subscribe(data => {
         this.users = data;
         this.isLoading = false;
+    });
+    this.adminStateService.getStates().subscribe(data => this.allStates = data);
+    this.adminRoleService.getRoles().subscribe(data => this.allRoles = data);
+  }
+
+  toggleActionMenu(userId: number): void {
+    this.activeMenuUserId = this.activeMenuUserId === userId ? null : userId;
+  }
+
+  openEditModal(user: User): void {
+    this.selectedUser = user;
+    this.editUserForm.patchValue({ name: user.name, username: user.username });
+    this.isEditModalOpen = true;
+    this.activeMenuUserId = null;
+  }
+  
+  openPasswordModal(user: User): void {
+    this.selectedUser = user;
+    this.isPasswordModalOpen = true;
+    this.activeMenuUserId = null;
+  }
+
+  closeModals(): void {
+    this.isEditModalOpen = false;
+    this.isPasswordModalOpen = false;
+    this.selectedUser = null;
+    this.passwordForm.reset();
+  }
+
+  // --- 👇 LÓGICA DE ACTUALIZACIÓN CORREGIDA ---
+
+  onUpdateUser(): void {
+    if (this.editUserForm.invalid || !this.selectedUser) return;
+    
+    this.adminUserService.updateUser(this.selectedUser.id, this.editUserForm.value).subscribe({
+      next: () => {
+        // SOLUCIÓN AL BUG VISUAL: Actualizamos los datos localmente en lugar de reemplazar el objeto.
+        const index = this.users.findIndex(u => u.id === this.selectedUser!.id);
+        if (index !== -1) {
+          this.users[index].name = this.editUserForm.value.name;
+          this.users[index].username = this.editUserForm.value.username;
+        }
+        this.closeModals();
       },
       error: (err) => {
-        console.error("Error cargando usuarios:", err);
-        this.error = "No se pudieron cargar los usuarios. Revisa la consola para más detalles.";
-        this.isLoading = false;
+        const errorMessage = err.error?.message || 'Ocurrió un error desconocido.';
+        alert(`Error al actualizar: ${errorMessage}`);
+      }
+    });
+  }
+  
+  onChangePassword(): void {
+    if (this.passwordForm.invalid || !this.selectedUser) return;
+    const { password, password_confirmation } = this.passwordForm.value;
+
+    if (password !== password_confirmation) {
+      alert('Las contraseñas no coinciden.');
+      return;
+    }
+    
+    this.adminUserService.changeUserPassword(this.selectedUser.id, password, password_confirmation).subscribe({
+      next: () => {
+        alert('Contraseña actualizada con éxito.');
+        this.closeModals();
+      },
+      error: (err) => alert(`Error al cambiar contraseña: ${err.error.message || err.message}`)
+    });
+  }
+
+  onChangeState(user: User, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const stateId = parseInt(select.value, 10);
+    const stateName = select.options[select.selectedIndex].text;
+
+    this.adminUserService.updateUser(user.id, { state_id: stateId }).subscribe({
+      next: () => {
+        // Ahora que el backend lo guarda, actualizamos el frontend con confianza.
+        user.state = stateName.toLowerCase();
+      },
+      error: (err) => {
+        alert(`Error al cambiar el estado: ${err.message}`);
+        this.loadInitialData(); // Si hay error, recargamos para restaurar.
       }
     });
   }
 
-  onSuspend(user: User): void {
-    if (confirm(`¿Estás seguro de que quieres suspender a ${user.username}?`)) {
-      this.adminUserService.suspendUser(user.id).subscribe({
-        next: () => this.loadUsers(), // Recargamos la lista para ver el cambio
-        error: (err) => alert(`Error al suspender: ${err.message}`)
-      });
+  onChangeRole(user: User, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const roleId = parseInt(select.value, 10);
+    const roleName = select.options[select.selectedIndex].text;
+
+    this.adminUserService.updateUser(user.id, { role_id: roleId }).subscribe({
+      next: () => {
+        user.role = roleName.toLowerCase();
+      },
+      error: (err) => {
+        alert(`Error al cambiar el rol: ${err.message}`);
+        this.loadInitialData();
+      }
+    });
+  }
+  
+  onDeleteAvatar(user: User): void {
+    if (confirm(`¿Seguro que quieres eliminar el AVATAR de ${user.username}?`)) {
+      this.adminUserService.deleteUserAvatar(user.id).subscribe(() => alert('Avatar eliminado.'));
     }
+    this.activeMenuUserId = null;
   }
 
-  onActivate(user: User): void {
-    if (confirm(`¿Estás seguro de que quieres activar a ${user.username}?`)) {
-        this.adminUserService.activateUser(user.id).subscribe({
-        next: () => this.loadUsers(), // Recargamos la lista
-        error: (err) => alert(`Error al activar: ${err.message}`)
-      });
+  onDeleteBanner(user: User): void {
+    if (confirm(`¿Seguro que quieres eliminar el BANNER de ${user.username}?`)) {
+      this.adminUserService.deleteUserBanner(user.id).subscribe(() => alert('Banner eliminado.'));
     }
+    this.activeMenuUserId = null;
   }
 }

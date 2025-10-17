@@ -1,51 +1,61 @@
+// en src/app/features/admin/services/admin-user.service.ts (CÓDIGO CORREGIDO)
+
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 
-// Definimos una 'interfaz' para el modelo de Usuario. Esto ayuda a que el código sea más robusto.
-// Puedes crear una carpeta 'core/models' y poner este archivo ahí si quieres.
 export interface User {
   id: number;
   username: string;
-  email: string;
-  role: { id: number; name_user_roles: string; };
-  state: { id: number; name_user_states: string; };
+  name: string;
+  role: string;
+  state: string;
+  email?: string; // El email ahora es opcional
 }
 
-// El servicio para todas las acciones de Admin sobre Usuarios
+interface UsersResponse {
+  data: User[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AdminUserService {
   private http = inject(HttpClient);
-  
-  // URL base para los endpoints de gestión de usuarios
   private privilegedApiUrl = `${environment.apiUrl}/privileged/users`;
-  private publicApiUrl = `${environment.apiUrl}/users`; // Asumiendo que esta es la ruta para obtener todos los usuarios
 
-  // --- MÉTODOS DE GESTIÓN DE USUARIOS ---
-
-  /**
-   * Obtiene la lista completa de usuarios.
-   * NOTA: Este endpoint debe existir en tu backend (ej. GET /api/users)
-   */
   getUsers(): Observable<User[]> {
-    // Apuntamos a la ruta pública de usuarios para obtener la lista
-    return this.http.get<User[]>(this.publicApiUrl);
+    return this.http.get<UsersResponse>(this.privilegedApiUrl).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
-   * Envía una petición para suspender a un usuario por su ID.
+   * Actualiza los datos de un usuario. Ahora es mucho más flexible.
+   * Corresponde a: PUT /privileged/users/{user}/update
    */
-  suspendUser(userId: number): Observable<any> {
-    return this.http.post(`${this.privilegedApiUrl}/${userId}/suspend`, {});
+  updateUser(userId: number, data: { name?: string; username?: string; role_id?: number; state_id?: number }): Observable<User> {
+    return this.http.put<User>(`${this.privilegedApiUrl}/${userId}/update`, data);
   }
 
   /**
-   * Envía una petición para activar a un usuario por su ID.
+   * Cambia la contraseña de un usuario, ahora enviando la confirmación.
+   * Corresponde a: PUT /privileged/users/{user}/password
    */
-  activateUser(userId: number): Observable<any> {
-    return this.http.post(`${this.privilegedApiUrl}/${userId}/activate`, {});
+  changeUserPassword(userId: number, password: string, passwordConfirmation: string): Observable<any> {
+    return this.http.put(`${this.privilegedApiUrl}/${userId}/password`, {
+      new_password: password,
+      new_password_confirmation: passwordConfirmation
+    });
+  }
+
+  deleteUserAvatar(userId: number): Observable<any> {
+    return this.http.delete(`${this.privilegedApiUrl}/${userId}/avatar`);
+  }
+
+  deleteUserBanner(userId: number): Observable<any> {
+    return this.http.delete(`${this.privilegedApiUrl}/${userId}/banner`);
   }
 }
