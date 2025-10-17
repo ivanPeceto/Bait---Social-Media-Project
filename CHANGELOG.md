@@ -1,5 +1,27 @@
 # Changelog
 
+## [feature/backend/search] - 2025-10-16
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Added
+
+* **Métodos en el backend**:
+
+  * Se añadieron los métodos `getUserByUsername()` y `getUserByName()` al backend para la búsqueda de usuarios.
+  * Se añadió el recurso `SearchResource` para estructurar la respuesta de las búsquedas de usuario.
+
+* **Rutas de API**:
+
+  * Se agregaron las rutas correspondientes a los métodos de búsqueda mencionados en el archivo `api.php`.
+
+### Docs
+
+* **Documentación OpenAPI**:
+
+  * Se actualizó el archivo `api-docs.json` para documentar los nuevos endpoints de búsqueda.
+  * Se añadió el esquema `PaginationSchema` para estandarizar la documentación de respuestas paginadas.
+
 ## [mergetest/docs-tests] - 2025-10-16
 
 _(Cambios realizados por @juancruzct)_
