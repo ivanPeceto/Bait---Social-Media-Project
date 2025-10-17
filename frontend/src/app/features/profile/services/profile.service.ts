@@ -10,7 +10,12 @@ import { User } from '../../../core/models/user.model';
 export class ProfileService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl; 
+  
   getOwnProfile(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/profile/show`);
+  }
+
+  getPublicProfile(username: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/users/${username}`);
   }
 }

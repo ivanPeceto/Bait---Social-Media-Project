@@ -29,6 +29,15 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'profile/:username', // <-- ¡Añadimos el parámetro :username!
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./features/profile/profile.component').then(
+        (m) => m.ProfileComponent
+      ),
+  },
+
   // ====================================================================
   // =====> AÑADIMOS LA RUTA QUE FALTABA PARA EL PANEL DE ADMIN <=====
   // ====================================================================
