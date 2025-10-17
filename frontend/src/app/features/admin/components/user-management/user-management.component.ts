@@ -1,4 +1,4 @@
-// en src/app/features/admin/components/user-management/user-management.component.ts (CÓDIGO FINAL Y ROBUSTO)
+// en src/app/features/admin/components/user-management/user-management.component.ts (CÓDIGO ACTUALIZADO)
 
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -35,9 +35,11 @@ export class UserManagementComponent implements OnInit {
   public passwordForm: FormGroup;
 
   constructor() {
+    // --- 👇 MODIFICACIÓN AQUÍ: Añadimos 'email' al formulario de edición ---
     this.editUserForm = this.fb.group({
       name: ['', Validators.required],
       username: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]] // Campo de email añadido
     });
 
     this.passwordForm = this.fb.group({
@@ -66,7 +68,12 @@ export class UserManagementComponent implements OnInit {
 
   openEditModal(user: User): void {
     this.selectedUser = user;
-    this.editUserForm.patchValue({ name: user.name, username: user.username });
+    // --- 👇 MODIFICACIÓN AQUÍ: Rellenamos el campo de email en el formulario ---
+    this.editUserForm.patchValue({ 
+      name: user.name, 
+      username: user.username,
+      email: user.email 
+    });
     this.isEditModalOpen = true;
     this.activeMenuUserId = null;
   }
@@ -84,18 +91,17 @@ export class UserManagementComponent implements OnInit {
     this.passwordForm.reset();
   }
 
-  // --- 👇 LÓGICA DE ACTUALIZACIÓN CORREGIDA ---
-
   onUpdateUser(): void {
     if (this.editUserForm.invalid || !this.selectedUser) return;
     
     this.adminUserService.updateUser(this.selectedUser.id, this.editUserForm.value).subscribe({
       next: () => {
-        // SOLUCIÓN AL BUG VISUAL: Actualizamos los datos localmente en lugar de reemplazar el objeto.
         const index = this.users.findIndex(u => u.id === this.selectedUser!.id);
         if (index !== -1) {
+          // --- 👇 MODIFICACIÓN AQUÍ: Actualizamos también el email localmente ---
           this.users[index].name = this.editUserForm.value.name;
           this.users[index].username = this.editUserForm.value.username;
+          this.users[index].email = this.editUserForm.value.email;
         }
         this.closeModals();
       },
@@ -131,12 +137,11 @@ export class UserManagementComponent implements OnInit {
 
     this.adminUserService.updateUser(user.id, { state_id: stateId }).subscribe({
       next: () => {
-        // Ahora que el backend lo guarda, actualizamos el frontend con confianza.
         user.state = stateName.toLowerCase();
       },
       error: (err) => {
         alert(`Error al cambiar el estado: ${err.message}`);
-        this.loadInitialData(); // Si hay error, recargamos para restaurar.
+        this.loadInitialData();
       }
     });
   }

@@ -36,7 +36,7 @@ export class AdminUserService {
    * Actualiza los datos de un usuario. Ahora es mucho más flexible.
    * Corresponde a: PUT /privileged/users/{user}/update
    */
-  updateUser(userId: number, data: { name?: string; username?: string; role_id?: number; state_id?: number }): Observable<User> {
+  updateUser(userId: number, data: { name?: string; username?: string; email?: string; role_id?: number; state_id?: number }): Observable<User> {
     return this.http.put<User>(`${this.privilegedApiUrl}/${userId}/update`, data);
   }
 

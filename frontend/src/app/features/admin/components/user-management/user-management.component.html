@@ -4,11 +4,15 @@
     <form [formGroup]="editUserForm" (ngSubmit)="onUpdateUser()">
       <div class="mb-4">
         <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Nombre (Display Name)</label>
-        <input type="text" id="name" formControlName="name" class="w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        <input type="text" id="name" formControlName="name" class="w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-white">
+      </div>
+      <div class="mb-4">
+        <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+        <input type="text" id="username" formControlName="username" class="w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-white">
       </div>
       <div class="mb-6">
-        <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
-        <input type="text" id="username" formControlName="username" class="w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+        <input type="email" id="email" formControlName="email" class="w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-white">
       </div>
       <div class="flex justify-end space-x-3">
         <button type="button" (click)="closeModals()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md text-white font-semibold">Cancelar</button>
@@ -36,6 +40,7 @@
         </form>
     </div>
 </div>
+
 <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
   <header class="flex justify-between items-center mb-5">
     <h2 class="text-2xl font-bold text-white">Gestión de Usuarios</h2>
@@ -49,7 +54,7 @@
       <thead class="text-xs text-gray-300 uppercase bg-gray-700/50">
         <tr>
           <th scope="col" class="px-6 py-4">Usuario</th>
-          <th scope="col" class="px-6 py-4">Rol</th>
+          <th scope="col" class="px-6 py-4">Email</th> <th scope="col" class="px-6 py-4">Rol</th>
           <th scope="col" class="px-6 py-4">Estado</th>
           <th scope="col" class="px-6 py-4 text-center">Acciones</th>
         </tr>
@@ -61,7 +66,7 @@
             <div class="text-xs text-gray-500">@{{ user.username }}</div>
           </td>
           
-          <td class="px-6 py-4">
+          <td class="px-6 py-4">{{ user.email }}</td> <td class="px-6 py-4">
             <select (change)="onChangeRole(user, $event)" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-1.5">
               <option *ngFor="let role of allRoles" [value]="role.id" [selected]="role.name.toLowerCase() === user.role.toLowerCase()">
                 {{ role.name }}
@@ -84,7 +89,7 @@
               </button>
               <div *ngIf="activeMenuUserId === user.id" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-700 ring-1 ring-black ring-opacity-5 z-20">
                 <div class="py-1">
-                  <a href="#" (click)="openEditModal(user); $event.preventDefault()" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600">Editar Usuario</a>
+                  <a href="#" (click)="openEditModal(user); $event.preventDefault()" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600">Editar Usuario / Email</a>
                   <a href="#" (click)="openPasswordModal(user); $event.preventDefault()" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600">Cambiar Contraseña</a>
                   <hr class="border-gray-600 my-1">
                   <a href="#" (click)="onDeleteAvatar(user); $event.preventDefault()" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-600">Eliminar Avatar</a>
