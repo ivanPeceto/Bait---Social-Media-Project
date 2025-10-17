@@ -53,6 +53,10 @@ Route::prefix('auth')->group(function () {
     Route::post('logout',   [AuthController::class, 'logout'])->middleware('auth:api')->name('auth.logout');
 });
 
+Route::get('/privileged/users', [UserManagementController::class, 'index'])
+    ->middleware(['auth:api', 'role:admin,moderator'])
+    ->name('privileged.users.index');
+
 Route::prefix('privileged/users/{user}')->middleware(['auth:api'])->group(function () {
     Route::put('/update',    [ProfileController::class, 'updateUser'])
         ->middleware('role:admin,moderator')
