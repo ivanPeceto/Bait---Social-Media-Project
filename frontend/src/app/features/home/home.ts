@@ -80,6 +80,19 @@ export default class Home implements OnInit {
       });
     }
   }
+
+
+  /**
+   * Verifica si el usuario actual tiene un rol privilegiado ('admin' o 'moderator').
+   * El HTML usará esta función para mostrar u ocultar el botón del panel.
+   */
+  isPrivilegedUser(): boolean {
+    if (!this.currentUser || !this.currentUser.role) {
+      return false;
+    }
+    const roleName = this.currentUser.role;
+    return roleName === 'admin' || roleName === 'moderator';
+  }
   
   logout(): void {
     this.authService.logout();

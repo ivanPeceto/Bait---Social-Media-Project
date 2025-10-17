@@ -1,0 +1,55 @@
+<div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+  <header class="flex justify-between items-center mb-5">
+    <h2 class="text-2xl font-bold text-white">Gestión de Usuarios</h2>
+    </header>
+
+  <div *ngIf="isLoading" class="text-center py-10 text-gray-400">
+    <p>Cargando lista de usuarios...</p>
+  </div>
+
+  <div *ngIf="error" class="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-md text-center">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && !error && users.length > 0" class="overflow-x-auto">
+    <table class="w-full text-sm text-left text-gray-400">
+      <thead class="text-xs text-gray-300 uppercase bg-gray-700/50">
+        <tr>
+          <th scope="col" class="px-6 py-4">Usuario</th>
+          <th scope="col" class="px-6 py-4">Email</th>
+          <th scope="col" class="px-6 py-4">Rol</th>
+          <th scope="col" class="px-6 py-4">Estado</th>
+          <th scope="col" class="px-6 py-4 text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users" class="border-b bg-gray-800 border-gray-700 hover:bg-gray-700/50 transition-colors duration-200">
+          <td class="px-6 py-4 font-medium text-white">{{ user.username }}</td>
+          <td class="px-6 py-4">{{ user.email }}</td>
+          <td class="px-6 py-4">{{ user.role.name_user_roles }}</td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 rounded-full text-xs font-semibold"
+                  [ngClass]="{
+                    'bg-green-800 text-green-300': user.state.name_user_states === 'Active', 
+                    'bg-yellow-800 text-yellow-300': user.state.name_user_states === 'Suspended'
+                  }">
+              {{ user.state.name_user_states }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-center space-x-2">
+            <button *ngIf="user.state.name_user_states === 'Active'" (click)="onSuspend(user)" class="bg-yellow-600 px-3 py-1 rounded-md hover:bg-yellow-700 text-xs font-bold text-white transition-colors duration-200">
+              Suspender
+            </button>
+            <button *ngIf="user.state.name_user_states === 'Suspended'" (click)="onActivate(user)" class="bg-green-600 px-3 py-1 rounded-md hover:bg-green-700 text-xs font-bold text-white transition-colors duration-200">
+              Activar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!isLoading && users.length === 0 && !error" class="text-center py-10 text-gray-500">
+    <p>No se encontraron usuarios para mostrar.</p>
+  </div>
+</div>
