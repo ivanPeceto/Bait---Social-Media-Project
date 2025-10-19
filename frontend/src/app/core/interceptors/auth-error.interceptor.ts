@@ -32,7 +32,6 @@ export class AuthErrorInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError((error) => {
-        // Ignora el interceptor para rutas de login/registro
         if (request.url.includes('/auth/login') || request.url.includes('/auth/register')) {
           return throwError(() => error);
         }
@@ -97,6 +96,7 @@ export class AuthErrorInterceptor implements HttpInterceptor {
    * @param refreshToken The expired refresh token.
    * @returns An Observable with the new token data.
    */
+
   private callRefreshEndpoint(refreshToken: string): Observable<any> { 
     const refreshUrl = `${environment.apiUrl}/auth/refresh`; 
     return this.http.post(refreshUrl, { refresh_token: refreshToken });
@@ -108,6 +108,7 @@ export class AuthErrorInterceptor implements HttpInterceptor {
    * @param token The JWT access token.
    * @returns The cloned request with the header.
    */
+
   private addToken(request: HttpRequest<any>, token: string): HttpRequest<any> {
     return request.clone({
       setHeaders: {
@@ -119,6 +120,7 @@ export class AuthErrorInterceptor implements HttpInterceptor {
   /**
    * @brief Cleans up tokens and redirects to the login page.
    */
+  
   private handleLogout(): void {
     this.authService.logout();
   }
