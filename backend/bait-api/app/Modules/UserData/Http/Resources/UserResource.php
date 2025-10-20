@@ -49,6 +49,9 @@ class UserResource extends JsonResource
             ]),
             // --- FIN DE LA MODIFICACIÓN ---
 
+            'followers_count' => $this->followers()->count(),
+            'following_count' => $this->following()->count(),
+
             'role' => $this->whenLoaded('role', fn() => $this->role->name),
             'state' => $this->whenLoaded('state', fn() => $this->state->name),
             'avatar' => new AvatarResource($this->whenLoaded('avatar')),

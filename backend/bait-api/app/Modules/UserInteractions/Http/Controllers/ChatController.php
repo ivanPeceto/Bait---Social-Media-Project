@@ -33,7 +33,7 @@ class ChatController extends Controller
     public function index(): AnonymousResourceCollection|JsonResponse
     {
         $user = auth()->user();
-        $chats = $user->chats()->with('users', 'messages')->get();
+        $chats = $user->chats()->with(['users.avatar', 'messages'])->latest()->get();
         return ChatResource::collection($chats);
     }
 
@@ -77,8 +77,8 @@ class ChatController extends Controller
         
         // Attach other participants
         $chat->users()->attach($uniqueParticipants);
-        
-        $chat->load('users', 'messages');
+
+        $chat->load(['users.avatar', 'messages']);
 
         return new ChatResource($chat);
     }
@@ -114,7 +114,7 @@ class ChatController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $chat->load('users', 'messages');
+        $chat->load(['users.avatar', 'messages']);
         return new ChatResource($chat);
     }
 }

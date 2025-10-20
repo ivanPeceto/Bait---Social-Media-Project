@@ -42,6 +42,7 @@ class FeedController extends Controller
 
         $feed = Post::whereIn('user_id', $feedUserIds)
                     ->with('user.avatar')
+                    ->withCount(['reactions', 'comments', 'reposts'])
                     ->latest()
                     ->paginate(20);
 

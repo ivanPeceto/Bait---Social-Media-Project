@@ -1,7 +1,6 @@
 <div class="bg-gray-900 min-h-screen text-gray-200">
 
   <header class="bg-transparent border-b border-gray-700 sticky top-0 z-20">
-
     <nav class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-center items-center relative h-14"> 
          <div class="relative">
              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -23,11 +22,11 @@
 
     <nav class="hidden md:block md:col-span-1 lg:col-span-3 h-fit sticky top-20 border-gray-700 pr-6">
 
-       <div class="flex justify-center mb-6">
-           <a routerLink="/" class="inline-block">
-              <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="h-10">
-           </a>
-       </div>
+      <div class="flex justify-center mb-6">
+        <a routerLink="/" class="inline-block">
+            <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="h-10">
+        </a>
+      </div>
 
       <ul class="space-y-2">
         <li>
@@ -53,6 +52,15 @@
               <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zM12 6a3 3 0 100 6 3 3 0 000-6zM12 18.75a7.125 7.125 0 00-6.362 3.51c.31-.043.626-.078.948-.11a19.454 19.454 0 013.916.002 7.125 7.125 0 003 0 19.454 19.454 0 013.916-.002c.322.032.638.067.948.11A7.125 7.125 0 0012 18.75z" clip-rule="evenodd" />
             </svg>
             <span class="font-semibold text-lg">Mi Cuenta</span>
+          </a>
+        </li>
+        
+        <li *ngIf="isPrivilegedUser()">
+          <a routerLink="/admin" class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 text-yellow-400">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span class="font-semibold text-lg">Panel de Admin</span>
           </a>
         </li>
         <li>

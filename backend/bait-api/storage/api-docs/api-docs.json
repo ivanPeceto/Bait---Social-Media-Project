@@ -3930,7 +3930,7 @@
                         "example": "johndoe"
                     },
                     "email": {
-                        "description": "The user's email. Only visible to the owner of the profile.",
+                        "description": "The user's email. Only visible to the owner of the profile or to admins/moderators.",
                         "type": "string",
                         "format": "email",
                         "example": "john.doe@example.com"

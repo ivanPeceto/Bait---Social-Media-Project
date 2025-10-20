@@ -1,5 +1,56 @@
 # Changelog
 
+## [feature/frontend/admin-view] - 2025-10-16
+## [feature/frontend/search] - 2025-10-20
+## [mergetest2/merge-frontend] - 2025-10-20
+
+
+
+_(Cambios realizados por @juancruzct)_
+
+### Added
+
+* **Frontend - Búsqueda de Usuarios**:
+    * Se implementó una barra de búsqueda dinámica en el `HomeComponent` (ahora `MainComponent` layout).
+    * La búsqueda se activa mientras el usuario escribe (`debounceTime`) y busca por nombre (`name`) o username (`@` prefix), mostrando resultados en un panel desplegable.
+    * Los resultados son clickeables y navegan al perfil público del usuario (`goToProfile`).
+    * Se creó `SearchService` para las llamadas a la API de búsqueda (`/users/search/name/{name}` y `/users/search/username/{username}`).
+* **Frontend - Panel de Admin (Gestión de Usuarios)**:
+    * Se reemplazaron los botones de acción por un menú desplegable (3 puntos) por cada usuario en la tabla.
+    * Se añadió un modal para editar `name`, `username` y `email`.
+    * Se añadió un modal para que el admin cambie la contraseña de un usuario (requiere confirmación).
+    * Se implementaron dropdowns (`<select>`) en la tabla para cambiar el `rol` y `estado` del usuario, cargando las opciones disponibles desde la API.
+    * Se añadieron opciones en el menú desplegable para eliminar `avatar` y `banner` del usuario.
+    * Se añadieron métodos a `AdminUserService` para interactuar con los endpoints de actualización (`PUT /privileged/users/{user}/update`), cambio de contraseña (`PUT /privileged/users/{user}/password`), y eliminación de avatar/banner (`DELETE .../{user}/avatar`, `DELETE .../{user}/banner`).
+* **Frontend - Perfil Dinámico**:
+    * Se añadió la ruta dinámica `/profile/:username` en `app.routes.ts`.
+    * `ProfileComponent` ahora lee el parámetro `:username` de la URL para mostrar el perfil público correspondiente (usando `GET /api/users/{user:username}`) o el perfil propio si no hay parámetro (usando `GET /api/profile/show`).
+    * Se añadió el método `getPublicProfile` a `ProfileService`.
+    * Se reintrodujo y corrigió la lógica `isOwnProfile` en `ProfileComponent`.
+* **Contadores en Perfil**: Se añadieron los campos `followers_count` y `following_count` al `UserResource` para mostrar el número de seguidores y seguidos en los perfiles.
+* **Listado de Usuarios para Admin**: Se añadió el endpoint `GET /api/privileged/users` para obtener la lista completa de usuarios (protegido para roles `admin` y `moderator`).    
+
+### Changed
+
+* **Backend - Permisos de Actualización**: Se modificó `UpdateProfileRequest.php` para incluir `role_id` y `state_id` en las reglas de validación, permitiendo que el endpoint `PUT /privileged/users/{user}/update` guarde los cambios de rol y estado realizados por un admin.
+* **Backend - Route Model Binding**: Se especificó `{user:username}` en la definición de la ruta `GET /api/users/{user}` en `api.php` para asegurar la búsqueda por nombre de usuario.
+* **Backend - Visibilidad de Email**: Se ajustó `UserResource.php` para que el endpoint `GET /api/privileged/users` siempre devuelva el campo `email` cuando la petición es hecha por un 'admin' o 'moderator'.
+* **Frontend - Panel de Admin (Gestión de Usuarios)**:
+    * Se optimizó la actualización de `name`, `username`, `role` y `state` para reflejarse instantáneamente en la interfaz (actualización local del array `users`) sin recargar toda la lista desde la API.
+    * Se ajustó la llamada a `changeUserPassword` en `AdminUserService` y `UserManagementComponent` para enviar los campos `new_password` y `new_password_confirmation` requeridos por `ChangePasswordRequest.php`.
+    * Se añadió la columna `Email` a la tabla de usuarios.
+* **Frontend - Layout Principal**: Se corrigió la función `isPrivilegedUser()` en `MainComponent` para leer el rol como un string simple desde `localStorage` (`currentUser.role`), permitiendo mostrar correctamente el enlace al panel de admin.
+
+
+### Fixed
+* **Frontend - Panel de Admin**:
+    * Se corrigió `AdminModule` eliminando la importación de componentes standalone del array `imports`.
+    * Se corrigió `AdminUserService` para extraer el array de usuarios de la envoltura `{ "data": [...] }` de la API usando `map`.
+    * Se corrigieron errores de `case-sensitivity` en el HTML del `UserManagementComponent` al comparar estados.
+    * Se solucionó el bug visual donde la celda de usuario desaparecía tras la edición, modificando `onUpdateUser` para actualizar solo las propiedades `name` y `username` localmente.
+* **Frontend - Navegación**: Se corrigió la configuración de rutas (`app.routes.ts`) y la lógica de `ProfileComponent` para permitir la navegación correcta a perfiles (`/profile/:username`) desde los resultados de búsqueda.
+
+
 ## [feature/backend/search] - 2025-10-16
 
 _(Cambios realizados por @jmrodriguezspinker)_
