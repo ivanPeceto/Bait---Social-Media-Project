@@ -76,6 +76,11 @@ export class AuthService {
     );
   }
 
+  public updateCurrentUser(user: any): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+
   public logout(): void {
     this.removeSessionData();
     this.isLoggedIn.next(false);

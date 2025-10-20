@@ -39,6 +39,28 @@ _(Cambios realizados por @juancruzct)_
 
 * **Corrección en el Feed**: Se solucionó un error de `SQLSTATE[23000]: Integrity constraint violation: 1052 Column 'id' in field list is ambiguous` en el `FeedController` al especificar `users.id` en la consulta.
 
+## [feature/frontend/profile] - 2025-10-19
+
+_(Cambios realizados por @facu24fm)_
+
+### Added
+- Perfil: Subida interactiva de avatar y banner con vista previa y confirmación.
+- Perfil: Mostrar la fecha de registro del usuario ("Unido a Bait en...").
+- Perfil: Se añadió el menú de eliminación de publicaciones (menú de 3 puntos).
+
+### changed
+- Perfil: Se actualizó el diseño del encabezado para que coincida con la referencia de diseño (avatar a la izquierda, botón de edición a la derecha).
+- Perfil: Se ajustó el estilo del feed de publicaciones para que coincida con el feed de inicio.
+- Diseño: Se ajustaron las columnas del diseño principal y los divisores verticales.
+- Diseño: Se añadió el logotipo centrado a la barra de navegación lateral.
+- Diseño: Se actualizó el estilo de la barra de búsqueda de la barra de navegación superior.
+
+### Fixed
+- Perfil: Se aseguró que el avatar del perfil principal se muestre como un círculo perfecto.
+- Perfil: Se corrigió el error de TypeScript por la falta de la propiedad `created_at` en el modelo de usuario.
+- Perfil: Se corrigió el error de TypeScript al pasar un número en lugar de una cadena a `loadUserPosts`.
+- i18n: Se registró la configuración regional en español para el formato de fecha (por ejemplo, nombres de meses).
+
 ## [features/frontend/posts] - 2025-10-16
 
 _(Cambios realizados por @facu24fm)_

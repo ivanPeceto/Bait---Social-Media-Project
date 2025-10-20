@@ -5,8 +5,9 @@
  */
 
 import { Routes } from '@angular/router';
-
+import { ProfileComponent } from './features/profile/profile.component';
 import { AuthGuard } from './core/guards/auth.guard'; 
+import { MainComponent } from './layout/main/main.component';
 
 /**
  * @const routes
@@ -18,22 +19,23 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
 
-  // 2. PROTECTED ROUTES 
-  {
-    path: '', 
+{
+    path: '',
+    component: MainComponent,
     canActivate: [AuthGuard],
-    loadChildren: () => import('./features/home/home.routes').then(m => m.HOME_ROUTES)
+    children: [
+      {
+        path: '', 
+        loadComponent: () => import('./features/home/home'),
+      },
+      {
+        path: 'profile', 
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'profile/:id', 
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+    ]
   },
-  {
-    path: 'profile',
-    loadComponent: () =>
-      import('./features/profile/profile.component').then(
-        (m) => m.ProfileComponent
-      ),
-    canActivate: [AuthGuard], 
-  },
-  {
-    path: '**',
-    redirectTo: '' 
-  }
 ];
