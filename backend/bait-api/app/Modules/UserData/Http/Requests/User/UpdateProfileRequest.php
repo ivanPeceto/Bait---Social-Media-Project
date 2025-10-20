@@ -19,6 +19,8 @@ class UpdateProfileRequest extends FormRequest
             'username' => ['sometimes', 'string', 'min:3', 'max:30', 'alpha_dash', "unique:users,username,{$userId}"],
             'name'     => ['sometimes', 'string', 'max:120'],
             'email'    => ['sometimes', 'email', "unique:users,email,{$userId}"],
+            'role_id'  => ['sometimes', 'integer', 'exists:user_roles,id'],
+            'state_id' => ['sometimes', 'integer', 'exists:user_states,id'],
         ];
     }
 }

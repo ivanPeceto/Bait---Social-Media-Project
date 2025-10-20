@@ -1,0 +1,28 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AdminLayoutComponent } from './components/admin-layout/admin-layout.component';
+import { UserManagementComponent } from './components/user-management/user-management.component';
+import { RoleManagementComponent } from './components/role-management/role-management.component';
+import { StateManagementComponent } from './components/state-management/state-management.component';
+
+const routes: Routes = [
+  {
+    path: '', // Esta es la ruta base '/admin'
+    component: AdminLayoutComponent,
+    children: [
+      // Estas son las vistas que se cargarán DENTRO del layout
+      { path: 'users', component: UserManagementComponent },
+      { path: 'roles', component: RoleManagementComponent }, 
+      { path: 'states', component: StateManagementComponent }, 
+      
+      // Si alguien navega a '/admin', lo redirigimos a la sección de usuarios
+      { path: '', redirectTo: 'users', pathMatch: 'full' }
+    ]
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class AdminRoutingModule { }

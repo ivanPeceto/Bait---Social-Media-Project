@@ -9,13 +9,19 @@ import { User } from '../../../core/models/user.model';
 })
 export class ProfileService {
   private http = inject(HttpClient);
+<<<<<<< HEAD
   private apiUrl = environment.apiUrl;
 
+=======
+  private apiUrl = environment.apiUrl; 
+  
+>>>>>>> origin/feature/frontend/search
   getOwnProfile(): Observable<User> {
     const params = new HttpParams().set('cacheBuster', new Date().getTime().toString());
     return this.http.get<User>(`${this.apiUrl}/profile/show`, { params });
   }
 
+<<<<<<< HEAD
   getUserProfile(id: string): Observable<User> {
     const params = new HttpParams().set('cacheBuster', new Date().getTime().toString());
     return this.http.get<User>(`${this.apiUrl}/users/${id}`, { params });
@@ -37,4 +43,9 @@ export class ProfileService {
     return this.http.post<any>(`${this.apiUrl}/avatars/upload`, formData);
   }
 
+=======
+  getPublicProfile(username: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/users/${username}`);
+  }
+>>>>>>> origin/feature/frontend/search
 }
