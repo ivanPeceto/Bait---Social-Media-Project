@@ -1,13 +1,7 @@
 import { Routes } from '@angular/router';
-<<<<<<< HEAD
-import { ProfileComponent } from './features/profile/profile.component';
 import { AuthGuard } from './core/guards/auth.guard'; 
 import { MainComponent } from './layout/main/main.component';
-=======
-
-import { AuthGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard'; // <-- Asegúrate de importar el adminGuard
->>>>>>> origin/feature/frontend/search
 
 /**
  * @const routes
@@ -20,53 +14,34 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
 
-<<<<<<< HEAD
-{
-    path: '',
-    component: MainComponent,
-=======
-  // --- Rutas protegidas por login ---
   {
     path: '',
->>>>>>> origin/feature/frontend/search
-    canActivate: [AuthGuard],
+    component: MainComponent,
+    // --- Rutas protegidas por login dentro del layout principal (MainComponent) ---
+    canActivate: [AuthGuard], // Protege todas las rutas hijas
     children: [
       {
         path: '', 
         loadComponent: () => import('./features/home/home'),
       },
       {
-        path: 'profile', 
+        path: 'profile', // Perfil del usuario logueado (ej: /profile)
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      // Ruta para perfil público (por ID o por username)
+      {
+        path: 'profile/:id', // La ruta debe usar :id o :username, pero no ambos como rutas separadas sin resolver conflictos.
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
       },
       {
-        path: 'profile/:id', 
+        path: 'profile/:username', // Mantengo esta ruta ya que parece que se quería usar el username
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
       },
     ]
   },
-<<<<<<< HEAD
-=======
-  {
-    path: 'profile',
-    canActivate: [AuthGuard],
-    loadComponent: () =>
-      import('./features/profile/profile.component').then(
-        (m) => m.ProfileComponent
-      ),
-  },
-
-  {
-    path: 'profile/:username', // <-- ¡Añadimos el parámetro :username!
-    canActivate: [AuthGuard],
-    loadComponent: () =>
-      import('./features/profile/profile.component').then(
-        (m) => m.ProfileComponent
-      ),
-  },
 
   // ====================================================================
-  // =====> AÑADIMOS LA RUTA QUE FALTABA PARA EL PANEL DE ADMIN <=====
+  // =====> RUTA PARA EL PANEL DE ADMIN <=====
   // ====================================================================
   {
     path: 'admin',
@@ -81,5 +56,4 @@ export const routes: Routes = [
     path: '**',
     redirectTo: ''
   }
->>>>>>> origin/feature/frontend/search
 ];

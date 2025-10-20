@@ -1,27 +1,15 @@
-<<<<<<< HEAD
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { BehaviorSubject, Observable, EMPTY } from 'rxjs'; 
-import { map, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, EMPTY, of } from 'rxjs'; 
+import { map, switchMap, tap, catchError } from 'rxjs/operators'; // Añadido catchError
 import { ProfileService } from './services/profile.service'; 
 import { AuthService } from '../auth/services/auth.service';
 import { User } from '../../core/models/user.model';
 import { PostService , Post } from '../post/services/post.service'; 
 import { environment } from '../../../environments/environment'; 
 import { HttpErrorResponse } from '@angular/common/http'; 
-=======
-// en src/app/features/profile/profile.component.ts (CÓDIGO FINAL Y ROBUSTO)
 
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { switchMap, map, catchError, tap } from 'rxjs/operators';
-import { User } from '../../core/models/user.model';
-import { ProfileService } from './services/profile.service';
-import { AuthService } from '../auth/services/auth.service';
->>>>>>> origin/feature/frontend/search
 
 @Component({
   selector: 'app-profile',
@@ -33,18 +21,19 @@ import { AuthService } from '../auth/services/auth.service';
 export class ProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private profileService = inject(ProfileService);
-<<<<<<< HEAD
   private authService = inject(AuthService);
   private postService = inject(PostService);
 
   public apiUrlForImages = environment.apiUrl.replace('/api', ''); 
 
   private refresh$ = new BehaviorSubject<void>(undefined); 
-  public userProfile$!: Observable<User>;                
+  public userProfile$: Observable<User | null> = of(null); // Inicializado de forma segura
   public isOwnProfile = false;                           
   public userPosts: Post[] = [];                      
   public openPostId: number | null = null;          
   public currentUserId: number | null = null;     
+  public isLoading = true; // Variable de carga añadida
+  public error: string | null = null; // Manejo de error
 
 
   public selectedAvatarFile: File | null = null;       
@@ -54,57 +43,98 @@ export class ProfileComponent implements OnInit {
   public avatarPreviewUrl: string | ArrayBuffer | null = null; 
   public bannerPreviewUrl: string | ArrayBuffer | null = null; 
 
-  private profileUserIdToLoad: string | null = null;
+  // private profileUserIdToLoad: string | null = null; // No usado en esta versión, mejor usar username/id.
 
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
-    this.currentUserId = currentUser?.id;
+    this.currentUserId = currentUser?.id ?? null;
 
     const profileLoader$ = this.refresh$.pipe(
-      switchMap(() => this.route.paramMap),
-      switchMap(params => {
-        const userIdParam = params.get('id');
-        this.profileUserIdToLoad = userIdParam ? userIdParam : this.currentUserId?.toString() ?? null;
-
-        if (!this.profileUserIdToLoad) {
-          console.error("No se pudo determinar el ID del perfil.");
-          return EMPTY; 
-        }
-
-        this.isOwnProfile = this.currentUserId?.toString() === this.profileUserIdToLoad;
-
+      tap(() => {
+        this.isLoading = true;
+        this.error = null;
+        // Limpieza de estado de subida/previsualización al cargar un nuevo perfil
         this.selectedAvatarFile = null;
         this.selectedBannerFile = null;
         this.avatarPreviewUrl = null;
         this.bannerPreviewUrl = null;
         this.isUploadingAvatar = false;
         this.isUploadingBanner = false;
+      }),
+      switchMap(() => this.route.paramMap),
+      switchMap(params => {
+        const idParam = params.get('id');
+        const usernameParam = params.get('username');
 
-        if (this.isOwnProfile) {
-            return this.profileService.getOwnProfile();
+        let profileIdentifier: string | number | null = null;
+        let isOwn = false;
+
+        // 1. Determinar el perfil a cargar
+        if (idParam) {
+            profileIdentifier = idParam;
+            isOwn = this.currentUserId?.toString() === idParam;
+        } else if (usernameParam) {
+            // Asumiendo que getUserProfile puede aceptar ID o Username, 
+            // y que getPublicProfile usa Username (según el código original del conflicto)
+            profileIdentifier = usernameParam;
+            isOwn = currentUser?.username === usernameParam;
+        } else if (this.currentUserId) {
+            // Si no hay parámetros, cargamos el perfil propio
+            profileIdentifier = this.currentUserId;
+            isOwn = true;
         } else {
-            return this.profileService.getUserProfile(this.profileUserIdToLoad);
+            console.error("Usuario no logueado y sin parámetros de perfil.");
+            return of(null);
         }
+
+        this.isOwnProfile = isOwn;
+        
+        // 2. Llamada al servicio
+        if (isOwn) {
+            return this.profileService.getOwnProfile();
+        } else if (typeof profileIdentifier === 'string') {
+             // Si es un username (o ID como string), usamos la función de perfil público
+             return this.profileService.getUserProfile(profileIdentifier).pipe( 
+                 catchError(error => {
+                     console.error('Error al cargar perfil público:', error);
+                     this.error = 'No se pudo cargar el perfil público. El usuario podría no existir.';
+                     return of(null); // Retorna un Observable de null en caso de error
+                 })
+             );
+        }
+        return of(null);
       })
     );
 
 
     this.userProfile$ = profileLoader$.pipe(
-        map((response: any) => response.data as User),
-        tap((user: User) => { 
+        map((response: any) => response ? response.data as User : null),
+        tap((user: User | null) => { 
+          this.isLoading = false;
           if (user && user.id) {
             console.log("Perfil cargado correctamente:", user); 
+            // Solo cargamos posts si el perfil es válido
             this.loadUserPosts(user.id.toString());
           } else {
-            console.error("Perfil inválido después de extraer 'data':", user);
             this.userPosts = [];
+            if (!this.error) {
+                 this.error = 'No se pudo cargar el perfil o el usuario no existe.';
+            }
           }
+        }),
+        catchError(err => {
+            this.isLoading = false;
+            this.error = 'Error de conexión al cargar el perfil.';
+            return of(null);
         })
     );
   }
 
 
+  // ... (El resto de tus métodos son correctos y se mantienen) ...
+  // loadUserPosts, onAvatarSelected, onUploadAvatar, cancelAvatarChange,
+  // onBannerSelected, onUploadBanner, cancelBannerChange, togglePostMenu, onDeletePost
 
   loadUserPosts(userId: string): void {
     this.profileService.getUserPosts(userId).subscribe({
@@ -226,50 +256,4 @@ export class ProfileComponent implements OnInit {
      }
    }
 
-} 
-=======
-  private route = inject(ActivatedRoute);
-  private authService = inject(AuthService);
-
-  userProfile$: Observable<User | null>; // Permitimos que sea nulo en caso de error
-  isLoading = true; // Añadimos una variable de carga manejada manualmente
-  error: string | null = null; // Para mostrar mensajes de error
-  isOwnProfile: boolean = false;
-  
-  constructor() {
-    // Inicializamos el observable para evitar errores
-    this.userProfile$ = of(null);
-  }
-
-  ngOnInit(): void {
-    const currentUser = this.authService.getCurrentUser();
-
-    this.route.paramMap.pipe(
-      tap(() => {
-        // Reiniciamos los estados al empezar una nueva carga
-        this.isLoading = true;
-        this.error = null;
-      }),
-      switchMap(params => {
-        const usernameFromUrl = params.get('username');
-        if (usernameFromUrl) {
-          this.isOwnProfile = currentUser?.username === usernameFromUrl;
-          return this.profileService.getPublicProfile(usernameFromUrl);
-        } else {
-          this.isOwnProfile = true;
-          return this.profileService.getOwnProfile();
-        }
-      }),
-      map((response: any) => response.data),
-      catchError(error => {
-        console.error('Error al cargar el perfil:', error);
-        this.error = 'No se pudo cargar el perfil. Puede que el usuario no exista o haya un problema de conexión.';
-        return of(null); // Devolvemos nulo en caso de error
-      })
-    ).subscribe(profileData => {
-      this.userProfile$ = of(profileData);
-      this.isLoading = false; // Detenemos la carga, tanto en éxito como en error.
-    });
-  }
 }
->>>>>>> origin/feature/frontend/search
