@@ -357,7 +357,11 @@ class ProfileController extends Controller
         // Usamos la relación 'posts' del modelo User para obtener sus posts.
         // 'latest()' los ordena del más nuevo al más viejo.
         // 'paginate(15)' divide los resultados en páginas para un mejor rendimiento.
-        $posts = $user->posts()->latest()->paginate(15);
+        $posts = $user->posts()
+                    ->with('user.avatar')
+                    ->withCount(['reactions', 'comments', 'reposts'])
+                    ->latest()
+                    ->paginate(15);
 
         // Usamos PostResource para formatear la colección de posts antes de devolverla.
         return PostResource::collection($posts);

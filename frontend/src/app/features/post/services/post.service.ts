@@ -2,31 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-
-export interface Post {
-  id: number;
-  content_posts: string;
-  user: User; 
-  user_id: number; 
-  created_at: string;
-  reactions_count: number;
-  is_liked_by_user: boolean;
-  comments: PostComment[];
-}
-export interface PostComment {
-  id: number;
-  content_comments: string;
-  user: User;
-  user_id: User; 
-  created_at: string;
-  post_id: number;
-}
-
-export interface User {
-  id: number;
-  name: string;
-  username: string;
-}
+import { Post } from '../../../core/models/post.model';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +12,8 @@ export class PostService {
   private http = inject(HttpClient);
   private API_URL = `${environment.apiUrl}/posts`;
 
-  getPosts(): Observable<Post[]> {
+
+  getPosts(): Observable<any> {
     return this.http.get<Post[]>(this.API_URL);
   }
 

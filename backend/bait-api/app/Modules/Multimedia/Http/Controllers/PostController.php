@@ -33,7 +33,10 @@ class PostController extends Controller
 
     public function index(): JsonResponse
     {
-        $posts = Post::with('user')->get();
+        $posts = Post::with('user.avatar')
+                    ->withCount(['reactions', 'comments', 'reposts'])
+                    ->latest()
+                    ->get();
         return response()->json(PostResource::collection($posts));
     }
 

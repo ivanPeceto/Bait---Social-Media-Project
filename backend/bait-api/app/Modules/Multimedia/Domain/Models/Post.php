@@ -8,6 +8,8 @@ use App\Modules\UserData\Domain\Models\User;
 use Database\Factories\PostFactory; 
 use Illuminate\Database\Eloquent\Relations\HasMany; 
 use App\Modules\Multimedia\Domain\Models\PostReaction;
+use App\Modules\Multimedia\Domain\Models\Repost;
+use App\Modules\Multimedia\Domain\Models\Comment;
 
 
 class Post extends Model
@@ -45,5 +47,10 @@ class Post extends Model
     public function reactions(): HasMany
     {
         return $this->hasMany(PostReaction::class);
+    }
+
+    public function reposts(): HasMany
+    {
+        return $this->hasMany(Repost::class);
     }
 }

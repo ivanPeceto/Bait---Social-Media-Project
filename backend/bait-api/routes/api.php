@@ -94,7 +94,7 @@ Route::middleware('auth:api')->prefix('users')->group(function () {
     Route::get('/search/name/{name}', [ProfileController::class, 'getUserByName'])->name('users.search.name');
 
     Route::get('/{user}/posts', [ProfileController::class, 'getUserPosts'])->name('users.posts');
-    Route::get('/{user}', [ProfileController::class, 'showPublicProfile'])->name('users.show');
+    Route::get('/{user:username}', [ProfileController::class, 'showPublicProfile'])->name('users.show');
     Route::get('/{user}/followers', [FollowController::class, 'getFollowers'])->name('users.followers');
     Route::get('/{user}/following', [FollowController::class, 'getFollowing'])->name('users.following');
 });

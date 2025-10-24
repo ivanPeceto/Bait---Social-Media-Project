@@ -1,8 +1,5 @@
-/* Estilos actualizados para la página de perfil */
-
 .profile-header-container {
-  border-bottom: 1px solid #333; // Línea divisoria
-  margin-bottom: 1rem;
+  border-bottom: 1px solid #333; 
 }
 
 .profile-banner {
@@ -20,13 +17,12 @@
   justify-content: space-between;
   align-items: flex-end;
   padding: 0 2rem 1rem 2rem;
-  margin-top: -70px; // Sube el contenido sobre el banner
+  margin-top: -70px; 
   position: relative;
 }
 
 .avatar-info-group {
   .profile-avatar img {
-    // 2. Avatar más chico
     width: 140px;
     height: 140px;
     border-radius: 50%;
@@ -34,7 +30,6 @@
     background-color: #1a1a1a;
   }
   
-  // 1. Estilos para el nombre y @username debajo del avatar
   .name {
     font-size: 1.5rem;
     font-weight: bold;
@@ -63,7 +58,6 @@
   }
 }
 
-// 3. Sección de posts (el "medio")
 .profile-main-content {
   padding: 0 2rem;
 }
@@ -76,7 +70,6 @@
   color: #777;
 }
 
-/* Estilos actualizados para el botón con SVG */
 
 .profile-page {
   position: relative; 

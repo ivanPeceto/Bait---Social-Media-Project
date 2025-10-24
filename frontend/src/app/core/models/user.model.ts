@@ -1,8 +1,23 @@
+export interface Avatar {
+  id: number;
+  url_avatars: string; 
+}
+
+export interface Banner {
+  id: number;
+  url_banners: string;
+}
+
 export interface User {
   id: number;
-  name: string;
   username: string;
+  name: string;
   email: string;
-  avatar: { url: string } | null;
-  banner: { url: string } | null;
+  role?: string;
+  state?: string;
+  avatar?: Avatar | null; 
+  banner?: Banner | null;
+  
+  created_at: string;
+  updated_at: string;
 }
