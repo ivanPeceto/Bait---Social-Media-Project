@@ -1,0 +1,40 @@
+<div *ngIf="isOpen" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-40 px-4 py-6" (click)="close()"> 
+  <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl border border-gray-700 overflow-hidden flex flex-col max-h-[85vh]" (click)="$event.stopPropagation()"> 
+    <div class="p-5 border-b border-gray-700 flex justify-between items-center">
+      <h3 class="text-xl font-bold text-white">Comentarios</h3> 
+      <button (click)="close()" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button> 
+      </div>
+
+    <div class="p-5 border-b border-gray-700">
+        <div class="flex items-center space-x-3 mb-3"> 
+          <img class="w-11 h-11 rounded-full" [src]="baseUrl + (post.user?.avatar?.url_avatars || '/storage/avatars/default.jpg')" alt="Avatar"> 
+            <div>
+                <p class="font-semibold text-base">{{ post.user?.name || post.user }}</p> 
+                <p class="text-sm text-gray-500">@{{ post.user?.username || 'usuario' }}</p>
+                 </div>
+        </div>
+        <p class="text-gray-200 text-base whitespace-pre-wrap break-words">{{ post.content_posts }}</p> 
+        </div>
+
+    <div class="flex-1 overflow-y-auto pb-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"> 
+      <div *ngIf="isLoading" class="p-6 text-center text-gray-500">Cargando comentarios...</div> 
+        <div *ngIf="error" class="p-6 text-center text-red-400">{{ error }}</div> 
+        <ng-container *ngIf="comments$ | async as comments">
+            <app-comment-item 
+              *ngFor="let comment of localComments" 
+              [comment]="comment"
+              (commentDeleted)="handleDeleteComment($event)" 
+              (commentUpdated)="handleUpdateComment($event)"
+              class="block border-b border-gray-700 last:border-b-0" 
+              ></app-comment-item>
+            
+            <div *ngIf="!isLoading && localComments.length === 0 && !error" class="p-6 text-center text-gray-500">
+                Aún no hay comentarios. ¡Sé el primero!
+            </div>
+        </ng-container>
+    </div>
+
+    <app-comment-form (commentSubmitted)="addComment($event)"></app-comment-form>
+
+  </div> 
+</div>

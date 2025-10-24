@@ -9,7 +9,7 @@ import { User } from '../../../core/models/user.model';
 })
 export class ProfileService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl; // Fusión de la definición de apiUrl
+  private apiUrl = environment.apiUrl;
 
   getOwnProfile(): Observable<User> {
     const params = new HttpParams().set('cacheBuster', new Date().getTime().toString());
