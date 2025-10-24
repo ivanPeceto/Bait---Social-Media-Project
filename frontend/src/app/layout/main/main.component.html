@@ -1,16 +1,79 @@
 <div class="bg-gray-900 min-h-screen text-gray-200">
 
+  <header class="bg-transparent border-b border-gray-700 sticky top-0 z-20">
+    <nav class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-center items-center relative h-14"> 
+         
+         <div class="relative w-1/3"> 
+             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                 <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                 </svg>
+             </span>
+             <input
+               type="text"
+               placeholder="Buscar en Bait..."
+               class="bg-transparent border border-gray-600 text-white w-full pl-10 pr-4 py-2 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"/>
+               </div>
+
+        <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
+            <button (click)="toggleNotificationsPanel()" type="button" class="relative p-2 rounded-full hover:bg-gray-700 text-gray-400 hover:text-white focus:outline-none">
+                <span class="sr-only">Ver notificaciones</span>
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+                <span *ngIf="unreadNotificationsCount > 0" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
+                    {{ unreadNotificationsCount }}
+                </span>
+            </button>
+        </div>
+        </nav>
+  </header>
+  <div *ngIf="showNotificationsPanel" class="absolute top-16 right-4 sm:right-6 lg:right-8 w-80 max-w-sm bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-30 overflow-hidden">
+      <div class="p-3 border-b border-gray-700">
+          <h3 class="text-base font-semibold text-white">Notificaciones</h3>
+      </div>
+      <div class="max-h-96 overflow-y-auto">
+          <ul *ngIf="notifications$ | async as notifications; else loadingOrEmpty">
+              <li *ngFor="let notification of notifications" 
+                  (click)="markNotificationAsRead(notification, $event)"
+                  class="p-3 border-b border-gray-700 hover:bg-gray-700 cursor-pointer transition-colors"
+                  [class.bg-gray-700]="notification.read_at" 
+                  [class.opacity-70]="notification.read_at">
+                  
+                  <div class="flex items-start space-x-3">
+                      <div class="flex-shrink-0 pt-1">
+                          <svg *ngIf="notification.type.includes('Follow')" class="w-5 h-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"> <path fill-rule="evenodd" d="M15.75 8.25a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0V9A.75.75 0 0115.75 8.25zM4.5 9a.75.75 0 01.75-.75h4.5a.75.75 0 010 1.5h-4.5A.75.75 0 014.5 9zm0 3.75a.75.75 0 01.75-.75h4.5a.75.75 0 010 1.5h-4.5a.75.75 0 01-.75-.75zM17.809 11.36a.75.75 0 01.196 1.048l-2.43 3.644a.75.75 0 11-1.25-.832l2.43-3.644a.75.75 0 011.054-.216zM6.53 11.36a.75.75 0 00-.196 1.048l2.43 3.644a.75.75 0 101.25-.832L7.584 11.58a.75.75 0 00-1.054-.22zM8 4.25a.75.75 0 01.75.75v.5c0 .414.336.75.75.75h1a.75.75 0 010 1.5h-1a2.25 2.25 0 00-2.25 2.25v.5a.75.75 0 01-1.5 0v-.5A3.75 3.75 0 018.75 5h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 00-.75.75v.5a.75.75 0 01-.75.75z" clip-rule="evenodd" /> </svg>
+                          </div>
+                      <div class="flex-1">
+                          <p class="text-sm text-gray-300">{{ notification.data.message }}</p>
+                          <p class="text-xs text-gray-500 mt-0.5">
+                              {{ notification.created_at | date:'short' }} 
+                              <span *ngIf="!notification.read_at" class="ml-2 inline-block h-2 w-2 rounded-full bg-blue-500" aria-label="No leída"></span>
+                          </p>
+                      </div>
+                  </div>
+              </li>
+              
+              <li *ngIf="notifications.length === 0" class="p-4 text-center text-sm text-gray-500">
+                No tienes notificaciones nuevas.
+              </li>
+          </ul>
+          
+          <ng-template #loadingOrEmpty>
+              <div class="p-4 text-center text-sm text-gray-500">
+                  Cargando notificaciones...
+              </div>
+          </ng-template>
+      </div>
+  </div>
   <main class="w-full px-4 sm:px-6 lg:px-8 py-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12">
 
-
     <nav class="hidden md:block md:col-span-1 lg:col-span-3 h-fit sticky top-20 border-gray-700 pr-6">
-
       <div class="flex justify-center mb-6">
         <a routerLink="/" class="inline-block">
             <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="h-10">
         </a>
       </div>
-
       <ul class="space-y-2">
         <li>
           <a routerLink="/" class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4">
@@ -57,24 +120,16 @@
       </ul>
     </nav>
 
-
     <div class="md:col-span-3 lg:col-span-5 border-l border-r border-gray-700 px-6">
       <router-outlet></router-outlet>
     </div>
 
-
     <aside class="hidden lg:block lg:col-span-4 sticky top-20 h-[calc(100vh-6rem)] flex flex-col pl-6">
-
-
       <div class="p-4">
         <h3 class="font-semibold text-lg">Chats</h3>
       </div>
-
-
       <div class="flex-1 overflow-y-auto">
         <ul class="divide-y divide-gray-700">
-
-
           <li class="flex justify-between items-center p-4 hover:bg-gray-700 group">
             <a href="#" class="flex items-center space-x-3">
               <img class="w-10 h-10 rounded-full" src="assets/images/iconousuario.png" alt="Avatar">
@@ -101,11 +156,8 @@
               </svg>
             </button>
           </li>
-
         </ul>
       </div>
-
     </aside>
-
-  </main>
+    </main>
 </div>
