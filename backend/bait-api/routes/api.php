@@ -92,7 +92,7 @@ Route::middleware('auth:api')->prefix('profile')->group(function () {
 Route::middleware('auth:api')->prefix('users')->group(function () {
     Route::get('/search/username/{username}', [ProfileController::class, 'getUserByUsername'])->name('users.search.username');
     Route::get('/search/name/{name}', [ProfileController::class, 'getUserByName'])->name('users.search.name');
-
+    Route::get('/{user}/reposts', [ProfileController::class, 'getUserReposts'])->name('users.reposts');
     Route::get('/{user}/posts', [ProfileController::class, 'getUserPosts'])->name('users.posts');
     Route::get('/{user:username}', [ProfileController::class, 'showPublicProfile'])->name('users.show');
     Route::get('/{user}/followers', [FollowController::class, 'getFollowers'])->name('users.followers');

@@ -2189,6 +2189,53 @@
                 ]
             }
         },
+        "/api/users/{user}/reposts": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get all reposts from a specific user",
+                "description": "Returns a paginated list of all reposts created by a specific user, including the original post details.",
+                "operationId": "6a973d452135a5757b51e97c8f1977d6",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID or username of the user whose reposts are to be retrieved",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of the user's reposts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RepostSchema"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/privileged/users": {
             "get": {
                 "tags": [

@@ -514,6 +514,64 @@ class ProfileController extends Controller
         return new SearchResource($users);
     }
 
+    /**
+     * @OA\Get(
+     * path="/api/users/{user}/reposts",
+     * summary="Get all reposts from a specific user",
+     * description="Returns a paginated list of all reposts created by a specific user, including the original post details.",
+     * tags={"Users"},
+     * security={{"bearerAuth":{}}},
+     *
+     * @OA\Parameter(
+     * name="user",
+     * in="path",
+     * required=true,
+     * description="ID or username of the user whose reposts are to be retrieved",
+     * @OA\Schema(type="string")
+     * ),
+     *
+     * @OA\Response(
+     * response=200,
+     * description="A paginated list of the user's reposts.",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/RepostSchema")
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated"
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="User not found"
+     * )
+     * )
+     */
+    public function getUserReposts(User $user)
+    {
+        // Cargamos los reposts del usuario.
+        // Es crucial cargar las relaciones anidadas para obtener toda la info necesaria:
+        // 'user': Quién hizo el repost (es el mismo $user, pero lo cargamos para consistencia).
+        // 'post': El post original.
+        // 'post.user': El autor del post original.
+        // 'post.user.avatar': El avatar del autor del post original.
+        $reposts = $user->reposts()
+                        ->with([
+                            'user', // El usuario que hizo el repost
+                            'post.user.avatar', // El post original con su autor y avatar
+                            'post' => function ($query) { // Cargar contadores del post original
+                                $query->withCount(['reactions', 'comments', 'reposts']);
+                            }
+                        ])
+                        ->latest() // Ordenar por fecha de repost
+                        ->paginate(20);
+
+        // Devolvemos la colección formateada con RepostResource.
+        // Asume que RepostResource está en el módulo Multimedia
+        return \App\Modules\Multimedia\Http\Resources\RepostResource::collection($reposts);
+    }
+
 
 }
 
