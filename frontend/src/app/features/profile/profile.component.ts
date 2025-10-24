@@ -2,12 +2,13 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { BehaviorSubject, Observable, EMPTY, of } from 'rxjs'; 
-import { map, switchMap, tap, catchError } from 'rxjs/operators'; // Añadido catchError
+import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { ProfileService } from './services/profile.service'; 
 import { AuthService } from '../auth/services/auth.service';
 import { User } from '../../core/models/user.model';
-import { PostService , Post } from '../post/services/post.service'; 
+import { PostService } from '../post/services/post.service'; 
 import { environment } from '../../../environments/environment'; 
+import { Post } from '../../core/models/post.model';
 import { HttpErrorResponse } from '@angular/common/http'; 
 
 
@@ -27,14 +28,13 @@ export class ProfileComponent implements OnInit {
   public apiUrlForImages = environment.apiUrl.replace('/api', ''); 
 
   private refresh$ = new BehaviorSubject<void>(undefined); 
-  public userProfile$: Observable<User | null> = of(null); // Inicializado de forma segura
+  public userProfile$: Observable<User | null> = of(null); 
   public isOwnProfile = false;                           
   public userPosts: Post[] = [];                      
   public openPostId: number | null = null;          
   public currentUserId: number | null = null;     
-  public isLoading = true; // Variable de carga añadida
-  public error: string | null = null; // Manejo de error
-
+  public isLoading = true; 
+  public error: string | null = null; 
 
   public selectedAvatarFile: File | null = null;       
   public selectedBannerFile: File | null = null;       
@@ -42,8 +42,6 @@ export class ProfileComponent implements OnInit {
   public isUploadingBanner = false;                     
   public avatarPreviewUrl: string | ArrayBuffer | null = null; 
   public bannerPreviewUrl: string | ArrayBuffer | null = null; 
-
-  // private profileUserIdToLoad: string | null = null; // No usado en esta versión, mejor usar username/id.
 
 
   ngOnInit(): void {
@@ -54,7 +52,6 @@ export class ProfileComponent implements OnInit {
       tap(() => {
         this.isLoading = true;
         this.error = null;
-        // Limpieza de estado de subida/previsualización al cargar un nuevo perfil
         this.selectedAvatarFile = null;
         this.selectedBannerFile = null;
         this.avatarPreviewUrl = null;
@@ -69,18 +66,13 @@ export class ProfileComponent implements OnInit {
 
         let profileIdentifier: string | number | null = null;
         let isOwn = false;
-
-        // 1. Determinar el perfil a cargar
         if (idParam) {
             profileIdentifier = idParam;
             isOwn = this.currentUserId?.toString() === idParam;
         } else if (usernameParam) {
-            // Asumiendo que getUserProfile puede aceptar ID o Username, 
-            // y que getPublicProfile usa Username (según el código original del conflicto)
             profileIdentifier = usernameParam;
             isOwn = currentUser?.username === usernameParam;
         } else if (this.currentUserId) {
-            // Si no hay parámetros, cargamos el perfil propio
             profileIdentifier = this.currentUserId;
             isOwn = true;
         } else {
@@ -90,16 +82,14 @@ export class ProfileComponent implements OnInit {
 
         this.isOwnProfile = isOwn;
         
-        // 2. Llamada al servicio
         if (isOwn) {
             return this.profileService.getOwnProfile();
         } else if (typeof profileIdentifier === 'string') {
-             // Si es un username (o ID como string), usamos la función de perfil público
              return this.profileService.getUserProfile(profileIdentifier).pipe( 
                  catchError(error => {
                      console.error('Error al cargar perfil público:', error);
                      this.error = 'No se pudo cargar el perfil público. El usuario podría no existir.';
-                     return of(null); // Retorna un Observable de null en caso de error
+                     return of(null);
                  })
              );
         }
@@ -114,7 +104,6 @@ export class ProfileComponent implements OnInit {
           this.isLoading = false;
           if (user && user.id) {
             console.log("Perfil cargado correctamente:", user); 
-            // Solo cargamos posts si el perfil es válido
             this.loadUserPosts(user.id.toString());
           } else {
             this.userPosts = [];
@@ -131,10 +120,6 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-
-  // ... (El resto de tus métodos son correctos y se mantienen) ...
-  // loadUserPosts, onAvatarSelected, onUploadAvatar, cancelAvatarChange,
-  // onBannerSelected, onUploadBanner, cancelBannerChange, togglePostMenu, onDeletePost
 
   loadUserPosts(userId: string): void {
     this.profileService.getUserPosts(userId).subscribe({

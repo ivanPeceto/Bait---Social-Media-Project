@@ -2,21 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { User } from '../../../core/models/user.model';
-
-
-export interface MultimediaContent {
-  id: number;
-  url_content: string;
-}
-export interface Post {
-  id: number;
-  content_posts: string;
-  user: User;
-  user_id: number; 
-  created_at: string;
-  multimedia_contents?: MultimediaContent[];
-}
+import { Post } from '../../../core/models/post.model';
 
 @Injectable({
   providedIn: 'root'

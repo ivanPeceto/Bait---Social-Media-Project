@@ -13,7 +13,8 @@ import { Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../features/auth/services/auth.service';
-import { PostService, Post } from '../../features/post/services/post.service';
+import { PostService} from '../../features/post/services/post.service';
+import { Post } from '../../core/models/post.model';
 import { SearchService, UserSearchResult } from '../search/services/search.service';
 
 @Component({
@@ -23,18 +24,17 @@ import { SearchService, UserSearchResult } from '../search/services/search.servi
   templateUrl: './home.html',
 })
 export default class Home implements OnInit {
-  // --- Inyección de Servicios ---
-  private authService = inject(AuthService); // Se usa para currentUser
+  private authService = inject(AuthService); 
   private postService = inject(PostService);
   private searchService = inject(SearchService);
   private router = inject(Router);
-  private fb = inject(FormBuilder); // --- Propiedades para Posts y Usuario ---
+  private fb = inject(FormBuilder); 
 
-  public currentUser: any | null = null; // Mantenemos aquí para el formulario y el feed
+  public currentUser: any | null = null;
   public posts: Post[] = [];
   public postForm: FormGroup;
   public apiErrors: any = {};
-  public openPostId: number | null = null; // Añadido para el menú // --- Propiedades para la Búsqueda ---
+  public openPostId: number | null = null; 
 
   public searchControl = new FormControl('');
   public searchResults: UserSearchResult[] = [];
@@ -50,10 +50,9 @@ export default class Home implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.loadPosts();
-    this.setupSearch(); // Inicializamos la lógica de búsqueda
+    this.setupSearch(); 
   }
 
-  // --- Lógica de Búsqueda ---
   setupSearch(): void {
     this.searchControl.valueChanges
       .pipe(
@@ -95,7 +94,7 @@ export default class Home implements OnInit {
     this.showResults = false;
     this.searchResults = [];
     this.searchControl.setValue('', { emitEvent: false });
-  } // --- Lógica de Posts ---
+  } 
 
   loadPosts(): void {
     this.postService.getPosts().subscribe({
