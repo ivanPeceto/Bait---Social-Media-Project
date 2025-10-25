@@ -1,15 +1,11 @@
 <div class="flex justify-center items-center p-4 sticky top-14 z-10 bg-gray-900 border-b border-gray-700">
   <div class="relative w-full max-w-lg">
-    <input
-      type="text"
-      placeholder="Buscar en Bait (ej: juan o @admin)"
+    <input type="text" placeholder="Buscar en Bait (ej: juan o @admin)"
       class="bg-gray-700 text-white w-full px-3 py-1.5 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-      [formControl]="searchControl"
-      (focus)="showResults = true" 
-      (keydown.escape)="clearSearch()"
-    />
+      [formControl]="searchControl" (focus)="showResults = true" (keydown.escape)="clearSearch()" />
 
-    <div *ngIf="showResults && searchControl.value" class="absolute mt-2 w-full bg-gray-800 rounded-md shadow-lg z-30 border border-gray-700 max-h-80 overflow-y-auto">
+    <div *ngIf="showResults && searchControl.value"
+      class="absolute mt-2 w-full bg-gray-800 rounded-md shadow-lg z-30 border border-gray-700 max-h-80 overflow-y-auto">
       <div *ngIf="isSearching" class="px-4 py-3 text-sm text-gray-400">
         Buscando...
       </div>
@@ -39,14 +35,12 @@
 
 <div class="p-4 border-b border-gray-700 mt-8">
   <form [formGroup]="postForm" (ngSubmit)="onPostSubmit()">
-    <textarea
-      formControlName="content_posts"
-      class="bg-transparent text-lg w-full p-2 focus:outline-none resize-none"
-      rows="3"
-      placeholder="¿Qué estás pensando, {{ currentUser?.name }}?"
-    ></textarea>
+    <textarea formControlName="content_posts" class="bg-transparent text-lg w-full p-2 focus:outline-none resize-none"
+      rows="3" placeholder="¿Qué estás pensando, {{ currentUser?.name }}?"></textarea>
 
-    <div *ngIf="postForm.get('content_posts')?.invalid && (postForm.get('content_posts')?.dirty || postForm.get('content_posts')?.touched)" class="text-red-500 text-sm mt-1">
+    <div
+      *ngIf="postForm.get('content_posts')?.invalid && (postForm.get('content_posts')?.dirty || postForm.get('content_posts')?.touched)"
+      class="text-red-500 text-sm mt-1">
       <div *ngIf="postForm.get('content_posts')?.errors?.['required']">
         El contenido no puede estar vacío.
       </div>
@@ -54,7 +48,7 @@
         La publicación no puede exceder los 280 caracteres.
       </div>
     </div>
-    
+
     <div *ngIf="apiErrors?.content_posts" class="text-red-500 text-sm mt-1">
       <span *ngFor="let error of apiErrors.content_posts">{{ error }}</span>
     </div>
@@ -63,17 +57,17 @@
     </div>
 
     <div class="flex justify-between items-end mt-2 pt-3">
-      <button type="button" title="Subir imagen (no implementado)" class="text-blue-500 hover:text-blue-400 p-2 rounded-full transition-colors opacity-50 cursor-not-allowed">
-        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+      <button type="button" title="Subir imagen (no implementado)"
+        class="text-blue-500 hover:text-blue-400 p-2 rounded-full transition-colors opacity-50 cursor-not-allowed">
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
         </svg>
       </button>
-      
-      <button
-        type="submit"
-        [disabled]="postForm.invalid"
-        class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md disabled:bg-blue-800 disabled:opacity-70 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
-      >
+
+      <button type="submit" [disabled]="postForm.invalid"
+        class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md disabled:bg-blue-800 disabled:opacity-70 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors">
         Postear
       </button>
     </div>
@@ -91,59 +85,56 @@
     <div *ngFor="let post of posts" class="p-4">
       <div class="flex justify-between">
         <div class="flex items-center space-x-3">
-            <img class="w-10 h-10 rounded-full" [src]="(post.user?.avatar?.url_avatars) || 'assets/images/iconousuario.png'" alt="Avatar"> 
-            <div>
-                <a [routerLink]="['/profile', post.user_id]" class="font-semibold text-sm hover:underline">{{ post.user?.name || post.user }}</a>
-                <span class="text-sm text-gray-400 ml-1">@{{ post.user?.username || post.user }}</span>
-                <span class="text-sm text-gray-500 ml-2">· {{ post.created_at | date:'short' }}</span>
-            </div>
+          <img class="w-10 h-10 rounded-full"
+            [src]="(post.user?.avatar?.url_avatars) || 'assets/images/iconousuario.png'" alt="Avatar">
+          <div>
+            <a [routerLink]="['/profile', post.user_id]" class="font-semibold text-sm hover:underline">{{
+              post.user?.name || post.user }}</a>
+            <span class="text-sm text-gray-400 ml-1">@{{ post.user?.username || post.user }}</span>
+            <span class="text-sm text-gray-500 ml-2">· {{ post.created_at | date:'short' }}</span>
+          </div>
         </div>
 
-        <div *ngIf="currentUser && currentUser.id === post.user_id" class="relative">
-            <button (click)="togglePostMenu(post.id)" class="text-gray-400 hover:text-white p-1 rounded-full transition-colors">
-                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-                </svg>
-            </button>
-            <div *ngIf="openPostId === post.id"
-                 class="absolute bottom-full right-0 z-10 mb-1 w-28 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
-                <ul class="py-1">
-                    <li>
-                        <button (click)="onDeletePost(post.id)" class="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700">
-                            Eliminar
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-      </div>
-
-      <p class="mt-3 text-sm whitespace-pre-wrap">{{ post.content_posts }}</p>
+        <div *ngIf="isCurrentUserAdminOrMod || (currentUser && currentUser.id === post.user_id)" class="relative">
+          <button (click)="togglePostMenu(post.id)"
+            class="text-gray-400 hover:text-white p-1 rounded-full transition-colors">
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+            </svg>
+          </button>
+          <div *ngIf="openPostId === post.id"
+            class="absolute bottom-full right-0 z-10 mb-1 w-28 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+            <ul class="py-1">
+              <li>
+                <button (click)="onDeletePost(post.id)"
+                  class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700"> Eliminar
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div> </div> <p class="mt-3 text-sm whitespace-pre-wrap">{{ post.content_posts }}</p>
       <div *ngIf="post.multimedia_contents && post.multimedia_contents.length > 0" class="mt-3">
-          <img [src]="post.multimedia_contents[0].url_content" alt="Imagen del post" class="max-h-96 rounded-lg border border-gray-700">
+        <img [src]="post.multimedia_contents[0].url_content" alt="Imagen del post"
+          class="max-h-96 rounded-lg border border-gray-700">
       </div>
 
       <div class="flex justify-start space-x-12 mt-4 text-gray-500">
-        
-        <button (click)="openCommentModal(post)" 
-                title="Comentar"
-                class="flex items-center space-x-2 hover:text-blue-500 transition-colors">
-          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.152.635.259.354.398.79.432 1.255.034.465.068.928.102 1.393s.072.91.14 1.353c.068.443.344.817.728 1.004a.724.724 0 00.825-.002c.383-.187.659-.561.728-1.004.068-.443.106-.9.14-1.353s.068-.928.102-1.393c.034-.465.173-.901.432-1.255.259-.354.686-.598 1.152-.635.109-.008.218-.016.327-.024 1.087-.086 2.165-.209 3.232-.364 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.294 48.294 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+        <button (click)="openCommentModal(post)" title="Comentar"
+          class="flex items-center space-x-2 hover:text-blue-500 transition-colors">
+          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.152.635.259.354.398.79.432 1.255.034.465.068.928.102 1.393s.072.91.14 1.353c.068.443.344.817.728 1.004a.724.724 0 00.825-.002c.383-.187.659-.561.728-1.004.068-.443.106-.9.14-1.353s.068-.928.102-1.393c.034-.465.173-.901.432-1.255.259-.354.686-.598 1.152-.635.109-.008.218-.016.327-.024 1.087-.086 2.165-.209 3.232-.364 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.294 48.294 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
           </svg>
-          </button>
+        </button>
+      </div>
 
-        </div>
-      </div> <div *ngIf="posts.length === 0" class="text-center text-gray-500 mt-8 p-4"> <p>No hay publicaciones para mostrar.</p>
+    </div> <div *ngIf="posts.length === 0" class="text-center text-gray-500 mt-8 p-4">
+      <p>No hay publicaciones para mostrar.</p>
       <p>¡Sigue a otros usuarios o escribe tu primera publicación!</p>
     </div>
 
-  </ng-container>
-  
-</div>
-
-<app-post-comments-modal
-  [isOpen]="isCommentModalOpen"
-  [post]="selectedPostForModal!" 
-  (closeModal)="isCommentModalOpen = false"
-></app-post-comments-modal>
+  </ng-container> </div> <app-post-comments-modal [isOpen]="isCommentModalOpen" [post]="selectedPostForModal!"
+  (closeModal)="isCommentModalOpen = false"></app-post-comments-modal>

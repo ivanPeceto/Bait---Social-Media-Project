@@ -74,18 +74,25 @@ export class PostCommentsModalComponent implements OnInit, OnChanges {
     });
   }
 
+  // ===== INICIO: MÉTODO handleDeleteComment MODIFICADO =====
   /**
    * Maneja el evento emitido por CommentItemComponent para eliminar un comentario.
    */
-  handleDeleteComment(commentId: number): void {
-    this.commentService.deleteComment(commentId).subscribe({
+  handleDeleteComment(deleteData: {id: number, asAdmin: boolean}): void { // Recibe el objeto
+    // Determina qué método del servicio llamar
+    const deleteCall = deleteData.asAdmin
+                       ? this.commentService.deleteCommentAsAdmin(deleteData.id)
+                       : this.commentService.deleteComment(deleteData.id); // Método normal para el dueño
+
+    deleteCall.subscribe({
       next: () => {
-        this.localComments = this.localComments.filter(c => c.id !== commentId);
+        this.localComments = this.localComments.filter(c => c.id !== deleteData.id);
         this.comments$ = of(this.localComments);
-       
+        console.log('Comentario eliminado con éxito'); // Mejor log
       },
       error: (err) => {
-        alert("Error al eliminar el comentario.");
+        console.error("Error deleting comment:", err); // Mejor log
+        alert(`Error al eliminar el comentario: ${err.error?.message || err.message}`);
       }
     });
   }

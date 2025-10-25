@@ -29,21 +29,21 @@ export class AdminRoleService {
 
   getRoles(): Observable<UserRole[]> {
     return this.http.get<RolesResponse>(API_URL).pipe(
-      map(response => response.data) // Desenvuelve la colección
+      map(response => response.data)
     );
   }
 
   createRole(name: string): Observable<UserRole> {
     // --- MÉTODO CORREGIDO ---
     return this.http.post<RoleResponse>(API_URL, { name: name }).pipe(
-      map(response => response.data) // Desenvuelve el item único
+      map(response => response.data) 
     );
   }
 
   updateRole(id: number, name: string): Observable<UserRole> {
     // --- MÉTODO CORREGIDO ---
     return this.http.put<RoleResponse>(`${API_URL}/${id}`, { name: name }).pipe(
-      map(response => response.data) // Desenvuelve el item único
+      map(response => response.data) 
     );
   }
 

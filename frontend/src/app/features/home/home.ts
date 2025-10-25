@@ -43,6 +43,7 @@ export default class Home implements OnInit {
   public isCommentModalOpen = false;
   public selectedPostForModal: Post | null = null;
   public isLoading = false;
+  public isCurrentUserAdminOrMod: boolean = false;
 
   constructor() {
     this.postForm = this.fb.group({
@@ -52,6 +53,9 @@ export default class Home implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.isCurrentUserAdminOrMod = !!this.currentUser &&
+                                  (this.currentUser.role?.toLowerCase() === 'admin' ||
+                                   this.currentUser.role?.toLowerCase() === 'moderator');
     this.loadPosts();
     this.setupSearch();
   }
@@ -138,13 +142,25 @@ export default class Home implements OnInit {
     this.openPostId = this.openPostId === postId ? null : postId;
   }
 
-  onDeletePost(postId: number): void {
+ onDeletePost(postId: number): void {
     if (confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
-      this.postService.deletePost(postId).subscribe({
-        next: () => (this.posts = this.posts.filter((post) => post.id !== postId)),
-        error: (err) => console.error('Error al eliminar el post', err),
+      // Determina qué método del servicio llamar basado en el rol
+      const deleteCall = this.isCurrentUserAdminOrMod
+                         ? this.postService.deletePostAsAdmin(postId)
+                         : this.postService.deletePost(postId); 
+
+      deleteCall.subscribe({
+        next: () => {
+          this.posts = this.posts.filter((post) => post.id !== postId);
+          console.log('Post eliminado con éxito');
+        },
+        error: (err) => {
+          console.error('Error al eliminar el post:', err);
+          alert(`Error al eliminar: ${err.error?.message || err.message}`);
+        }
       });
     }
+    this.openPostId = null; 
   }
 
   openCommentModal(post: Post): void {
