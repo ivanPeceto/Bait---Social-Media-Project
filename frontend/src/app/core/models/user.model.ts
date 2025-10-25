@@ -17,7 +17,8 @@ export interface User {
   state?: string;
   avatar?: Avatar | null; 
   banner?: Banner | null;
-  
+  followers_count?: number;
+  following_count?: number;
   created_at: string;
   updated_at: string;
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AdminStateService, UserState } from '../../services/admin-state.service';
+import { AdminStateService, UserState } from '../../../../core/services/admin-state.service';
 
 @Component({
   selector: 'app-state-management',

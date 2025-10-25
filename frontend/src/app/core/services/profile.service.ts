@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { User } from '../../../core/models/user.model'; 
+import { environment } from '../../../environments/environment';
+import { User } from '../models/user.model'; 
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +25,11 @@ export class ProfileService {
     return this.http.get<any>(`${this.apiUrl}/users/${id}/posts`);
   }
 
+  // Reposts de un usuario: GET /api/users/{user}/reposts
+  getUserReposts(userIdOrUsername: string | number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/users/${userIdOrUsername}/reposts`);
+  }
+
   uploadBanner(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('banner', file, file.name); 
@@ -39,5 +44,15 @@ export class ProfileService {
 
   getPublicProfile(username: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/users/${username}`);
+  }
+
+  // Actualizar datos del perfil (nombre, email, opcionalmente username)
+  updateProfile(payload: { name: string; email: string; username?: string }): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/profile/update`, payload);
+  }
+
+  // Cambiar contraseña
+  changePassword(payload: { current_password: string; new_password: string; new_password_confirmation: string }): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/profile/password`, payload);
   }
 }

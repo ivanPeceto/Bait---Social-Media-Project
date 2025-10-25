@@ -1,10 +1,8 @@
-// en src/app/features/admin/services/admin-user.service.ts (CÓDIGO CORREGIDO)
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 export interface User {
   id: number;
@@ -12,7 +10,7 @@ export interface User {
   name: string;
   role: string;
   state: string;
-  email?: string; // El email ahora es opcional
+  email?: string;
 }
 
 interface UsersResponse {

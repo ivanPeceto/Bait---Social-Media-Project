@@ -28,13 +28,9 @@ export const routes: Routes = [
         path: 'profile', // Perfil del usuario logueado (ej: /profile)
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
       },
-      // Ruta para perfil público (por ID o por username)
+      // Ruta para perfil público (usar solamente username para evitar conflictos)
       {
-        path: 'profile/:id', // La ruta debe usar :id o :username, pero no ambos como rutas separadas sin resolver conflictos.
-        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
-      },
-      {
-        path: 'profile/:username', // Mantengo esta ruta ya que parece que se quería usar el username
+        path: 'profile/:username',
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
       },
     ]
