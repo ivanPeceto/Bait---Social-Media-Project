@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AdminRoleService, UserRole } from '../../services/admin-role.service';
+import { AdminRoleService, UserRole } from '../../../../core/services/admin-role.service';
 
 @Component({
   selector: 'app-role-management',

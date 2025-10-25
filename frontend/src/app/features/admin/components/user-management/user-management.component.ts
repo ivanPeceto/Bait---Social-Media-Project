@@ -1,11 +1,9 @@
-// en src/app/features/admin/components/user-management/user-management.component.ts (CÓDIGO ACTUALIZADO)
-
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AdminUserService, User } from '../../services/admin-user.service';
-import { AdminStateService, UserState } from '../../services/admin-state.service';
-import { AdminRoleService, UserRole } from '../../services/admin-role.service';
+import { AdminUserService, User } from '../../../../core/services/admin-user.service';
+import { AdminStateService, UserState } from '../../../../core/services/admin-state.service';
+import { AdminRoleService, UserRole } from '../../../../core/services/admin-role.service';
 
 @Component({
   selector: 'app-user-management',
