@@ -13,33 +13,36 @@ import { Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../features/auth/services/auth.service';
-import { PostService} from '../../features/post/services/post.service';
+import { PostService } from '../../features/post/services/post.service';
 import { Post } from '../../core/models/post.model';
 import { SearchService, UserSearchResult } from '../search/services/search.service';
-
+import { PostCommentsModalComponent } from '../comments/components/post-comments-modal/post-comments-modal.component'; 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePipe, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe, RouterLink, PostCommentsModalComponent],
   templateUrl: './home.html',
 })
 export default class Home implements OnInit {
-  private authService = inject(AuthService); 
+  private authService = inject(AuthService);
   private postService = inject(PostService);
   private searchService = inject(SearchService);
   private router = inject(Router);
-  private fb = inject(FormBuilder); 
+  private fb = inject(FormBuilder);
 
   public currentUser: any | null = null;
   public posts: Post[] = [];
   public postForm: FormGroup;
   public apiErrors: any = {};
-  public openPostId: number | null = null; 
+  public openPostId: number | null = null;
 
   public searchControl = new FormControl('');
   public searchResults: UserSearchResult[] = [];
   public isSearching = false;
   public showResults = false;
+  public isCommentModalOpen = false;
+  public selectedPostForModal: Post | null = null;
+  public isLoading = false;
 
   constructor() {
     this.postForm = this.fb.group({
@@ -50,7 +53,7 @@ export default class Home implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.loadPosts();
-    this.setupSearch(); 
+    this.setupSearch();
   }
 
   setupSearch(): void {
@@ -94,12 +97,19 @@ export default class Home implements OnInit {
     this.showResults = false;
     this.searchResults = [];
     this.searchControl.setValue('', { emitEvent: false });
-  } 
+  }
 
   loadPosts(): void {
+    this.isLoading = true;
+
     this.postService.getPosts().subscribe({
-      next: (response) => (this.posts = response || []),
-      error: (err) => console.error('Error al cargar los posteos:', err),
+      next: (response) => {
+        this.posts = response || [];
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false; 
+      },
     });
   }
 
@@ -135,5 +145,10 @@ export default class Home implements OnInit {
         error: (err) => console.error('Error al eliminar el post', err),
       });
     }
+  }
+
+  openCommentModal(post: Post): void {
+    this.selectedPostForModal = post;
+    this.isCommentModalOpen = true;
   }
 }
