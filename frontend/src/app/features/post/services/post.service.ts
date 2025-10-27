@@ -5,13 +5,11 @@ import { environment } from '../../../../environments/environment';
 import { Post } from '../../../core/models/post.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class PostService {
   private http = inject(HttpClient);
   private API_URL = `${environment.apiUrl}/posts`;
-
 
   getPosts(): Observable<any> {
     return this.http.get<Post[]>(this.API_URL);
@@ -25,4 +23,7 @@ export class PostService {
     return this.http.delete(`${this.API_URL}/${postId}`);
   }
 
+  deletePostAsAdmin(postId: number): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/privileged/multimedia/post/${postId}`);
+  }
 }

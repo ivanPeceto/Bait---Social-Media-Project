@@ -64,7 +64,7 @@ Route::prefix('privileged/users/{user}')->middleware(['auth:api'])->group(functi
 
     Route::put('/password',  [ProfileController::class, 'changeUserPassword'])
         ->middleware('role:admin')
-        ->name('privileged.users.changePasswor');
+        ->name('privileged.users.changePassword');
 
     Route::delete('/avatar', [AvatarController::class, 'destroyUserAvatar'])
         ->middleware('role:admin,moderator')

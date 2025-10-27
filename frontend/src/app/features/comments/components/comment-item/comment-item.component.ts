@@ -15,7 +15,7 @@ import { CommentFormComponent } from '../comment-form/comment-form.component';
 })
 export class CommentItemComponent implements OnInit { 
   @Input({ required: true }) comment!: Comment;
-  @Output() commentDeleted = new EventEmitter<number>(); 
+  @Output() commentDeleted = new EventEmitter<{id: number, asAdmin: boolean}>(); // Envía objeto
   @Output() commentUpdated = new EventEmitter<{id: number, content: string}>();
 
   private authService = inject(AuthService); 
@@ -23,12 +23,16 @@ export class CommentItemComponent implements OnInit {
   currentUser: User | null = null; 
   isOwner: boolean = false;        
   isEditing: boolean = false;      
+  isAdminOrMod: boolean = false;
   
   baseUrl = environment.apiUrl.replace('/api', ''); 
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    this.isOwner = !!this.currentUser && this.currentUser.id === this.comment.user.id; 
+    this.isOwner = !!this.currentUser && this.currentUser.id === this.comment.user.id;
+    this.isAdminOrMod = !!this.currentUser &&
+                       (this.currentUser.role?.toLowerCase() === 'admin' ||
+                        this.currentUser.role?.toLowerCase() === 'moderator');
   }
 
   
@@ -49,7 +53,10 @@ export class CommentItemComponent implements OnInit {
 
   deleteComment(): void {
     if (confirm('¿Estás seguro de que quieres eliminar este comentario?')) {
-      this.commentDeleted.emit(this.comment.id);
+      this.commentDeleted.emit({
+        id: this.comment.id,
+        asAdmin: this.isAdminOrMod && !this.isOwner
+      });
     }
   }
 }

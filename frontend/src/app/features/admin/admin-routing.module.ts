@@ -7,15 +7,13 @@ import { StateManagementComponent } from './components/state-management/state-ma
 
 const routes: Routes = [
   {
-    path: '', // Esta es la ruta base '/admin'
+    path: '',
     component: AdminLayoutComponent,
     children: [
-      // Estas son las vistas que se cargarán DENTRO del layout
       { path: 'users', component: UserManagementComponent },
       { path: 'roles', component: RoleManagementComponent }, 
       { path: 'states', component: StateManagementComponent }, 
       
-      // Si alguien navega a '/admin', lo redirigimos a la sección de usuarios
       { path: '', redirectTo: 'users', pathMatch: 'full' }
     ]
   }
