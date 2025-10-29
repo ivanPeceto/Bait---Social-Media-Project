@@ -10,23 +10,33 @@ import {
   FormControl,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, tap, map, catchError } from 'rxjs/operators';
+import { AuthService } from '../../core/services/auth.service';
+import { MultimediaContentService } from '../../core/services/multimedia-content.service';
+import { InteractionService } from '../../core/services/interaction.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { PostService } from '../../features/post/services/post.service';
 import { Post } from '../../core/models/post.model';
-import { SearchService, UserSearchResult } from '../search/services/search.service';
+import { MultimediaContent } from '../../core/models/multimedia-content.model'; 
+import { CreateReactionPayload, CreateRepostPayload } from '../../core/models/api-payloads.model';
+import { UserReactionStatus } from '../../core/models/user-reaction-status.model';
+import { SearchService, UserSearchResult } from '../../core/services/search.service';
 import { PostCommentsModalComponent } from '../comments/components/post-comments-modal/post-comments-modal.component'; 
+import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePipe, RouterLink, PostCommentsModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe, RouterLink, PostCommentsModalComponent, MediaUrlPipe],
   templateUrl: './home.html',
 })
 export default class Home implements OnInit {
   private authService = inject(AuthService);
   private postService = inject(PostService);
   private searchService = inject(SearchService);
+  private multimediaService = inject(MultimediaContentService); 
+  private interactionService = inject(InteractionService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -44,6 +54,17 @@ export default class Home implements OnInit {
   public selectedPostForModal: Post | null = null;
   public isLoading = false;
   public isCurrentUserAdminOrMod: boolean = false;
+
+  public selectedFile: File | null = null;
+  public previewUrl: string | null = null;
+  public isUploadingMedia: boolean = false;
+
+  public editingPostId: number | null = null;
+  public editContent: string = '';
+
+  public cacheBustTs: number = 0;
+
+  public readonly LIKE_REACTION_TYPE_ID: number = 1;
 
   constructor() {
     this.postForm = this.fb.group({
@@ -123,14 +144,42 @@ export default class Home implements OnInit {
       this.postForm.markAllAsTouched();
       return;
     }
-    this.postService.createPost(this.postForm.value.content_posts).subscribe({
-      next: (newPost) => {
-        this.posts.unshift(newPost);
-        this.postForm.reset();
-      },
-      error: (errorResponse: HttpErrorResponse) => {
-        if (errorResponse.status === 422) {
-          this.apiErrors = errorResponse.error.errors;
+
+    this.apiErrors = null;
+    const content = this.postForm.value.content_posts?.trim();
+    if (!content) {
+      return;
+    }
+
+    this.postService.createPost(content).subscribe({
+      next: (createdPost: Post) => {
+        const hydratedPost: Post = {
+          ...createdPost,
+          user: this.currentUser || createdPost.user,
+          user_id: this.currentUser?.id || createdPost.user_id,
+          multimedia_contents: createdPost.multimedia_contents || [],
+        } as any;
+
+        if (this.selectedFile) {
+          this.isUploadingMedia = true;
+          this.multimediaService.uploadToPost(createdPost.id, this.selectedFile).subscribe({
+            next: (media: MultimediaContent) => {
+              hydratedPost.multimedia_contents = [media];
+              this.posts = [hydratedPost, ...this.posts];
+              this.isUploadingMedia = false;
+              this.onRemoveSelectedImage();
+              this.postForm.reset();
+              this.cacheBustTs = Date.now();
+            },
+            error: (err: HttpErrorResponse) => {
+              console.error('Error al subir imagen del post:', err);
+              this.posts = [hydratedPost, ...this.posts];
+              this.isUploadingMedia = false;
+              this.onRemoveSelectedImage();
+              this.postForm.reset();
+              alert('El post se creó, pero la imagen no pudo subirse.');
+            }
+          });
         } else {
           this.apiErrors = { general: ['Ocurrió un error inesperado al postear.'] };
         }

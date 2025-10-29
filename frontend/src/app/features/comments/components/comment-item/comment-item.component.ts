@@ -3,7 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Comment } from '../../../../core/models/comment.model'; 
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../../../environments/environment'; 
-import { AuthService } from '../../../../features/auth/services/auth.service'; 
+import { AuthService } from '../../../../core/services/auth.service'; 
 import { User } from '../../../../core/models/user.model'; 
 import { CommentFormComponent } from '../comment-form/comment-form.component'; 
 

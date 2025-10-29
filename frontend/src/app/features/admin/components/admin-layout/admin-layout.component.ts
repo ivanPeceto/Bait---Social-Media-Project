@@ -1,9 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-// ===== RUTA CORREGIDA AQUÍ (3 niveles arriba) =====
-import { AuthService } from '../../../auth/services/auth.service'; 
-// ===== RUTA CORREGIDA AQUÍ (4 niveles arriba) =====
+import { AuthService } from '../../../../core/services/auth.service'; 
 import { User } from '../../../../core/models/user.model'; 
 
 @Component({

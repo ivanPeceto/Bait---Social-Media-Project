@@ -114,7 +114,8 @@
               </li>
             </ul>
           </div>
-        </div> </div> <p class="mt-3 text-sm whitespace-pre-wrap">{{ post.content_posts }}</p>
+      </div> 
+      </div> <p class="mt-3 text-sm whitespace-pre-wrap">{{ post.content_posts }}</p>
       <div *ngIf="post.multimedia_contents && post.multimedia_contents.length > 0" class="mt-3">
         <img [src]="post.multimedia_contents[0].url_content" alt="Imagen del post"
           class="max-h-96 rounded-lg border border-gray-700">
@@ -129,12 +130,52 @@
               d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.152.635.259.354.398.79.432 1.255.034.465.068.928.102 1.393s.072.91.14 1.353c.068.443.344.817.728 1.004a.724.724 0 00.825-.002c.383-.187.659-.561.728-1.004.068-.443.106-.9.14-1.353s.068-.928.102-1.393c.034-.465.173-.901.432-1.255.259-.354.686-.598 1.152-.635.109-.008.218-.016.327-.024 1.087-.086 2.165-.209 3.232-.364 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.294 48.294 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
           </svg>
         </button>
-      </div>
+      </div> 
 
-    </div> <div *ngIf="posts.length === 0" class="text-center text-gray-500 mt-8 p-4">
+    <div *ngIf="posts.length === 0" class="text-center text-gray-500 mt-8 p-4">
       <p>No hay publicaciones para mostrar.</p>
       <p>¡Sigue a otros usuarios o escribe tu primera publicación!</p>
     </div>
+    <div *ngIf="editingPostId === post.id; else viewPostContent">
+      <textarea class="w-full bg-gray-800 text-gray-100 rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="3"
+                [value]="editContent"
+                (input)="editContent = $any($event.target).value"></textarea>
+      <div class="mt-2 flex gap-2">
+        <button (click)="saveEditPost(post)" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded">Guardar</button>
+        <button (click)="cancelEditPost()" class="border border-gray-600 text-white text-sm px-3 py-1 rounded hover:bg-gray-800">Cancelar</button>
+      </div>
+    </div>
+    <ng-template #viewPostContent>
+      <p class="mt-3 text-sm whitespace-pre-wrap text-gray-200">{{ post.content_posts }}</p>
+    </ng-template>
+    <div *ngIf="post.multimedia_contents && post.multimedia_contents.length > 0" class="mt-3">
+        <img [src]="post.multimedia_contents[0].url_content | mediaUrl:cacheBustTs" alt="Imagen del post" class="max-h-96 rounded-lg border border-gray-700">
+    </div>
 
-  </ng-container> </div> <app-post-comments-modal [isOpen]="isCommentModalOpen" [post]="selectedPostForModal!"
+    <div class="flex justify-around mt-4 text-gray-500">
+      <button class="flex items-center space-x-1 group focus:outline-none">
+        <div class="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors"><svg class="w-5 h-5 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg></div>
+        <span class="text-xs group-hover:text-blue-500">{{ post.comments_count || 0 }}</span>
+      </button>
+      <button (click)="onToggleRepost(post)" class="flex items-center space-x-1 group focus:outline-none">
+        <div class="p-2 rounded-full group-hover:bg-green-500/10 transition-colors"><svg class="w-5 h-5 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></div>
+        <span class="text-xs group-hover:text-green-500">{{ post.reposts_count || 0 }}</span>
+      </button>
+      <button (click)="onToggleLike(post)" class="flex items-center space-x-1 group focus:outline-none" [class.text-blue-500]="post.is_liked_by_user">
+        <div class="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors"><svg class="w-5 h-5" [class.fill-blue-500]="post.is_liked_by_user" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+        <span class="text-xs">{{ post.reactions_count || 0 }}</span>
+      </button>
+    </div>
+    </div>
+
+  <div *ngIf="posts.length === 0 && !isLoading" class="text-center text-gray-500 mt-8 p-4">
+    <p>No hay publicaciones para mostrar.</p>
+    <p>¡Sigue a otros usuarios o escribe tu primera publicación!</p>
+  </div>
+
+</ng-container> </div> <app-post-comments-modal [isOpen]="isCommentModalOpen" [post]="selectedPostForModal!"
   (closeModal)="isCommentModalOpen = false"></app-post-comments-modal>
+
+
+  
