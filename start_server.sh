@@ -6,6 +6,15 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+## --- Variables de configuración ---
+NGINX_CONF_FILE="nginx/nginx.conf"
+IP_ADDRESS=$(hostname -I | awk '{print $1}')
+
+if [ -z "$IP_ADDRESS" ]; then
+    echo "No se pudo obtener la dirección IP. Asegúrate de que ifconfig esté instalado."
+    exit 1
+fi
+
 # --- -------- ---
 
 # Menú de flahs y uso
@@ -28,6 +37,19 @@ show_help() {
     echo "  --api         Aplica el comando únicamente al servicio del backend (y sus dependencias)."
     echo "  --front       Aplica el comando únicamente al servicio del frontend."
     echo "----------------------------------------------------------------"
+}
+
+update_nginx_conf() {
+    mkdir -p nginx/
+
+    if [ ! -f "nginx/nginx.conf.template" ]; then
+        echo -e "${RED} Error: No se encontró el archivo nginx/nginx.conf.template. Asegúrate de crearlo.${NC}"
+        exit 1
+    fi
+    cp "nginx/nginx.conf.template" "$NGINX_CONF_FILE"
+
+    sed -i "s/SERVER_IP/$IP_ADDRESS/" $NGINX_CONF_FILE
+    echo -e "${GREEN} Configuración de Nginx actualizada con la IP del host.${NC}"
 }
 
 copy_env() {
@@ -170,9 +192,14 @@ if [ "$CLEAN_FLAG" = true ] && [ "$BUILD_FLAG" = false ]; then
     exit 0
 fi
 
-# Copia el .env solo si vamos a levantar servicios.
+# Acciones de Preparación (para cualquier 'up')
 copy_env
+update_nginx_conf
 echo "Archivo .env copiado al backend."
+
+# Acciones post seteo
+UP_CMD="docker compose up -d"
+STORAGE_LINK_CMD="docker compose exec backend php artisan storage:link"
 
 if [ "$CLEAN_FLAG" = true ] && [ "$BUILD_FLAG" = true ]; then
     echo -e "${YELLOW} Limpiando entorno por completo (contenedores y volúmenes)...${NC}"
@@ -180,10 +207,12 @@ if [ "$CLEAN_FLAG" = true ] && [ "$BUILD_FLAG" = true ]; then
     echo -e "${YELLOW} Reconstruyendo e iniciando servicios...${NC}"
     docker compose up -d --build $SERVICES
     run_migrations
+    $STORAGE_LINK_CMD
+    echo -e "${GREEN} Servidor disponible en segundo plano.${NC}"
+    echo -e "${GREEN} Acceso por Nginx (Host IP): ${NC} ${lightblue}http://${IP_ADDRESS}/${NC}"
     exit 0
 fi
 
-UP_CMD="docker compose up -d"
 if [ "$BUILD_FLAG" = true ]; then
     echo -e "${YELLOW} Reconstruyendo e iniciando servicios...${NC}"
     UP_CMD="docker compose up -d --build"
@@ -192,9 +221,11 @@ else
 fi
 
 $UP_CMD $SERVICES
+$STORAGE_LINK_CMD
 
 if [ "$MIGRATE_FLAG" = true ]; then
     run_migrations
 fi
 
-echo -e "${GREEN} Servidor disponible en segundo plano. Puertos: Backend (8000), Frontend (4200).${NC}"
+echo -e "${GREEN} Servidor disponible en segundo plano.${NC}"
+echo -e "${GREEN} Acceso por Nginx (Host IP): ${NC} ${lightblue}http://${IP_ADDRESS}/${NC}"

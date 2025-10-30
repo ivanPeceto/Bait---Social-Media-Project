@@ -1,6 +1,8 @@
 .env
 !.env.example
 
+.nginx/nginx.conf
+
 /vendor/
 node_modules/
 npm-debug.log

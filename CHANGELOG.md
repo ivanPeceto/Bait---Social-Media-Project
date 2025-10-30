@@ -1,5 +1,24 @@
 # Changelog
 
+## [feat/nginx] - 2025-10-30
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Added
+* Nuevo archivo `nginx.conf.template`
+* Nuevas entradas a `.gitignore` para no subir `nginx.conf`
+* Nuevos contenedores para `reverb` y `nginx`
+* Nuevo archivo `nginx/nginx.conf.template`
+
+### Changed
+* Añade configuración automática a `nginx.conf` en el script de instalación con impresión de la dirección ip del servidor en la red local.
+* Añade el comando 
+
+### Affects
+* `docker-compose.yml`
+* `.gitignore`
+* `start_server.sh`
+
 ## [feature/frontend/admin-view] - 2025-10-16
 ## [feature/frontend/search] - 2025-10-20
 ## [mergetest2/merge-frontend] - 2025-10-20
