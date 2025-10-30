@@ -4,8 +4,6 @@
 ## [feature/frontend/search] - 2025-10-20
 ## [mergetest2/merge-frontend] - 2025-10-20
 
-
-
 _(Cambios realizados por @juancruzct)_
 
 ### Added

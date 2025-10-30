@@ -10,7 +10,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../../../environments/environment'; 
+import { environment } from '../../../environments/environment'; 
 interface AuthResponse {
   access_token: string;
   refresh_token?: string;
@@ -47,6 +47,7 @@ export class AuthService {
   private isLoggedIn = new BehaviorSubject<boolean>(false);
   public isLoggedIn$: Observable<boolean> = this.isLoggedIn.asObservable();
   private currentUser$ = new BehaviorSubject<any>(null);
+  public readonly currentUserChanges$: Observable<any> = this.currentUser$.asObservable();
 
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -54,6 +55,11 @@ export class AuthService {
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
         this.isLoggedIn.next(this.isAuthenticated());
+        // Initialize currentUser$ from localStorage on app start
+        const existing = localStorage.getItem('currentUser');
+        if (existing) {
+          try { this.currentUser$.next(JSON.parse(existing)); } catch {}
+        }
     }
   }
 
@@ -63,6 +69,7 @@ export class AuthService {
       tap(response => {
         this.saveSessionData(response);
         this.isLoggedIn.next(true);
+        this.currentUser$.next(response.user);
       })
     );
   }
@@ -72,6 +79,7 @@ export class AuthService {
       tap(response => {
         this.saveSessionData(response);
         this.isLoggedIn.next(true);
+        this.currentUser$.next(response.user);
       })
     );
   }
@@ -79,11 +87,13 @@ export class AuthService {
   public updateCurrentUser(user: any): void {
     if (!isPlatformBrowser(this.platformId)) return;
     localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUser$.next(user);
   }
 
   public logout(): void {
     this.removeSessionData();
     this.isLoggedIn.next(false);
+    this.currentUser$.next(null);
     this.router.navigate(['/auth/login']);
   }
 
@@ -112,6 +122,7 @@ export class AuthService {
         localStorage.setItem(this.REFRESH_TOKEN_KEY, authData.refresh_token);
     }
     localStorage.setItem('currentUser', JSON.stringify(authData.user));
+    this.currentUser$.next(authData.user);
   }
 
   private removeSessionData(): void {
