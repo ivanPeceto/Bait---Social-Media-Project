@@ -1,4 +1,6 @@
 *
 !private/
 !public/
+!public/avatars/default.jpg
+!public/banners/default.jpg
 !.gitignore
