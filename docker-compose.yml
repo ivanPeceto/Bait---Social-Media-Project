@@ -15,6 +15,7 @@ services:
     depends_on:
       - mysql
       - mysql_test
+      - redis
     command: php artisan serve --host=0.0.0.0 --port=8000
       
   mysql:
@@ -70,10 +71,36 @@ services:
     env_file:
       - .env
 
+  nginx:
+      image: nginx:latest
+      container_name: bait-reverse-proxy
+      ports:
+        - "80:80"
+      volumes:
+        - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro 
+      depends_on:
+        - frontend
+        - backend
+
+  reverb:
+      build:
+        context: ./backend/bait-api
+        dockerfile: Dockerfile
+      container_name: bait-reverb
+      restart: unless-stopped
+      working_dir: /var/www
+      volumes:
+        - ./backend/bait-api:/var/www
+        - /var/www/vendor         
+        - /var/www/bootstrap/cache
+      depends_on:
+        - mysql
+        - redis 
+      command: php artisan reverb:start --host=0.0.0.0 --port=8080
+
 # To add later: vistualization for de db
 #  phpmyadmin:
 #    image: phpmyadmin/phpmyadmin
-
 
 volumes:
   mysql_data:
