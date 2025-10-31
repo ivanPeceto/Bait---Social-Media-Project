@@ -1,5 +1,42 @@
 # Changelog
 
+
+## [fix/frontend/integrations-to-main] - 2025-10-31
+
+_(Cambios realizados por @juancruzct)_
+
+### Changed
+* Refactorizado el manejo de estado del usuario (`auth.service.ts`, `main.component.ts`, `profile.component.ts`) para eliminar "race conditions" y asegurar que el avatar actualizado se muestre en toda la aplicación.
+* Corregida la lógica de `onPostSubmit` (`home.component.ts`) para mostrar el avatar y las imágenes del post instantáneamente, solucionando el bug de `src=""` que requería refrescar (F5).
+* Optimizada la función `loadUserReposts` (`profile.component.ts`) para usar la data del `Resource` y eliminar llamadas N+1 a la API.
+* Actualizado `app/Modules/Multimedia/Http/Resources/MultimediaContentResource.php` para que la clave `url_content` devuelva una URL absoluta y completa (usando `Storage::url()`).
+* Arreglada la carga de imágenes en el feed y perfiles (el bug del F5):**
+    * Añadida la relación `multimedia_contents()` al modelo `app/Modules/Multimedia/Domain/Models/Post.php`.
+    * Actualizado `app/Modules/Multimedia/Http/Controllers/PostController.php` (método `index`) para cargar la relación `multimedia_contents` (Eager Loading).
+    * Actualizado `app/Modules/UserData/Http/Controllers/ProfileController.php` (métodos `getUserPosts` y `getUserReposts`) para cargar las relaciones anidadas (`multimedia_contents` y `post.multimedia_contents`).
+
+
+### Affects
+* `auth.service.ts`
+* `home.component.ts`
+* `profile.component.ts`
+* `main.component.ts`
+* `ProfileController.php`
+* `Post.php`
+* `PostController.php`
+* `MultimediaContentResource.php`
+
+
+## [feat/frontend/edit-profile] - 2025-10-30
+
+_(Cambios realizados por @facu24fm)_
+
+### Changed
+*Se añadio la vista para editar perfil de usuario.
+*Se implemento la integracion de notificaciones de la rama feature/frontend/notifications-ui
+*Se implemento sistema de reposts.
+
+
 ## [feat/nginx] - 2025-10-30
 
 _(Cambios realizados por @ivanPeceto)_
