@@ -9,7 +9,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { User } from '../../core/models/user.model';
 import { Post } from '../../core/models/post.model';
-import { CreateReactionPayload, CreateRepostPayload, FollowPayload } from '../../core/models/api-payloads.model';
+import {
+  CreateReactionPayload,
+  CreateRepostPayload,
+  FollowPayload,
+} from '../../core/models/api-payloads.model';
 import { UserReactionStatus } from '../../core/models/user-reaction-status.model';
 
 import { ProfileService } from '../../core/services/profile.service';
@@ -27,7 +31,7 @@ import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
   standalone: true,
   imports: [CommonModule, RouterLink, DatePipe, ReactiveFormsModule, MediaUrlPipe],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss']
+  styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -51,9 +55,9 @@ export class ProfileComponent implements OnInit {
   public isOwnProfile = false;
   public isFollowing = false;
   public userPosts: Post[] = [];
-  public userReposts: Post[] = []; 
-  public openPostId: number | null = null; 
-  public editingPostId: number | null = null; 
+  public userReposts: Post[] = [];
+  public openPostId: number | null = null;
+  public editingPostId: number | null = null;
   public editContent: string = '';
   public currentUserId: number | null = null;
   public userProfile$: Observable<User | null> = of(null);
@@ -65,7 +69,7 @@ export class ProfileComponent implements OnInit {
   public isUploadingAvatar = false;
   public isUploadingBanner = false;
   public avatarPreviewUrl: SafeUrl | null = null;
-  public bannerPreviewUrl: SafeUrl | null = null; 
+  public bannerPreviewUrl: SafeUrl | null = null;
   public currentTab: 'posts' | 'reposts' = 'posts';
   public cacheBustTs: number = Date.now();
 
@@ -79,66 +83,114 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
     this.currentUserId = currentUser?.id ?? null;
-    const role = (currentUser?.role || '').toLowerCase?.() || (typeof currentUser?.role === 'string' ? (currentUser.role as string).toLowerCase() : '');
+    const role =
+      (currentUser?.role || '').toLowerCase?.() ||
+      (typeof currentUser?.role === 'string' ? (currentUser.role as string).toLowerCase() : '');
     this.isAdminOrMod = role === 'admin' || role === 'moderator';
 
     this.authService.currentUserChanges$?.subscribe((u) => {
       if (!u) return;
-      const r = (u.role || '').toLowerCase?.() || (typeof u.role === 'string' ? (u.role as string).toLowerCase() : '');
+      const r =
+        (u.role || '').toLowerCase?.() ||
+        (typeof u.role === 'string' ? (u.role as string).toLowerCase() : '');
       this.isAdminOrMod = r === 'admin' || r === 'moderator';
       if (this.isOwnProfile && this.user) {
-        this.user = { ...this.user, avatar: u.avatar, banner: u.banner, name: u.name || this.user.name, username: u.username || this.user.username } as User;
+        this.user = {
+          ...this.user,
+          avatar: u.avatar,
+          banner: u.banner,
+          name: u.name || this.user.name,
+          username: u.username || this.user.username,
+        } as User;
       }
-      
-      this.userPosts = this.userPosts.map(p => p.user_id === u.id ? ({ ...p, user: { ...p.user, avatar: u.avatar, banner: u.banner, name: u.name || p.user?.name, username: u.username || p.user?.username } } as any) : p);
-      this.userReposts = this.userReposts.map(p => p.user_id === u.id ? ({ ...p, user: { ...p.user, avatar: u.avatar, banner: u.banner, name: u.name || p.user?.name, username: u.username || p.user?.username } } as any) : p);
+
+      this.userPosts = this.userPosts.map((p) =>
+        p.user_id === u.id
+          ? ({
+              ...p,
+              user: {
+                ...p.user,
+                avatar: u.avatar,
+                banner: u.banner,
+                name: u.name || p.user?.name,
+                username: u.username || p.user?.username,
+              },
+            } as any)
+          : p
+      );
+      this.userReposts = this.userReposts.map((p) =>
+        p.user_id === u.id
+          ? ({
+              ...p,
+              user: {
+                ...p.user,
+                avatar: u.avatar,
+                banner: u.banner,
+                name: u.name || p.user?.name,
+                username: u.username || p.user?.username,
+              },
+            } as any)
+          : p
+      );
       this.cacheBustTs = Date.now();
     });
 
     this.userProfile$ = this.refresh$.pipe(
-      tap(() => { 
-        this.isLoading = true; this.error = null; this.user = null; this.isOwnProfile = false;
-        this.isFollowing = false; this.userPosts = []; this.userReposts = [];
-        this.cancelAvatarChange(); this.cancelBannerChange(); 
+      tap(() => {
+        this.isLoading = true;
+        this.error = null;
+        this.user = null;
+        this.isOwnProfile = false;
+        this.isFollowing = false;
+        this.userPosts = [];
+        this.userReposts = [];
+        this.cancelAvatarChange();
+        this.cancelBannerChange();
       }),
       switchMap(() => this.route.paramMap),
-      switchMap(params => {
+      switchMap((params) => {
         const usernameParam = params.get('username');
         const targetUsername = usernameParam || currentUser?.username;
 
         if (!targetUsername) {
-          console.error("No se pudo determinar el perfil a cargar.");
+          console.error('No se pudo determinar el perfil a cargar.');
           this.router.navigate(['/auth/login']);
           return of(null);
         }
         this.isOwnProfile = currentUser?.username === targetUsername;
 
         return this.profileService.getUserProfile(targetUsername).pipe(
-           map((response: any) => response ? response.data as User : null), 
-           catchError((err: HttpErrorResponse) => { return of(null); })
+          map((response: any) => (response ? (response.data as User) : null)),
+          catchError((err: HttpErrorResponse) => {
+            return of(null);
+          })
         );
       }),
-      tap((user: User | null) => { 
+      tap((user: User | null) => {
         this.isLoading = false;
-        this.user = user; 
+        this.user = user;
         if (user?.id) {
-          console.log("Perfil cargado:", user);
-          
+          console.log('Perfil cargado:', user);
+
           this.initForms(user);
-          this.selectTab('posts'); 
+          this.selectTab('posts');
           if (!this.isOwnProfile && this.currentUserId) {
-            this.followService.getFollowing(this.currentUserId).pipe(
-              catchError(() => of([]))
-            ).subscribe((followingList: any) => {
-              
-              const list: any[] = Array.isArray(followingList)
-                ? followingList
-                : ((followingList && (followingList as any).data) || []);
-              this.isFollowing = list.some((u: any) => (u.id === user.id) || (u.username === user.username));
-            });
+            this.followService
+              .getFollowing(this.currentUserId)
+              .pipe(catchError(() => of([])))
+              .subscribe((followingList: any) => {
+                const list: any[] = Array.isArray(followingList)
+                  ? followingList
+                  : (followingList && (followingList as any).data) || [];
+                this.isFollowing = list.some(
+                  (u: any) => u.id === user.id || u.username === user.username
+                );
+              });
           }
         } else {
-          if (!this.error) { this.error = 'Usuario no encontrado.'; }
+          if (!this.error) {
+            this.error = 'Usuario no encontrado.';
+          }
         }
       })
     );
@@ -148,92 +200,107 @@ export class ProfileComponent implements OnInit {
     this.profileForm = this.fb.group({
       name: [user.name || '', [Validators.required, Validators.maxLength(100)]],
       email: [user.email || '', [Validators.required, Validators.email]],
-      username: [user.username || '']
+      username: [user.username || ''],
     });
 
     this.passwordForm = this.fb.group({
       current_password: ['', [Validators.required]],
       new_password: ['', [Validators.required, Validators.minLength(8)]],
-      new_password_confirmation: ['', [Validators.required]]
+      new_password_confirmation: ['', [Validators.required]],
     });
   }
   loadUserPosts(userId: number): void {
-    this.profileService.getUserPosts(userId.toString()).pipe(   
-      map((response: any) => response ? response.data as Post[] : []), 
-      switchMap((initialPosts: Post[]) => { 
-        if (initialPosts.length === 0) return of([]);
-        const reactionChecks$: Observable<UserReactionStatus>[] = initialPosts.map(post =>
-          this.interactionService.checkUserReaction(post.id).pipe(
-              catchError(() => of({ has_reacted: false, reaction_type_id: null })) 
-          )
-        );
-        return forkJoin(reactionChecks$).pipe(
-          map((reactionStatuses: UserReactionStatus[]) =>
-            initialPosts.map((post, index) => {
-              post.is_liked_by_user = reactionStatuses[index].has_reacted &&
-                                      reactionStatuses[index].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-              return post;
-            })
-          )
-        );
-      })
-    ).subscribe({
-      next: (postsWithLikeStatus: Post[]) => this.userPosts = postsWithLikeStatus,
-      error: (err) => {
-          console.error('Error al cargar posts o verificar likes:', err);
-          this.userPosts = []; 
-      }
-    });
-  }
-
-  loadUserReposts(userId: number): void {
-      this.userReposts = [];
-      this.profileService.getUserReposts(userId.toString()).pipe(
-        map((response: any) => Array.isArray(response) ? response : (response?.data || [])),
-        switchMap((reposts: any[]) => {
-          if (!reposts || reposts.length === 0) return of([]);
-          
-          const fetchPosts$: Observable<Post>[] = reposts.map(r => this.postService.getPostById(r.post_id));
-          return forkJoin(fetchPosts$);
-        }),
-        switchMap((posts: Post[]) => {
-          if (!posts || posts.length === 0) return of([]);
-          
-          const reactionChecks$: Observable<UserReactionStatus>[] = posts.map(post =>
-            this.interactionService.checkUserReaction(post.id).pipe(
-              catchError(() => of({ has_reacted: false, reaction_type_id: null }))
-            )
+    this.profileService
+      .getUserPosts(userId.toString())
+      .pipe(
+        map((response: any) => (response ? (response.data as Post[]) : [])),
+        switchMap((initialPosts: Post[]) => {
+          if (initialPosts.length === 0) return of([]);
+          const reactionChecks$: Observable<UserReactionStatus>[] = initialPosts.map((post) =>
+            this.interactionService
+              .checkUserReaction(post.id)
+              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
           );
           return forkJoin(reactionChecks$).pipe(
-            map((statuses: UserReactionStatus[]) =>
-              posts.map((post, i) => {
-                post.is_liked_by_user = statuses[i].has_reacted && statuses[i].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
+            map((reactionStatuses: UserReactionStatus[]) =>
+              initialPosts.map((post, index) => {
+                post.is_liked_by_user =
+                  reactionStatuses[index].has_reacted &&
+                  reactionStatuses[index].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
                 return post;
               })
             )
           );
         })
-      ).subscribe({
-        next: (hydratedPosts: Post[]) => this.userReposts = hydratedPosts,
+      )
+      .subscribe({
+        next: (postsWithLikeStatus: Post[]) => (this.userPosts = postsWithLikeStatus),
+        error: (err) => {
+          console.error('Error al cargar posts o verificar likes:', err);
+          this.userPosts = [];
+        },
+      });
+  }
+
+  loadUserReposts(userId: number): void {
+    this.userReposts = [];
+    this.profileService
+      .getUserReposts(userId.toString())
+      .pipe(
+        map((response: any) => {
+          const reposts = Array.isArray(response) ? response : response?.data || [];
+
+          // --- [FIX DE PERFORMANCE] ---
+          // Simplemente extraemos el objeto 'post' que la API ya nos entrega.
+          // No necesitamos volver a llamar a la API por cada post.
+          return reposts
+            .map((repost: any) => repost.post) // <-- Extraemos el post
+            .filter((post: any) => post); // <-- Filtramos por si alguno vino nulo
+          // --- [FIN FIX DE PERFORMANCE] ---
+        }),
+
+        switchMap((posts: Post[]) => {
+          // Este bloque para verificar los 'likes' está perfecto.
+          if (!posts || posts.length === 0) return of([]);
+
+          const reactionChecks$: Observable<UserReactionStatus>[] = posts.map((post) =>
+            this.interactionService
+              .checkUserReaction(post.id)
+              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
+          );
+          return forkJoin(reactionChecks$).pipe(
+            map((statuses: UserReactionStatus[]) =>
+              posts.map((post, i) => {
+                post.is_liked_by_user =
+                  statuses[i].has_reacted &&
+                  statuses[i].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
+                return post;
+              })
+            )
+          );
+        })
+      )
+      .subscribe({
+        next: (hydratedPosts: Post[]) => (this.userReposts = hydratedPosts),
         error: (err) => {
           console.error('Error al cargar reposts:', err);
           this.userReposts = [];
-        }
+        },
       });
   }
 
   selectTab(tab: 'posts' | 'reposts'): void {
     this.currentTab = tab;
-    if (this.user?.id) { 
-        if (tab === 'posts') {
-          this.loadUserPosts(this.user.id); 
-        } else if (tab === 'reposts') {
-          this.loadUserReposts(this.user.id); 
-        }
+    if (this.user?.id) {
+      if (tab === 'posts') {
+        this.loadUserPosts(this.user.id);
+      } else if (tab === 'reposts') {
+        this.loadUserReposts(this.user.id);
+      }
     } else {
-        console.warn("Intento de cambiar de pestaña sin usuario cargado.");
-        this.userPosts = []; 
-        this.userReposts = [];
+      console.warn('Intento de cambiar de pestaña sin usuario cargado.');
+      this.userPosts = [];
+      this.userReposts = [];
     }
   }
 
@@ -246,16 +313,19 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  onAvatarSelected(event: Event): void { 
+  onAvatarSelected(event: Event): void {
     const element = event.currentTarget as HTMLInputElement;
     const file = element.files?.[0];
     if (file) {
       this.selectedAvatarFile = file;
       const reader = new FileReader();
-      reader.onload = e => this.avatarPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(reader.result as string);
+      reader.onload = (e) =>
+        (this.avatarPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(reader.result as string));
       reader.readAsDataURL(file);
-    } else { this.cancelAvatarChange(); }
-     element.value = "";  
+    } else {
+      this.cancelAvatarChange();
+    }
+    element.value = '';
   }
 
   onUploadAvatar(): void {
@@ -267,14 +337,18 @@ export class ProfileComponent implements OnInit {
         if (this.user) this.user.avatar = newAvatar;
         this.isUploadingAvatar = false;
         this.resetPreviews();
-        this.authService.updateCurrentUser({ ...this.authService.getCurrentUser(), avatar: newAvatar });
+        this.authService.updateCurrentUser({
+          ...this.user,
+          avatar: newAvatar,
+        });
         this.cacheBustTs = Date.now();
+        this.refresh$.next();
       },
       error: (err: HttpErrorResponse) => {
         console.error('Error al subir avatar:', err);
         this.isUploadingAvatar = false;
         alert(`Error al subir avatar: ${err.error?.message || err.statusText}`);
-      }
+      },
     });
   }
 
@@ -284,27 +358,33 @@ export class ProfileComponent implements OnInit {
   }
 
   removeAvatar(): void {
-      if (!this.user?.avatar || !this.isOwnProfile || !confirm('¿Eliminar avatar?')) return;
-      this.imageUploadService.deleteAvatar().subscribe({
-          next: () => {
-              if(this.user) this.user.avatar = null;
-              this.resetPreviews();
-              this.authService.updateCurrentUser({ ...this.authService.getCurrentUser(), avatar: null });
-          },
-          error: (err) => { console.error("Error al eliminar avatar:", err); alert("Error al eliminar avatar."); }
-      });
+    if (!this.user?.avatar || !this.isOwnProfile || !confirm('¿Eliminar avatar?')) return;
+    this.imageUploadService.deleteAvatar().subscribe({
+      next: () => {
+        if (this.user) this.user.avatar = null;
+        this.resetPreviews();
+        this.authService.updateCurrentUser({ ...this.user, avatar: null });
+      },
+      error: (err) => {
+        console.error('Error al eliminar avatar:', err);
+        alert('Error al eliminar avatar.');
+      },
+    });
   }
 
-  onBannerSelected(event: Event): void { 
+  onBannerSelected(event: Event): void {
     const element = event.currentTarget as HTMLInputElement;
     const file = element.files?.[0];
     if (file) {
       this.selectedBannerFile = file;
       const reader = new FileReader();
-      reader.onload = e => this.bannerPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(reader.result as string);
+      reader.onload = (e) =>
+        (this.bannerPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(reader.result as string));
       reader.readAsDataURL(file);
-    } else { this.cancelBannerChange(); }
-     element.value = "";
+    } else {
+      this.cancelBannerChange();
+    }
+    element.value = '';
   }
 
   onUploadBanner(): void {
@@ -316,14 +396,18 @@ export class ProfileComponent implements OnInit {
         if (this.user) this.user.banner = newBanner;
         this.isUploadingBanner = false;
         this.resetPreviews();
-        this.authService.updateCurrentUser({ ...this.authService.getCurrentUser(), banner: newBanner });
+        this.authService.updateCurrentUser({
+          ...this.user,
+          banner: newBanner,
+        });
         this.cacheBustTs = Date.now();
+        this.refresh$.next();
       },
       error: (err: HttpErrorResponse) => {
         console.error('Error al subir banner:', err);
         this.isUploadingBanner = false;
         alert(`Error al subir banner: ${err.error?.message || err.statusText}`);
-      }
+      },
     });
   }
 
@@ -333,23 +417,34 @@ export class ProfileComponent implements OnInit {
   }
 
   removeBanner(): void {
-       if (!this.user?.banner || !this.isOwnProfile || !confirm('¿Eliminar banner?')) return;
-       this.imageUploadService.deleteBanner().subscribe({
-          next: () => {
-              if(this.user) this.user.banner = null;
-              this.resetPreviews();
-              this.authService.updateCurrentUser({ ...this.authService.getCurrentUser(), banner: null });
-          },
-          error: (err) => { console.error("Error al eliminar banner:", err); alert("Error al eliminar banner."); }
-      });
+    if (!this.user?.banner || !this.isOwnProfile || !confirm('¿Eliminar banner?')) return;
+    this.imageUploadService.deleteBanner().subscribe({
+      next: () => {
+        if (this.user) this.user.banner = null;
+        this.resetPreviews();
+        this.authService.updateCurrentUser({ ...this.authService.getCurrentUser(), banner: null });
+      },
+      error: (err) => {
+        console.error('Error al eliminar banner:', err);
+        alert('Error al eliminar banner.');
+      },
+    });
   }
 
   saveProfileChangesAndExitEdit(): void {
-      let uploadsRequired = false;
-      if (this.selectedAvatarFile) { uploadsRequired = true; this.onUploadAvatar(); }
-      if (this.selectedBannerFile) { uploadsRequired = true; this.onUploadBanner(); }
-      this.isEditingProfile = false;
-      if (!uploadsRequired) { this.resetPreviews(); }
+    let uploadsRequired = false;
+    if (this.selectedAvatarFile) {
+      uploadsRequired = true;
+      this.onUploadAvatar();
+    }
+    if (this.selectedBannerFile) {
+      uploadsRequired = true;
+      this.onUploadBanner();
+    }
+    this.isEditingProfile = false;
+    if (!uploadsRequired) {
+      this.resetPreviews();
+    }
   }
 
   // --- Submit de edición de datos de perfil ---
@@ -366,7 +461,12 @@ export class ProfileComponent implements OnInit {
           if (username) this.user.username = username;
         }
         const current = this.authService.getCurrentUser();
-        this.authService.updateCurrentUser({ ...current, name, email, username: username || current?.username });
+        this.authService.updateCurrentUser({
+          ...current,
+          name,
+          email,
+          username: username || current?.username,
+        });
         this.submittingProfile = false;
         if (!this.selectedAvatarFile && !this.selectedBannerFile) {
           this.isEditingProfile = false;
@@ -376,7 +476,7 @@ export class ProfileComponent implements OnInit {
         console.error('Error al actualizar perfil:', err);
         this.apiErrorsProfile = err?.error || { general: ['No se pudo actualizar el perfil'] };
         this.submittingProfile = false;
-      }
+      },
     });
   }
 
@@ -390,23 +490,25 @@ export class ProfileComponent implements OnInit {
     }
     this.submittingPassword = true;
     this.apiErrorsPassword = null;
-    this.profileService.changePassword({ current_password, new_password, new_password_confirmation }).subscribe({
-      next: () => {
-        this.submittingPassword = false;
-        this.passwordForm.reset();
-        alert('Contraseña actualizada correctamente');
-      },
-      error: (err) => {
-        console.error('Error al cambiar contraseña:', err);
-        this.apiErrorsPassword = err?.error || { general: ['No se pudo cambiar la contraseña'] };
-        this.submittingPassword = false;
-      }
-    });
+    this.profileService
+      .changePassword({ current_password, new_password, new_password_confirmation })
+      .subscribe({
+        next: () => {
+          this.submittingPassword = false;
+          this.passwordForm.reset();
+          alert('Contraseña actualizada correctamente');
+        },
+        error: (err) => {
+          console.error('Error al cambiar contraseña:', err);
+          this.apiErrorsPassword = err?.error || { general: ['No se pudo cambiar la contraseña'] };
+          this.submittingPassword = false;
+        },
+      });
   }
 
   cancelEditProfile(): void {
-      this.isEditingProfile = false;
-      this.resetPreviews();
+    this.isEditingProfile = false;
+    this.resetPreviews();
   }
 
   resetPreviews(): void {
@@ -424,10 +526,14 @@ export class ProfileComponent implements OnInit {
 
     // Optimista
     this.isFollowing = !this.isFollowing;
-    this.user.followers_count = this.isFollowing ? previousFollowersCount + 1 : Math.max(0, previousFollowersCount - 1);
+    this.user.followers_count = this.isFollowing
+      ? previousFollowersCount + 1
+      : Math.max(0, previousFollowersCount - 1);
 
     const payload: FollowPayload = { following_id: targetUserId };
-    const action$ = previousState ? this.followService.unfollowUser(payload) : this.followService.followUser(payload);
+    const action$ = previousState
+      ? this.followService.unfollowUser(payload)
+      : this.followService.followUser(payload);
 
     action$.subscribe({
       error: (err) => {
@@ -435,28 +541,30 @@ export class ProfileComponent implements OnInit {
         this.isFollowing = previousState;
         this.user!.followers_count = previousFollowersCount;
         alert('Ocurrió un error al seguir/dejar de seguir.');
-      }
+      },
     });
   }
 
   togglePostMenu(postId: number): void {
-     this.openPostId = (this.openPostId === postId) ? null : postId;
+    this.openPostId = this.openPostId === postId ? null : postId;
   }
 
   onDeletePost(post: Post): void {
-     this.openPostId = null;
-     if (!post) return;
-     if (confirm('¿Eliminar esta publicación?')) {
-       const isOwner = !!this.currentUserId && this.currentUserId === post.user_id;
-       const request$ = isOwner
-         ? this.postService.deletePost(post.id)
-         : (this.isAdminOrMod ? this.postService.deletePostPrivileged(post.id) : null);
-       if (!request$) return; // No permitido
-       request$.subscribe({
-         next: () => this.userPosts = this.userPosts.filter(p => p.id !== post.id),
-         error: (err) => console.error('Error al eliminar post:', err)
-       });
-     }
+    this.openPostId = null;
+    if (!post) return;
+    if (confirm('¿Eliminar esta publicación?')) {
+      const isOwner = !!this.currentUserId && this.currentUserId === post.user_id;
+      const request$ = isOwner
+        ? this.postService.deletePost(post.id)
+        : this.isAdminOrMod
+        ? this.postService.deletePostPrivileged(post.id)
+        : null;
+      if (!request$) return; // No permitido
+      request$.subscribe({
+        next: () => (this.userPosts = this.userPosts.filter((p) => p.id !== post.id)),
+        error: (err) => console.error('Error al eliminar post:', err),
+      });
+    }
   }
 
   // ====== Editar Post (en perfil) ======
@@ -464,7 +572,7 @@ export class ProfileComponent implements OnInit {
     if (!post) return;
     this.editingPostId = post.id;
     this.editContent = post.content_posts;
-    this.openPostId = null; 
+    this.openPostId = null;
   }
 
   cancelEditPost(): void {
@@ -478,23 +586,39 @@ export class ProfileComponent implements OnInit {
     if (content.length === 0 || content.length > 280) return;
     this.postService.updatePost(post.id, content).subscribe({
       next: (updated: Post) => {
-        this.userPosts = this.userPosts.map(p => p.id === post.id ? ({ ...p, content_posts: updated.content_posts, updated_at: updated.updated_at }) as any : p);
+        this.userPosts = this.userPosts.map((p) =>
+          p.id === post.id
+            ? ({
+                ...p,
+                content_posts: updated.content_posts,
+                updated_at: updated.updated_at,
+              } as any)
+            : p
+        );
         this.editingPostId = null;
         this.editContent = '';
       },
       error: (err) => {
         console.error('Error al actualizar el post (perfil):', err);
         alert('No se pudo actualizar el post.');
-      }
+      },
     });
   }
 
   onToggleLike(post: Post): void {
-    const previousState = { is_liked_by_user: post.is_liked_by_user, reactions_count: post.reactions_count || 0 };
+    const previousState = {
+      is_liked_by_user: post.is_liked_by_user,
+      reactions_count: post.reactions_count || 0,
+    };
     post.is_liked_by_user = !post.is_liked_by_user;
-    post.reactions_count = post.is_liked_by_user ? previousState.reactions_count + 1 : Math.max(0, previousState.reactions_count - 1);
+    post.reactions_count = post.is_liked_by_user
+      ? previousState.reactions_count + 1
+      : Math.max(0, previousState.reactions_count - 1);
 
-    const payload: CreateReactionPayload = { post_id: post.id, reaction_type_id: this.LIKE_REACTION_TYPE_ID };
+    const payload: CreateReactionPayload = {
+      post_id: post.id,
+      reaction_type_id: this.LIKE_REACTION_TYPE_ID,
+    };
     this.interactionService.toggleReaction(payload).subscribe({
       error: (err) => {
         console.error('Error like:', err);
@@ -507,35 +631,46 @@ export class ProfileComponent implements OnInit {
 
   onToggleRepost(post: Post): void {
     const payload: CreateRepostPayload = { post_id: post.id };
-    const optimisticShouldMutateList = this.isOwnProfile && this.currentTab === 'reposts';
-    let reverted = false;
-    if (optimisticShouldMutateList) {
-      const exists = this.userReposts.some(p => p.id === post.id);
-      if (!exists) {
-        this.userReposts = [post, ...this.userReposts];
-      }
-    }
+    const previousRepostCount = post.reposts_count || 0;
+
     this.interactionService.toggleRepost(payload).subscribe({
       next: (updatedPost) => {
-         console.log('toggleRepost response:', updatedPost);
-         if (updatedPost && typeof updatedPost.reposts_count === 'number') {
-           post.reposts_count = updatedPost.reposts_count;
-         }
-         console.log('Repost action successful, new count:', post.reposts_count);
-         if (this.isOwnProfile && this.user?.id) {
-           this.loadUserReposts(this.user.id);
-         }
+        console.log('toggleRepost response:', updatedPost);
+
+        // --- [INICIO SOLUCIÓN SEGURA REPOSTS] ---
+        if (updatedPost && typeof updatedPost.reposts_count === 'number') {
+          // [FIX BUG A - CONTADOR]
+          // 1. Actualizar la propiedad del post
+          post.reposts_count = updatedPost.reposts_count;
+
+          // 2. Forzar la detección en la pestaña 'Posts'
+          const postIndex = this.userPosts.findIndex((p) => p.id === post.id);
+          if (postIndex !== -1) {
+            this.userPosts[postIndex] = { ...post };
+            this.userPosts = [...this.userPosts];
+          }
+
+          // 3. Forzar la detección en la pestaña 'Reposts'
+          const repostIndex = this.userReposts.findIndex((p) => p.id === post.id);
+          if (repostIndex !== -1) {
+            this.userReposts[repostIndex] = { ...post };
+            this.userReposts = [...this.userReposts];
+          }
+        }
+
+        // [FIX BUG B - LISTA]
+        // 4. Recargar la lista de reposts desde la API para asegurar 100% de consistencia
+        if (this.isOwnProfile && this.user?.id) {
+          this.loadUserReposts(this.user.id);
+        }
+        // --- [FIN SOLUCIÓN SEGURA REPOSTS] ---
       },
       error: (err) => {
         console.error('Error repost:', err);
-        if (optimisticShouldMutateList && !reverted) {
-          // revertir optimismo
-          this.userReposts = this.userReposts.filter(p => p.id !== post.id);
-          reverted = true;
-        }
+        // --- [ROLLBACK] ---
+        post.reposts_count = previousRepostCount;
         alert('Error al repostear.');
       },
     });
   }
-
-} 
+}

@@ -45,7 +45,7 @@ export class CommentItemComponent implements OnInit {
   }
 
   saveEdit(newContent: string): void {
-    if (newContent && newContent.trim() !== this.comment.content_comments) {
+    if (newContent && newContent.trim() !== this.comment.content) {
       this.commentUpdated.emit({ id: this.comment.id, content: newContent });
     }
     this.isEditing = false; 

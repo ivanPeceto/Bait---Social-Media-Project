@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\Multimedia\Domain\Models\PostReaction;
 use App\Modules\Multimedia\Domain\Models\Repost;
 use App\Modules\Multimedia\Domain\Models\Comment;
-
+use App\Modules\Multimedia\Domain\Models\MultimediaContent;
 
 class Post extends Model
 {
@@ -52,5 +52,14 @@ class Post extends Model
     public function reposts(): HasMany
     {
         return $this->hasMany(Repost::class);
+    }
+
+    /**
+     * AÑADIR ESTA FUNCIÓN
+     * Get the multimedia content associated with the post.
+     */
+    public function multimedia_contents()
+    {
+        return $this->hasMany(MultimediaContent::class, 'post_id');
     }
 }

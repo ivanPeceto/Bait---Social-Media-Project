@@ -10,6 +10,7 @@ class CommentResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $this->resource->loadMissing('user.avatar');
         return [
             'id' => $this->id,
             'content' => $this->content_comments,

@@ -26,6 +26,7 @@ class PostResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'is_liked_by_user' => (bool) $this->liked_by_user,
+            'multimedia_contents' => MultimediaContentResource::collection($this->whenLoaded('multimedia_contents')),
         ];
     }
 }
