@@ -21,7 +21,10 @@ export class MainComponent implements OnInit {
   public unreadNotificationsCount = 0;
 
   ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
+   
+    this.authService.currentUserChanges$.subscribe(user => {
+      this.currentUser = user;
+    });
     this.loadNotifications();
   }
 

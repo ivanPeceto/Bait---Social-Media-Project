@@ -1,0 +1,57 @@
+<div class="flex space-x-3 py-3 px-4 border-b border-gray-700 relative">
+
+ <img
+  class="w-10 h-10 rounded-full"
+  [src]="comment.user.avatar?.url_avatars ? (baseUrl + comment.user.avatar?.url_avatars) : 'assets/images/iconousuario.png'"
+  alt="Avatar de {{ comment.user.username }}"
+ />
+
+    <div class="flex-1">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2 text-sm">
+                <a [routerLink]="['/profile', comment.user.username]" class="font-bold hover:underline">{{
+                    comment.user.name }}</a>
+                <span class="text-gray-500">@{{ comment.user.username }}</span>
+                <span class="text-gray-500">·</span>
+                <span class="text-gray-500">{{ comment.created_at | date:'short' }}</span>
+            </div>
+
+            <div *ngIf="(isOwner || isAdminOrMod) && !isEditing" class="relative">
+                <button (click)="commentMenu.classList.toggle('hidden')"
+                    class="text-gray-400 hover:text-white p-1 rounded-full transition-colors">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                    </svg>
+                </button>
+                <div #commentMenu
+                    class="hidden absolute top-full right-0 z-10 mt-1 w-28 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+                    <ul class="py-1">
+                        <li *ngIf="isOwner">
+                            <button (click)="startEditing(); commentMenu.classList.add('hidden')"
+                                class="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700">
+                                Editar
+                            </button>
+                        </li>
+                        <li>
+                            <button (click)="deleteComment(); commentMenu.classList.add('hidden')"
+                                class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700">
+                                Eliminar
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="!isEditing" class="mt-1">
+            <p class="text-gray-300 whitespace-pre-wrap break-words">{{ comment.content }}</p>
+        </div>
+
+        <div *ngIf="isEditing" class="mt-2">
+            <app-comment-form [initialContent]="comment.content" (commentSubmitted)="saveEdit($event)"
+                (formCancelled)="cancelEditing()" [isEditing]="true"></app-comment-form>
+        </div>
+    </div>
+</div>
