@@ -12,6 +12,7 @@ export interface UserState {
 interface StatesResponse {
   data: UserState[];
 }
+
 interface StateResponse {
   data: UserState;
 }
@@ -26,19 +27,21 @@ export class AdminStateService {
 
   getStates(): Observable<UserState[]> {
     return this.http.get<StatesResponse>(API_URL).pipe(
-      map(response => response.data)
+      map(response => response.data) 
     );
   }
 
   createState(name: string): Observable<UserState> {
+    // --- MÉTODO CORREGIDO ---
     return this.http.post<StateResponse>(API_URL, { name: name }).pipe(
-      map(response => response.data)
+      map(response => response.data) 
     );
   }
 
   updateState(id: number, name: string): Observable<UserState> {
+    // --- MÉTODO CORREGIDO ---
     return this.http.put<StateResponse>(`${API_URL}/${id}`, { name: name }).pipe(
-      map(response => response.data)
+      map(response => response.data) 
     );
   }
 

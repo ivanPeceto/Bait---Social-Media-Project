@@ -9,9 +9,12 @@ export interface UserRole {
   name: string;
 }
 
+// Interfaz para la respuesta de una colección
 interface RolesResponse {
   data: UserRole[];
 }
+
+// Interfaz para la respuesta de un único item
 interface RoleResponse {
   data: UserRole;
 }
@@ -31,14 +34,16 @@ export class AdminRoleService {
   }
 
   createRole(name: string): Observable<UserRole> {
+    // --- MÉTODO CORREGIDO ---
     return this.http.post<RoleResponse>(API_URL, { name: name }).pipe(
-      map(response => response.data)
+      map(response => response.data) 
     );
   }
 
   updateRole(id: number, name: string): Observable<UserRole> {
+    // --- MÉTODO CORREGIDO ---
     return this.http.put<RoleResponse>(`${API_URL}/${id}`, { name: name }).pipe(
-      map(response => response.data)
+      map(response => response.data) 
     );
   }
 
