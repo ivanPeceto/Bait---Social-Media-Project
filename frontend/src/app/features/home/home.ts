@@ -16,6 +16,7 @@ import { environment } from '../../../environments/environment';
 import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
 import { MultimediaContent } from '../../core/models/multimedia-content.model';
 import { MultimediaContentService } from '../../core/services/multimedia-content.service';
+import { PostCommentsModalComponent } from '../comments/components/post-comments-modal/post-comments-modal.component';
 
 
 
@@ -23,7 +24,7 @@ import { MultimediaContentService } from '../../core/services/multimedia-content
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePipe, RouterLink, MediaUrlPipe],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe, RouterLink, MediaUrlPipe, PostCommentsModalComponent],
   templateUrl: './home.html',
 })
 export default class Home implements OnInit {
@@ -51,6 +52,8 @@ export default class Home implements OnInit {
   public selectedFile: File | null = null;
   public previewUrl: string | null = null;
   public isUploadingMedia = false;
+  public isCommentsModalOpen = false;
+  public selectedPostForComments: Post | null = null;
   
   constructor(
     private fb: FormBuilder,
@@ -325,12 +328,23 @@ export default class Home implements OnInit {
     this.openPostId = this.openPostId === postId ? null : postId;
   }
  
-  onDeletePost(postId: number): void {
+  onDeletePost(post: Post): void {
     this.openPostId = null;
+    if (!post) return;
     if (confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
-      this.postService.deletePost(postId).subscribe({
+      const isOwner = this.currentUser && this.currentUser.id === post.user_id;
+      const role = (this.currentUser?.role || '').toLowerCase();
+      const isAdminOrMod = role === 'admin' || role === 'moderator';
+
+      const request$ = isOwner
+        ? this.postService.deletePost(post.id)
+        : (isAdminOrMod ? this.postService.deletePostPrivileged(post.id) : null);
+
+      if (!request$) return; // No permitido
+
+      request$.subscribe({
         next: () => {
-          this.posts = this.posts.filter((post) => post.id !== postId);
+          this.posts = this.posts.filter((p) => p.id !== post.id);
         },
         error: (err) => {
           console.error('Error al eliminar el post', err);
@@ -359,5 +373,34 @@ export default class Home implements OnInit {
         post.reposts_count = previousRepostCount;
       },
     });
+  }
+
+  openComments(post: Post): void {
+    this.selectedPostForComments = post;
+    this.isCommentsModalOpen = true;
+  }
+
+  closeComments(): void {
+    this.isCommentsModalOpen = false;
+    this.selectedPostForComments = null;
+  }
+
+  onCommentAdded(): void {
+    if (!this.selectedPostForComments) return;
+    this.updatePostCommentsCount(this.selectedPostForComments.id, 1);
+  }
+
+  onCommentDeleted(): void {
+    if (!this.selectedPostForComments) return;
+    this.updatePostCommentsCount(this.selectedPostForComments.id, -1);
+  }
+
+  private updatePostCommentsCount(postId: number, delta: number): void {
+    this.posts = this.posts.map(p =>
+      p.id === postId ? ({ ...p, comments_count: Math.max(0, (p.comments_count || 0) + delta) } as any) : p
+    );
+    if (this.selectedPostForComments && this.selectedPostForComments.id === postId) {
+      this.selectedPostForComments = this.posts.find(p => p.id === postId) || this.selectedPostForComments;
+    }
   }
 }

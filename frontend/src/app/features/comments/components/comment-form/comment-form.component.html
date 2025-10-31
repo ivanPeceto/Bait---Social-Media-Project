@@ -1,0 +1,29 @@
+<form [formGroup]="commentForm" (ngSubmit)="onSubmit()" class="p-4 border-t border-gray-700">
+  <textarea 
+    formControlName="content_comments" class="w-full p-2 bg-gray-700 rounded-md focus:outline-none placeholder-gray-400 text-sm"
+    rows="2"
+    placeholder="Escribe tu comentario..."></textarea>
+  
+  <div *ngIf="commentForm.get('content_comments')?.invalid && (commentForm.get('content_comments')?.dirty || commentForm.get('content_comments')?.touched)" 
+       class="text-red-500 text-xs mt-1">
+    <div *ngIf="commentForm.get('content_comments')?.errors?.['required']"> El comentario no puede estar vacío.
+    </div>
+    <div *ngIf="commentForm.get('content_comments')?.errors?.['maxlength']"> Máximo 280 caracteres.
+    </div>
+  </div>
+  
+  <div class="flex justify-end items-center mt-2 space-x-2"> 
+    <button 
+      *ngIf="isEditing"
+      type="button" 
+      (click)="cancel()"
+      class="text-gray-400 px-4 py-1.5 rounded-md hover:bg-gray-600 font-semibold text-xs">
+      Cancelar
+    </button>
+    <button 
+      type="submit" 
+      [disabled]="commentForm.invalid || (isEditing && commentForm.pristine)" class="bg-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-700 font-semibold text-xs disabled:opacity-50 disabled:cursor-not-allowed">
+      {{ submitButtonText }} 
+    </button>
+  </div>
+</form>

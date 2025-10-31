@@ -11,6 +11,7 @@ import { Post } from '../models/post.model';
 export class PostService {
   private http = inject(HttpClient);
   private API_URL = `${environment.apiUrl}/posts`;
+  private PRIV_API_URL = `${environment.apiUrl}/privileged/multimedia`;
 
 
   getPosts(): Observable<any> {
@@ -27,6 +28,10 @@ export class PostService {
 
   deletePost(postId: number): Observable<any> {
     return this.http.delete(`${this.API_URL}/${postId}`);
+  }
+
+  deletePostPrivileged(postId: number): Observable<any> {
+    return this.http.delete(`${this.PRIV_API_URL}/post/${postId}`);
   }
 
   updatePost(postId: number, content: string): Observable<Post> {

@@ -57,6 +57,7 @@ export class ProfileComponent implements OnInit {
   public editContent: string = '';
   public currentUserId: number | null = null;
   public userProfile$: Observable<User | null> = of(null);
+  public isAdminOrMod: boolean = false;
 
   public isEditingProfile = false;
   public selectedAvatarFile: File | null = null;
@@ -78,9 +79,13 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
     this.currentUserId = currentUser?.id ?? null;
+    const role = (currentUser?.role || '').toLowerCase?.() || (typeof currentUser?.role === 'string' ? (currentUser.role as string).toLowerCase() : '');
+    this.isAdminOrMod = role === 'admin' || role === 'moderator';
 
     this.authService.currentUserChanges$?.subscribe((u) => {
       if (!u) return;
+      const r = (u.role || '').toLowerCase?.() || (typeof u.role === 'string' ? (u.role as string).toLowerCase() : '');
+      this.isAdminOrMod = r === 'admin' || r === 'moderator';
       if (this.isOwnProfile && this.user) {
         this.user = { ...this.user, avatar: u.avatar, banner: u.banner, name: u.name || this.user.name, username: u.username || this.user.username } as User;
       }
@@ -438,12 +443,17 @@ export class ProfileComponent implements OnInit {
      this.openPostId = (this.openPostId === postId) ? null : postId;
   }
 
-  onDeletePost(postId: number): void {
-     if (!this.isOwnProfile) return;
+  onDeletePost(post: Post): void {
      this.openPostId = null;
+     if (!post) return;
      if (confirm('¿Eliminar esta publicación?')) {
-       this.postService.deletePost(postId).subscribe({
-         next: () => this.userPosts = this.userPosts.filter(post => post.id !== postId),
+       const isOwner = !!this.currentUserId && this.currentUserId === post.user_id;
+       const request$ = isOwner
+         ? this.postService.deletePost(post.id)
+         : (this.isAdminOrMod ? this.postService.deletePostPrivileged(post.id) : null);
+       if (!request$) return; // No permitido
+       request$.subscribe({
+         next: () => this.userPosts = this.userPosts.filter(p => p.id !== post.id),
          error: (err) => console.error('Error al eliminar post:', err)
        });
      }

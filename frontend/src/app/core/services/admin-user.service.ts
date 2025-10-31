@@ -1,3 +1,5 @@
+// en src/app/features/admin/services/admin-user.service.ts
+
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,7 +12,7 @@ export interface User {
   name: string;
   role: string;
   state: string;
-  email?: string;
+  email?: string; 
 }
 
 interface UsersResponse {
