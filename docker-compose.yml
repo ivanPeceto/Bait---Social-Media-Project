@@ -94,9 +94,10 @@ services:
         - /var/www/vendor         
         - /var/www/bootstrap/cache
       depends_on:
-        - mysql
         - redis 
-      command: php artisan reverb:start --host=0.0.0.0 --port=8080
+      env_file:
+        - .env
+      command: /bin/sh -c "php artisan config:clear && sleep 10 && php artisan reverb:start --host=0.0.0.0 --port=8080"
 
 # To add later: vistualization for de db
 #  phpmyadmin:

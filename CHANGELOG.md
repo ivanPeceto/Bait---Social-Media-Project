@@ -1,5 +1,13 @@
 # Changelog
+## [fix/back/ws] - 2025 - 11 - 01
 
+## Fixes
+* Corrige variables del env file para ser consistentes con el nuevo contenedor de reverb y hacer uso del contenedor de redis.
+* Añade tiempo de espera al inicio del contenedor reverb para asegurar que todas las dependencias esten activas.
+
+## Affects
+* `.env.example`
+* `docker-compose-yml`
 
 ## [fix/frontend/integrations-to-main] - 2025-10-31
 
