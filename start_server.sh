@@ -83,23 +83,59 @@ wait_for_db() {
 run_migrations() {
     wait_for_db
     sleep 15
+
     echo -e "${YELLOW}Ejecutando migraciones y seeders...${NC}"
     OUTPUT=$(docker compose exec backend php artisan migrate --seed 2>&1) || true
 
-    # Verificamos si la salida contiene la palabra "ERROR".
     if echo "$OUTPUT" | grep -q "ERROR"; then
-        echo -e "${RED} Error durante la migración:${NC}"
+        echo -e "${RED}Error durante la migración:${NC}"
         echo -e "${RED}$OUTPUT${NC}"
         exit 1
     elif echo "$OUTPUT" | grep -q "Exception"; then
-        echo -e "${RED} Error durante la migración:${NC}"
+        echo -e "${RED}Error durante la migración:${NC}"
         echo -e "${RED}$OUTPUT${NC}"
         exit 1    
     else
-        echo -e "${GREEN} Migraciones completadas exitosamente.${NC}"
+        echo -e "${GREEN}Migraciones completadas exitosamente.${NC}"
         echo "$OUTPUT"
     fi
+
+    echo -e "${YELLOW}Generando key de Laravel...${NC}"
+    OUTPUT_KEY=$(docker compose exec backend php artisan key:generate 2>&1) || true
+    if echo "$OUTPUT_KEY" | grep -q "Exception"; then
+        echo -e "${RED}Error generando key de Laravel:${NC}"
+        echo -e "${RED}$OUTPUT_KEY${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}Key de Laravel generada correctamente.${NC}"
+
+    echo -e "${YELLOW}Generando JWT secret...${NC}"
+    OUTPUT_JWT=$(docker compose exec backend php artisan jwt:secret --force 2>&1) || true
+    if echo "$OUTPUT_JWT" | grep -q "Exception"; then
+        echo -e "${RED}Error generando JWT secret:${NC}"
+        echo -e "${RED}$OUTPUT_JWT${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}JWT secret generado correctamente.${NC}"
+
+    echo -e "${YELLOW}Limpiando configuración y cache de Laravel...${NC}"
+    OUTPUT_CONFIG=$(docker compose exec backend php artisan config:clear 2>&1) || true
+    OUTPUT_CACHE=$(docker compose exec backend php artisan cache:clear 2>&1) || true
+
+    if echo "$OUTPUT_CONFIG" | grep -q "Exception"; then
+        echo -e "${RED}Error limpiando configuración:${NC}"
+        echo -e "${RED}$OUTPUT_CONFIG${NC}"
+        exit 1
+    fi
+
+    if echo "$OUTPUT_CACHE" | grep -q "Exception"; then
+        echo -e "${RED}Error limpiando cache:${NC}"
+        echo -e "${RED}$OUTPUT_CACHE${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}Configuración y cache limpiados correctamente.${NC}"
 }
+
 
 # -- Variables init ---.
 BUILD_FLAG=false
