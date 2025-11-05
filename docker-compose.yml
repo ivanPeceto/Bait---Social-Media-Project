@@ -72,32 +72,50 @@ services:
       - .env
 
   nginx:
-      image: nginx:latest
-      container_name: bait-reverse-proxy
-      ports:
-        - "80:80"
-      volumes:
-        - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro 
-      depends_on:
-        - frontend
-        - backend
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: nginx:latest
+    container_name: bait-reverse-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend/bait-api/public:/var/www/public:ro
+    depends_on:
+      - frontend
+      - backend
 
   reverb:
-      build:
-        context: ./backend/bait-api
-        dockerfile: Dockerfile
-      container_name: bait-reverb
-      restart: unless-stopped
-      working_dir: /var/www
-      volumes:
-        - ./backend/bait-api:/var/www
-        - /var/www/vendor         
-        - /var/www/bootstrap/cache
-      depends_on:
-        - mysql
-        - redis 
-      command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    build:
+      context: ./backend/bait-api
+      dockerfile: Dockerfile
+    container_name: bait-reverb
+    restart: unless-stopped
+    working_dir: /var/www
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./backend/bait-api:/var/www
+      - /var/www/vendor         
+      - /var/www/bootstrap/cache
+    depends_on:
+      - redis 
+    env_file:
+      - .env
+    command: /bin/sh -c "php artisan config:clear && sleep 10 && php artisan reverb:start --host=0.0.0.0 --port=8080"
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: bait-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    depends_on:
+      - mysql
+      
 # To add later: vistualization for de db
 #  phpmyadmin:
 #    image: phpmyadmin/phpmyadmin
