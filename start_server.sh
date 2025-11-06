@@ -62,7 +62,7 @@ copy_env() {
 
     sed -i "s/L5_SWAGGER_CONST_HOST=http:\/\/[0-9.]*/L5_SWAGGER_CONST_HOST=http:\/\/${IP_ADDRESS}/" $ENV_FILE
     sed -i "s/VITE_APP_URL_BASE=http:\/\/[0-9.]*/VITE_APP_URL_BASE=http:\/\/${IP_ADDRESS}/" $ENV_FILE
-    sed -i "s/IP_ADDRESS=http:\/\/[0-9.]*/IP_ADDRESS=http:\/\/${IP_ADDRESS}/" $ENV_FILE
+    sed -i "s/IP_ADDRESS=.*/IP_ADDRESS=${IP_ADDRESS}/" $ENV_FILE
 
     cp .env backend/bait-api/.env
 }

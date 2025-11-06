@@ -5,8 +5,11 @@ export default defineConfig(({ mode }) => {
 
   return{
     define: {
-        'process.env.VITE_APP_URL_BASE': JSON.stringify(env.VITE_APP_URL_BASE || `http://${env.IP_ADDRESS || 'localhost'}`),
-        'process.env.REVERB_APP_KEY': JSON.stringify(env.REVERB_APP_KEY || `reverb_app_key`),
+      'process.env': {
+        VITE_APP_URL_BASE: JSON.stringify(env.VITE_APP_URL_BASE || `http://${env.IP_ADDRESS || 'localhost'}`),
+        REVERB_APP_KEY: JSON.stringify(env.REVERB_APP_KEY || `reverb_app_key`),
+        VITE_HOST_IP: JSON.stringify(env.VITE_HOST_IP || 'localhost')
+      }
     },
     resolve: {
       mainFields: ['module'],
@@ -15,7 +18,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       port: 4200,
       hmr: {
-        host: JSON.stringify(env.VITE_APP_URL_BASE || `http://${env.IP_ADDRESS || 'localhost'}`),
+        host: env.VITE_HOST_IP || 'localhost',
         protocol: 'ws',
         port: 4200
       }
