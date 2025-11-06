@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import {
   FormBuilder,
@@ -18,6 +18,7 @@ import {
   take,
   catchError,
 } from 'rxjs/operators';
+import Echo from 'laravel-echo';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PostService } from '../../core/services/post.service';
@@ -31,6 +32,8 @@ import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
 import { MultimediaContent } from '../../core/models/multimedia-content.model';
 import { MultimediaContentService } from '../../core/services/multimedia-content.service';
 import { PostCommentsModalComponent } from '../comments/components/post-comments-modal/post-comments-modal.component';
+import { EchoService } from '../../core/services/echo.service';
+import { User } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-home',
@@ -45,12 +48,15 @@ import { PostCommentsModalComponent } from '../comments/components/post-comments
   ],
   templateUrl: './home.html',
 })
-export default class Home implements OnInit {
+export default class Home implements OnInit, OnDestroy {
+
   private interactionService = inject(InteractionService);
   private authService = inject(AuthService);
   private searchService = inject(SearchService);
   private router = inject(Router);
   private multimediaService = inject(MultimediaContentService);
+  private echoService = inject(EchoService);
+
   private readonly LIKE_REACTION_TYPE_ID = 1;
   public readonly apiUrlForImages = environment.baseUrl;
   searchControl = new FormControl('');
@@ -64,6 +70,7 @@ export default class Home implements OnInit {
   public editingPostId: number | null = null;
   public editContent: string = '';
   public apiErrors: any = null;
+  public echo: Echo<'pusher'> | null = null;
 
   public isLoading = true;
   public cacheBustTs = Date.now();
@@ -174,6 +181,47 @@ export default class Home implements OnInit {
     });
     this.loadPosts();
     this.setupSearch();
+    this.setupWebSocketListeners();
+  }
+
+  /**
+   * Limpia los listeners de WebSocket al destruir el componente.
+   */
+  ngOnDestroy(): void {
+    const echo = this.echoService.echo;
+    if (echo) {
+      // Salir del canal privado
+      if (this.currentUser) {
+        echo.leave(`App.Models.User.${this.currentUser.id}`);
+      }
+      // Salir de todos los canales de posts
+      this.posts.forEach(post => {
+        echo.leaveChannel(`post.${post.id}`);
+      });
+    }
+  }
+
+  /**
+   * Configures ws listeners for posts feed.
+  */
+  private setupWebSocketListeners(): void {
+    if (!this.currentUser) return;
+    
+    const echo = this.echoService.echo;
+    if (!echo) {
+      console.warn('Echo instance not available. Real-time updates disabled.');
+      return; 
+    }
+
+    echo.private(`App.Models.User.${this.currentUser.id}`)
+      .listen('.NewPost', (data: { post: Post }) => {
+        if (data.post && !this.posts.find(p => p.id === data.post.id)) {
+          // Sets a timeout to mmake sure that Angular sees the changes.
+          setTimeout(() => {
+            this.posts = [data.post, ...this.posts];
+          }, 100);
+        }
+      });
   }
 
   private setupSearch(): void {
@@ -314,18 +362,15 @@ export default class Home implements OnInit {
     // --- [FIN DE LA SOLUCIÓN DEFINITIVA] ---
   }
 
-  // --- INICIO DE MODIFICACIÓN: loadPosts ---
   /**
    * Carga la lista inicial de posts y luego verifica el estado de 'like'
    * del usuario actual para cada post mediante llamadas adicionales.
-   * (Nota: Este enfoque N+1 no es eficiente para muchos posts).
    */
   loadPosts(): void {
     this.postService
       .getPosts()
       .pipe(
         switchMap((initialPosts: Post[] | any) => {
-          // Extrae si viene en { data: [...] } o devuelve el array directamente
           const postsArray = Array.isArray(initialPosts?.data)
             ? initialPosts.data
             : Array.isArray(initialPosts)
@@ -351,9 +396,60 @@ export default class Home implements OnInit {
         })
       )
       .subscribe({
-        next: (postsWithLikeStatus: Post[]) => (this.posts = postsWithLikeStatus),
-        error: (err) => console.error('Error al cargar posts o verificar likes:', err),
-      });
+      next: (postsWithLikeStatus: Post[]) => {
+        this.posts = postsWithLikeStatus;
+        this.isLoading = false;
+        this.listenToPostUpdates();
+      },
+      error: (err) => {
+        console.error('Error al cargar posts o verificar likes:', err);
+        this.isLoading = false;
+      },
+    });
+  }
+
+  /**
+   * Se suscribe a los canales públicos de CADA post visible para
+   * escuchar actualizaciones de likes y reposts.
+   */
+  private listenToPostUpdates(): void {
+    const echo = this.echoService.echo;
+    if (!echo) return;
+
+    // Desuscribirse de listeners antiguos si existieran
+    this.posts.forEach(post => {
+      echo.leaveChannel(`post.${post.id}`);
+    });
+
+    // Suscribirse a los nuevos
+    this.posts.forEach(post => {
+      echo.channel(`post.${post.id}`)
+        .listen('.PostReactionUpdated', (data: { post: Post }) => {
+          this.updatePostInArray(data.post);
+        })
+        .listen('.PostRepostUpdated', (data: { post: Post }) => {
+          this.updatePostInArray(data.post);
+        });
+    });
+  }
+
+ /**
+   * Helper para actualizar un post en el array 'this.posts' de forma inmutable.
+   */
+  private updatePostInArray(updatedPost: Post): void {
+    const index = this.posts.findIndex(p => p.id === updatedPost.id);
+    if (index > -1) {
+      // Preservamos el estado 'is_liked_by_user' si la actualización no lo trae
+      // (aunque debería, si el backend usa el Resource)
+      const originalPost = this.posts[index];
+      this.posts[index] = { 
+        ...originalPost, 
+        ...updatedPost,
+        // Aseguramos que el estado optimista del like no se pise
+        is_liked_by_user: updatedPost.is_liked_by_user ?? originalPost.is_liked_by_user,
+        user: originalPost.user // Mantenemos el objeto 'user' original
+      };
+    }
   }
 
   /**
@@ -449,6 +545,11 @@ export default class Home implements OnInit {
     this.selectedPostForComments = post;
     this.isCommentsModalOpen = true;
   }
+
+  //openCommentModal(post: Post): void {
+  //  this.selectedPostForModal = post;
+  //  this.isCommentModalOpen = true;
+  //}
 
   closeComments(): void {
     this.isCommentsModalOpen = false;

@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,19 +14,24 @@ export class EchoService {
     if (isPlatformBrowser(this.platformId)) {
       (window as any).Pusher = Pusher;
 
-      const token = localStorage.getItem('jwt'); // <-- tu JWT almacenado
+      const reverbAppKey = environment.reverbKey;
+      const wsHost = new URL(environment.wsUrl).hostname;
+      const wsPort = new URL(environment.wsUrl).port || 80;
+      const forceTLS = new URL(environment.wsUrl).protocol === 'https:';
+      const authEndpoint = `${environment.apiUrl}/broadcasting/auth`;
+      const token = localStorage.getItem('jwt');
 
       this.echo = new Echo({
         broadcaster: 'pusher',
-        key: 'reverb_app_key',
+        key: reverbAppKey,
         cluster: 'local',
-        wsHost: '172.24.40.52',
-        wsPort: 80,
-        forceTLS: false,
+        wsHost: wsHost,
+        wsPort: Number(wsPort),
+        forceTLS: forceTLS,
         disableStats: true,
         enabledTransports: ['ws'],
         wsPath: '/ws', 
-        authEndpoint: 'http://172.24.40.52/api/broadcasting/auth',
+        authEndpoint: authEndpoint,
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,

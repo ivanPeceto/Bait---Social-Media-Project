@@ -1,4 +1,33 @@
-# Changelog
+## [fix/front/ws] - 2025-11-05
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Added
+
+* Añade nueva variable `VITE_APP_URL_BASE` en `.env.example`.
+* Añade nueva variable `IP_ADDRESS` en `.env.example`.
+* Añade actualización automática de la nueva variable `L5_SWAGGER_CONST_HOST` en el `.env`.
+* Añade actualización automática de la nueva variable `VITE_APP_URL_BASE` en el `.env`.
+* Añade actualización automática de la nueva variable `IP_ADDRESS` en el `.env`.
+
+### Changed
+
+* Pasa el `.env` en `docker-compose.yml` al frontend.
+* En `frontend/vite.config.ts` añade la extracción de variables de entorno para objetener la ip del host y reverb_app_key en manera dinámica. 
+* Corrige direcciones IP hardcodeadas en `frontend/src/environments/environment.ts` y `frontend/src/app/core/services/echo.service.ts`.
+* Corrige reverb_app_key hardcodeada en `frontend/src/app/core/services/echo.service.ts`.
+
+### Affects 
+
+* `start_server.sh`
+* `backend/bait-api/app/Events/NewReactionEvent.php`
+* `backend/bait-api/app/Events/NewRepost.php`
+* `frontend/src/app/features/home/home.ts`
+* `.env.example`
+* `docker-compose.yml`
+* `frontend/vite.config.ts`
+* `frontend/src/environments/environment.ts`
+* `frontend/src/app/core/services/echo.service.ts`
 
 ## [feature/frontend/websocket] - 2025-11-04
 
@@ -32,7 +61,7 @@ _(Cambios realizados por @jmrodriguezspinker)_
 * Modificada plantilla de Swagger UI para mostrar correctamente la documentación y expandir los docs con NGINX (`backend/bait-api/resources/views/vendor/l5-swagger/index.blade.php`).
 * Configurado Vite dev server con host personalizado y HMR (`frontend/vite.config.ts`).
 * Integradas notificaciones WebSocket en el layout principal (`frontend/src/app/layout/main/main.component.html`, `main.component.ts`).
-
+ 
 ### Chore
 
 * Generación de Laravel key y JWT secret con limpieza de cache (`start_server.sh`).
@@ -64,7 +93,16 @@ _(Cambios realizados por @jmrodriguezspinker)_
 * `nginx/Dockerfile`
 * `nginx/nginx.conf.template`
 
+# Changelog
+## [fix/back/ws] - 2025 - 11 - 01
 
+## Fixes
+* Corrige variables del env file para ser consistentes con el nuevo contenedor de reverb y hacer uso del contenedor de redis.
+* Añade tiempo de espera al inicio del contenedor reverb para asegurar que todas las dependencias esten activas.
+
+## Affects
+* `.env.example`
+* `docker-compose-yml`
 
 ## [fix/frontend/integrations-to-main] - 2025-10-31
 

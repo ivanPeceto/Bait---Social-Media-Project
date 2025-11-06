@@ -8,6 +8,7 @@ NC='\033[0m'
 
 ## --- Variables de configuración ---
 NGINX_CONF_FILE="nginx/nginx.conf"
+ENV_FILE=".env"
 IP_ADDRESS=$(hostname -I | awk '{print $1}')
 
 if [ -z "$IP_ADDRESS" ]; then
@@ -58,6 +59,11 @@ copy_env() {
         echo "Por favor, copia .env.example a .env y configúralo antes de ejecutar."
         exit 1
     fi
+
+    sed -i "s/L5_SWAGGER_CONST_HOST=http:\/\/[0-9.]*/L5_SWAGGER_CONST_HOST=http:\/\/${IP_ADDRESS}/" $ENV_FILE
+    sed -i "s/VITE_APP_URL_BASE=http:\/\/[0-9.]*/VITE_APP_URL_BASE=http:\/\/${IP_ADDRESS}/" $ENV_FILE
+    sed -i "s/IP_ADDRESS=http:\/\/[0-9.]*/IP_ADDRESS=http:\/\/${IP_ADDRESS}/" $ENV_FILE
+
     cp .env backend/bait-api/.env
 }
 
