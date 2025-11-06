@@ -1,3 +1,79 @@
+## [fix/front/ws] - 2025-11-05
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Added
+
+* Añade actualización automática de la nueva variable `L5_SWAGGER_CONST_HOST` en el `.env`.
+
+### Affects 
+
+* `start_server.sh`
+
+## [feature/frontend/websocket] - 2025-11-04
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Added
+
+* Añadida la línea 92 a `.env.example` para nuevas configuraciones de entorno.
+* Agregados los servicios `nginx` y `phpMyAdmin` al setup de Docker (`docker-compose.yml`).
+* Añadidas dependencias `laravel-echo` y `pusher-js` para eventos en tiempo real (`frontend/package.json`, `frontend/package-lock.json`).
+* Añadidos los assets de Swagger UI a `public/vendor` (`backend/bait-api/public/vendor/`).
+* Nuevos servicios de notificaciones en tiempo real usando Echo y Pusher:
+
+  * `frontend/src/app/core/services/echo.service.ts`
+  * `frontend/src/app/core/services/notification.listener.service.ts`
+  * `frontend/src/app/core/services/notification.service.ts`
+* Agregado `Nginx Dockerfile` y configuración por defecto (`nginx/Dockerfile`).
+* Configuración de Nginx para:
+
+  * Servir archivos estáticos con caching (`/vendor/` y `/storage/`)
+  * Proxy para conexiones WebSocket (`/ws/`)
+  * Proxy para API broadcasting con cabeceras CORS (`/broadcasting/`)
+
+### Changed
+
+* Actualizado `.gitignore` con nuevas reglas (`.gitignore`).
+* Configurados permisos y assets de L5Swagger (`backend/bait-api/Dockerfile`).
+* Actualizados tags para documentación (`backend/bait-api/app/Http/Controllers/Controller.php`).
+* Configurada la conexión a Reverb usando variables de entorno y TLS (`backend/bait-api/config/broadcasting.php`).
+* Ajustadas rutas de L5 Swagger para compatibilidad con NGINX (`backend/bait-api/config/l5-swagger.php`).
+* Modificada plantilla de Swagger UI para mostrar correctamente la documentación y expandir los docs con NGINX (`backend/bait-api/resources/views/vendor/l5-swagger/index.blade.php`).
+* Configurado Vite dev server con host personalizado y HMR (`frontend/vite.config.ts`).
+* Integradas notificaciones WebSocket en el layout principal (`frontend/src/app/layout/main/main.component.html`, `main.component.ts`).
+
+### Chore
+
+* Generación de Laravel key y JWT secret con limpieza de cache (`start_server.sh`).
+
+### Docs
+
+* Actualizada la documentación generada de la API Swagger (`backend/bait-api/storage/api-docs/api-docs.json`).
+
+### Affects
+
+* `.env.example`
+* `.gitignore`
+* `docker-compose.yml`
+* `backend/bait-api/Dockerfile`
+* `backend/bait-api/app/Http/Controllers/Controller.php`
+* `backend/bait-api/config/broadcasting.php`
+* `backend/bait-api/config/l5-swagger.php`
+* `backend/bait-api/resources/views/vendor/l5-swagger/index.blade.php`
+* `backend/bait-api/storage/api-docs/api-docs.json`
+* `frontend/package.json`
+* `frontend/package-lock.json`
+* `frontend/vite.config.ts`
+* `frontend/src/app/core/services/echo.service.ts`
+* `frontend/src/app/core/services/notification.listener.service.ts`
+* `frontend/src/app/core/services/notification.service.ts`
+* `frontend/src/app/layout/main/main.component.html`
+* `frontend/src/app/layout/main/main.component.ts`
+* `start_server.sh`
+* `nginx/Dockerfile`
+* `nginx/nginx.conf.template`
+
 # Changelog
 ## [fix/back/ws] - 2025 - 11 - 01
 

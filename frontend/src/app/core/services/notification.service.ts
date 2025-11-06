@@ -1,9 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
-
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 export interface Notification {
   id: string;
@@ -17,37 +13,26 @@ export interface Notification {
   created_at: string;
 }
 
-interface NotificationsResponse {
-  data: Notification[];
-}
-
 @Injectable({
   providedIn: 'root'
 })
-
-
 export class NotificationService {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/notifications`;
+  private notificationsSubject = new BehaviorSubject<Notification[]>([]);
+  public notifications$ = this.notificationsSubject.asObservable();
 
-  /**
-   * Obtiene las notificaciones del usuario autenticado.
-   * Corresponde a: GET /api/notifications
-   */
-
-  getNotifications(): Observable<Notification[]> {
-
-    return this.http.get<NotificationsResponse>(this.apiUrl).pipe(
-      map(response => response.data) 
-    );
+  addNotification(notification: Notification): void {
+    const current = this.notificationsSubject.value;
+    this.notificationsSubject.next([notification, ...current]);
   }
 
-  /**
-   * Marca una notificación específica como leída.
-   * Corresponde a: PUT /api/notifications/{notification_id}
-   * (Implementación básica, el backend debe manejar la lógica)
-   */
-  markAsRead(notificationId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${notificationId}`, { is_read: true }); 
+  markAsRead(notificationId: string): void {
+    const updated = this.notificationsSubject.value.map(n =>
+      n.id === notificationId ? { ...n, read_at: new Date().toISOString() } : n
+    );
+    this.notificationsSubject.next(updated);
+  }
+
+  clear(): void {
+    this.notificationsSubject.next([]);
   }
 }
