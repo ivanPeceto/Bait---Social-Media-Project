@@ -9,6 +9,9 @@ _(Cambios realizados por @ivanPeceto)_
 ### Affects 
 
 * `start_server.sh`
+* `backend/bait-api/app/Events/NewReactionEvent.php`
+* `backend/bait-api/app/Events/NewRepost.php`
+* `frontend/src/app/features/home/home.ts`
 
 ## [feature/frontend/websocket] - 2025-11-04
 
