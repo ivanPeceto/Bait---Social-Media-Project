@@ -1,3 +1,181 @@
+
+## [feature/frontend/websocket] - 2025-11-07
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Fixed
+
+* Adaptación final del componente principal `MainComponent` para reflejar la nueva estructura y funcionamiento.
+* Adaptación del `NotificationService` para manejar notificaciones en tiempo real vía WebSocket.
+
+### Added
+
+* Adaptación del `MainComponent` para manejar eventos WebSocket en vivo y carga desde backend.
+* Nuevo servicio `NotificationListenerService` para manejar notificaciones de usuario en tiempo real.
+* Nuevo servicio `EchoService` para gestionar canales privados y eventos en WebSocket.
+* Obtención del token JWT y user_id desde `localStorage` para autenticación en tiempo real.
+* Middleware agregado para rutas de broadcasting en backend.
+* Correcciones y mejoras en el driver Reverb para conexión con Pusher.
+* Refactorización e implementación de transmisión en canales privados para notificaciones en backend.
+* Nuevas notificaciones para acciones específicas (seguidores, reposts, reacciones) que reemplazan el evento genérico.
+* Servicio backend para manejar trabajos en cola vía Redis.
+* Agregado soporte para notificaciones WebSocket, configuración de Nginx y phpMyAdmin, assets de Swagger y generación de claves/JWT en Laravel.
+* Notificaciones WebSocket integradas en el layout principal de la aplicación.
+
+---
+
+### Archivos afectados
+
+* `frontend/src/app/layout/main/main.component.html`
+* `frontend/src/app/core/services/notification.service.ts`
+* `frontend/src/app/layout/main/main.component.ts`
+* `frontend/src/app/core/services/notification.listener.service.ts`
+* `frontend/src/app/core/services/echo.service.ts`
+* `frontend/src/app/core/services/auth.service.ts`
+* `backend/bait-api/routes/channels.php`
+* `backend/bait-api/config/broadcasting.php`
+* `backend/bait-api/app/Notifications/NewFollowNotification.php`
+* `backend/bait-api/app/Notifications/NewReactionNotification.php`
+* `backend/bait-api/app/Notifications/NewRepostNotification.php`
+* `backend/bait-api/app/Modules/UserInteractions/Http/Controllers/FollowController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/RepostController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/PostReactionController.php`
+* `docker-compose.yml`
+
+
+## [fix/front/ws] - 2025-11-06
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+
+### Affects
+* ``
+
+## [fix/front/ws] - 2025-11-06
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Bugfix
+* Corrige redirección incorrecta a storage en `nginx.conf` arreglando el bug de imagenes default inexistentes.
+* Sube al repositorio de manera forsoza las imagenes default de avatars y banners.
+
+### Changed
+* Refactoriza el endpoint `/feed` en el backend para devolver:
+  1. Todos los posteos del mismo usuario.
+  2. Todos los reposteos del mismo usuario.
+  3. Todos los posteos de los usuarios a los que sigue.
+  4. Todos los reposteos de los usuarios a los que sigue
+* Añade campo "type" a `RepostResource.php` y `PostResource.php`
+* Integra el nuevo campo "type" en `post.model.ts`
+* Añade a `api-payloads.model.ts` nuevos tipos para manejar payloads paginados.
+* Añade método `getFeed` a `post.service.ts`
+
+### Affects 
+* `nginx/nginx.conf.template`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/RepostResource.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/PostResource.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `frontend/src/app/core/models/api-payloads.model.ts`
+* `frontend/src/app/core/models/post.model.ts`
+* `frontend/src/app/core/services/post.service.ts`
+
+## [fix/front/ws] - 2025-11-05
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Added
+
+* Añade nueva variable `VITE_APP_URL_BASE` en `.env.example`.
+* Añade nueva variable `IP_ADDRESS` en `.env.example`.
+* Añade actualización automática de la nueva variable `L5_SWAGGER_CONST_HOST` en el `.env`.
+* Añade actualización automática de la nueva variable `VITE_APP_URL_BASE` en el `.env`.
+* Añade actualización automática de la nueva variable `IP_ADDRESS` en el `.env`.
+
+### Changed
+
+* Pasa el `.env` en `docker-compose.yml` al frontend.
+* En `frontend/vite.config.ts` añade la extracción de variables de entorno para objetener la ip del host y reverb_app_key en manera dinámica. 
+* Corrige direcciones IP hardcodeadas en `frontend/src/environments/environment.ts` y `frontend/src/app/core/services/echo.service.ts`.
+* Corrige reverb_app_key hardcodeada en `frontend/src/app/core/services/echo.service.ts`.
+
+### Affects 
+
+* `start_server.sh`
+* `backend/bait-api/app/Events/NewReactionEvent.php`
+* `backend/bait-api/app/Events/NewRepost.php`
+* `frontend/src/app/features/home/home.ts`
+* `.env.example`
+* `docker-compose.yml`
+* `frontend/vite.config.ts`
+* `frontend/src/environments/environment.ts`
+* `frontend/src/app/core/services/echo.service.ts`
+
+## [feature/frontend/websocket] - 2025-11-04
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Added
+
+* Añadida la línea 92 a `.env.example` para nuevas configuraciones de entorno.
+* Agregados los servicios `nginx` y `phpMyAdmin` al setup de Docker (`docker-compose.yml`).
+* Añadidas dependencias `laravel-echo` y `pusher-js` para eventos en tiempo real (`frontend/package.json`, `frontend/package-lock.json`).
+* Añadidos los assets de Swagger UI a `public/vendor` (`backend/bait-api/public/vendor/`).
+* Nuevos servicios de notificaciones en tiempo real usando Echo y Pusher:
+
+  * `frontend/src/app/core/services/echo.service.ts`
+  * `frontend/src/app/core/services/notification.listener.service.ts`
+  * `frontend/src/app/core/services/notification.service.ts`
+* Agregado `Nginx Dockerfile` y configuración por defecto (`nginx/Dockerfile`).
+* Configuración de Nginx para:
+
+  * Servir archivos estáticos con caching (`/vendor/` y `/storage/`)
+  * Proxy para conexiones WebSocket (`/ws/`)
+  * Proxy para API broadcasting con cabeceras CORS (`/broadcasting/`)
+
+### Changed
+
+* Actualizado `.gitignore` con nuevas reglas (`.gitignore`).
+* Configurados permisos y assets de L5Swagger (`backend/bait-api/Dockerfile`).
+* Actualizados tags para documentación (`backend/bait-api/app/Http/Controllers/Controller.php`).
+* Configurada la conexión a Reverb usando variables de entorno y TLS (`backend/bait-api/config/broadcasting.php`).
+* Ajustadas rutas de L5 Swagger para compatibilidad con NGINX (`backend/bait-api/config/l5-swagger.php`).
+* Modificada plantilla de Swagger UI para mostrar correctamente la documentación y expandir los docs con NGINX (`backend/bait-api/resources/views/vendor/l5-swagger/index.blade.php`).
+* Configurado Vite dev server con host personalizado y HMR (`frontend/vite.config.ts`).
+* Integradas notificaciones WebSocket en el layout principal (`frontend/src/app/layout/main/main.component.html`, `main.component.ts`).
+ 
+### Chore
+
+* Generación de Laravel key y JWT secret con limpieza de cache (`start_server.sh`).
+
+### Docs
+
+* Actualizada la documentación generada de la API Swagger (`backend/bait-api/storage/api-docs/api-docs.json`).
+
+### Affects
+
+* `.env.example`
+* `.gitignore`
+* `docker-compose.yml`
+* `backend/bait-api/Dockerfile`
+* `backend/bait-api/app/Http/Controllers/Controller.php`
+* `backend/bait-api/config/broadcasting.php`
+* `backend/bait-api/config/l5-swagger.php`
+* `backend/bait-api/resources/views/vendor/l5-swagger/index.blade.php`
+* `backend/bait-api/storage/api-docs/api-docs.json`
+* `frontend/package.json`
+* `frontend/package-lock.json`
+* `frontend/vite.config.ts`
+* `frontend/src/app/core/services/echo.service.ts`
+* `frontend/src/app/core/services/notification.listener.service.ts`
+* `frontend/src/app/core/services/notification.service.ts`
+* `frontend/src/app/layout/main/main.component.html`
+* `frontend/src/app/layout/main/main.component.ts`
+* `start_server.sh`
+* `nginx/Dockerfile`
+* `nginx/nginx.conf.template`
+
 # Changelog
 ## [fix/back/ws] - 2025 - 11 - 01
 

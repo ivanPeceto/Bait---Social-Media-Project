@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Post } from '../models/post.model';
+import { Post, Repost } from '../models/post.model';
+import { PaginatedResponse } from '../models/api-payloads.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +13,23 @@ export class PostService {
   private http = inject(HttpClient);
   private API_URL = `${environment.apiUrl}/posts`;
   private PRIV_API_URL = `${environment.apiUrl}/privileged/multimedia`;
-
+  private FEED_API_URL = `${environment.apiUrl}/feed`;
 
   getPosts(): Observable<any> {
     return this.http.get<Post[]>(this.API_URL);
+  }
+
+  /**
+   * Obtiene el feed principal paginado del usuario (posts y reposts).
+   * @param page El número de página a solicitar.
+   * @param perPage La cantidad de items por página.
+   */
+  getFeed(page: number = 1, perPage: number = 15): Observable<PaginatedResponse<Post | Repost>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('per_page', perPage.toString());
+
+    return this.http.get<PaginatedResponse<Post | Repost>>(this.FEED_API_URL, { params });
   }
 
   getPostById(postId: number): Observable<Post> {

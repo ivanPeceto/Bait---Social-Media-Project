@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Multimedia\Domain\Models\Post;
 use App\Modules\Multimedia\Domain\Models\Repost;
 use App\Modules\Multimedia\Http\Requests\Repost\CreateRepostRequest;
+use App\Notifications\NewRepostNotification;
 use Illuminate\Http\JsonResponse;
 use App\Modules\Multimedia\Http\Resources\RepostResource;
 
@@ -54,7 +55,10 @@ class RepostController extends Controller
         ]);
 
         $post = Post::findOrFail($post_id);
-        event(new NewRepost(auth()->user(), $post));
+
+        //event(new NewRepost(auth()->user(), $post));
+
+        $post->user->notify(new NewRepostNotification(auth()->user(), $post));
 
         return response()->json(new RepostResource($repost), 201);
     }

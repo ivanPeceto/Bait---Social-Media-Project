@@ -7,6 +7,8 @@ use App\Modules\Multimedia\Domain\Models\ReactionType;
 use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Notifications\Notification;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
 class NewReactionNotification extends Notification implements ShouldBroadcast
 {
@@ -44,13 +46,30 @@ class NewReactionNotification extends Notification implements ShouldBroadcast
     }
 
 
-    public function toBroadcast(object $notifiable): array {
-        return [
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        \Log::info('📢 Broadcasting NewReactionNotification para usuario ' . $notifiable->id);
+
+        return new BroadcastMessage([
+            'id' => (string) \Str::uuid(),
+            'type' => static::class,
             'data' => [
                 'user_id' => $this->user->id,
                 'post_id' => $this->post->id,
                 'message' => "{$this->user->name} reaccionó a tu publicación."
-            ]
-        ];
+            ],
+            'read_at' => null,
+            'created_at' => now()->toISOString(),
+        ]);
     }
+
+    public function broadcastOn(): PrivateChannel
+    {
+        $userId = $this->post->user->id;
+
+        \Log::info('➡️ Canal broadcast: users.' . $userId);
+
+        return new PrivateChannel('users.' . $userId);
+    }
+    
 }

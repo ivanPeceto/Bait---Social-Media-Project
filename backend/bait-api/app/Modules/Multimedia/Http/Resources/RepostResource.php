@@ -16,6 +16,7 @@ class RepostResource extends JsonResource
             'user' => new UserResource($this->user),
             'post' => new PostResource($this->post),
             'created_at' => $this->created_at,
+            'type' => 'repost',
         ];
     }
 }
