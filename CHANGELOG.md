@@ -6,8 +6,27 @@ _(Cambios realizados por @ivanPeceto)_
 * Corrige redirección incorrecta a storage en `nginx.conf` arreglando el bug de imagenes default inexistentes.
 * Sube al repositorio de manera forsoza las imagenes default de avatars y banners.
 
+### Changed
+* Refactoriza el endpoint `/feed` en el backend para devolver:
+  1. Todos los posteos del mismo usuario.
+  2. Todos los reposteos del mismo usuario.
+  3. Todos los posteos de los usuarios a los que sigue.
+  4. Todos los reposteos de los usuarios a los que sigue
+* Añade campo "type" a `RepostResource.php` y `PostResource.php`
+* Integra el nuevo campo "type" en `post.model.ts`
+* Añade a `api-payloads.model.ts` nuevos tipos para manejar payloads paginados.
+* Añade método `getFeed` a `post.service.ts`
+
 ### Affects 
 * `nginx/nginx.conf.template`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/RepostResource.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/PostResource.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `frontend/src/app/core/models/api-payloads.model.ts`
+* `frontend/src/app/core/models/post.model.ts`
+* `frontend/src/app/core/services/post.service.ts`
+* ``
 
 ## [fix/front/ws] - 2025-11-05
 

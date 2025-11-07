@@ -13,4 +13,13 @@ export interface Post {
   reposts_count?: number;
   is_liked_by_user?: boolean;
   multimedia_contents?: MultimediaContent[];
+  type: 'post';
+}
+
+export interface Repost {
+  id: number;
+  created_at: string;
+  user: User; 
+  post: Post; 
+  type: 'repost';
 }
