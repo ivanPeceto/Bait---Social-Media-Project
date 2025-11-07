@@ -1,4 +1,13 @@
-## [fix/front/ws] - 2025-11-05
+## [fix/front/ws] - 2025-11-06
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+
+### Affects
+* ``
+
+## [fix/front/ws] - 2025-11-06
 
 _(Cambios realizados por @ivanPeceto)_
 
@@ -26,7 +35,6 @@ _(Cambios realizados por @ivanPeceto)_
 * `frontend/src/app/core/models/api-payloads.model.ts`
 * `frontend/src/app/core/models/post.model.ts`
 * `frontend/src/app/core/services/post.service.ts`
-* ``
 
 ## [fix/front/ws] - 2025-11-05
 

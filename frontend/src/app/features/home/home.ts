@@ -22,7 +22,6 @@ import Echo from 'laravel-echo';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PostService } from '../../core/services/post.service';
-import { Post } from '../../core/models/post.model';
 import { SearchService, UserSearchResult } from '../../core/services/search.service';
 import { InteractionService } from '../../core/services/interaction.service';
 import { CreateReactionPayload, CreateRepostPayload } from '../../core/models/api-payloads.model';
@@ -34,6 +33,8 @@ import { MultimediaContentService } from '../../core/services/multimedia-content
 import { PostCommentsModalComponent } from '../comments/components/post-comments-modal/post-comments-modal.component';
 import { EchoService } from '../../core/services/echo.service';
 import { User } from '../../core/models/user.model';
+import { PaginatedResponse } from '../../core/models/api-payloads.model';
+import { Post, Repost } from '../../core/models/post.model';
 
 @Component({
   selector: 'app-home',
@@ -64,7 +65,10 @@ export default class Home implements OnInit, OnDestroy {
   isSearching = false;
   showResults = false;
   public currentUser: any;
-  public posts: Post[] = [];
+  public posts: (Post | Repost)[] = [];
+  public currentPage = 1;
+  public lastPage = 1;
+  public isLoadingMore = false;
   public postForm: FormGroup;
   public openPostId: number | null = null;
   public editingPostId: number | null = null;
@@ -367,45 +371,48 @@ export default class Home implements OnInit, OnDestroy {
    * del usuario actual para cada post mediante llamadas adicionales.
    */
   loadPosts(): void {
-    this.postService
-      .getPosts()
-      .pipe(
-        switchMap((initialPosts: Post[] | any) => {
-          const postsArray = Array.isArray(initialPosts?.data)
-            ? initialPosts.data
-            : Array.isArray(initialPosts)
-            ? initialPosts
-            : [];
-          if (postsArray.length === 0) return of([]);
+    // Evitar cargas múltiples si ya se está cargando
+    if (this.isLoading || this.isLoadingMore) return;
 
-          const reactionChecks$: Observable<UserReactionStatus>[] = postsArray.map((post: Post) =>
-            this.interactionService
-              .checkUserReaction(post.id)
-              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
-          );
-          return forkJoin(reactionChecks$).pipe(
-            map((reactionStatuses: UserReactionStatus[]) =>
-              postsArray.map((post: Post, index: number) => {
-                post.is_liked_by_user =
-                  reactionStatuses[index].has_reacted &&
-                  reactionStatuses[index].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-                return post;
-              })
-            )
-          );
+    if (this.currentPage === 1) {
+      this.isLoading = true;
+    } else {
+      this.isLoadingMore = true;
+    }
+
+    this.postService.getFeed(this.currentPage)
+      .pipe(
+        map((response: PaginatedResponse<Post | Repost>) => {
+          this.currentPage = response.meta.current_page;
+          this.lastPage = response.meta.last_page;
+          
+          return response.data; 
+        }),
+        catchError((err) => {
+          console.error('Error al cargar el feed:', err);
+          return of([]);
         })
       )
       .subscribe({
-      next: (postsWithLikeStatus: Post[]) => {
-        this.posts = postsWithLikeStatus;
-        this.isLoading = false;
-        this.listenToPostUpdates();
-      },
-      error: (err) => {
-        console.error('Error al cargar posts o verificar likes:', err);
-        this.isLoading = false;
-      },
-    });
+        next: (feedItems: (Post | Repost)[]) => {
+          if (this.currentPage === 1) {
+            // Si es la página 1, reemplazamos el contenido
+            this.posts = feedItems;
+          } else {
+            // Si son páginas siguientes, las añadimos (para scroll infinito)
+            this.posts = [...this.posts, ...feedItems];
+          }
+          
+          this.isLoading = false;
+          this.isLoadingMore = false;
+          this.listenToPostUpdates(); 
+        },
+        error: (err) => {
+          console.error('Error en la suscripción de loadPosts:', err);
+          this.isLoading = false;
+          this.isLoadingMore = false;
+        },
+      });
   }
 
   /**
@@ -416,14 +423,21 @@ export default class Home implements OnInit, OnDestroy {
     const echo = this.echoService.echo;
     if (!echo) return;
 
-    // Desuscribirse de listeners antiguos si existieran
-    this.posts.forEach(post => {
-      echo.leaveChannel(`post.${post.id}`);
+    const postIds = new Set<number>();
+    this.posts.forEach(item => {
+      if (item.type === 'post') {
+        postIds.add(item.id);
+      } else if (item.type === 'repost' && item.post) {
+        postIds.add(item.post.id);
+      }
     });
 
-    // Suscribirse a los nuevos
-    this.posts.forEach(post => {
-      echo.channel(`post.${post.id}`)
+    postIds.forEach(id => {
+      echo.leaveChannel(`post.${id}`);
+    });
+
+    postIds.forEach(id => {
+      echo.channel(`post.${id}`)
         .listen('.PostReactionUpdated', (data: { post: Post }) => {
           this.updatePostInArray(data.post);
         })
@@ -433,23 +447,40 @@ export default class Home implements OnInit, OnDestroy {
     });
   }
 
- /**
-   * Helper para actualizar un post en el array 'this.posts' de forma inmutable.
+  /**
+   * Helper para actualizar un post en el array 'this.posts'.
+   * Ahora busca el 'updatedPost' tanto si es un Post directo
+   * como si es un Post anidado dentro de un Repost.
    */
   private updatePostInArray(updatedPost: Post): void {
-    const index = this.posts.findIndex(p => p.id === updatedPost.id);
-    if (index > -1) {
-      // Preservamos el estado 'is_liked_by_user' si la actualización no lo trae
-      // (aunque debería, si el backend usa el Resource)
-      const originalPost = this.posts[index];
-      this.posts[index] = { 
-        ...originalPost, 
-        ...updatedPost,
-        // Aseguramos que el estado optimista del like no se pise
-        is_liked_by_user: updatedPost.is_liked_by_user ?? originalPost.is_liked_by_user,
-        user: originalPost.user // Mantenemos el objeto 'user' original
-      };
-    }
+    this.posts = this.posts.map(item => {
+      
+      // Caso 1: El item es un Post y coincide con el ID
+      if (item.type === 'post' && item.id === updatedPost.id) {
+        return {
+          ...item,
+          ...updatedPost, // Aplicamos los contadores nuevos
+          // Preservamos el estado optimista de 'like' y el 'user' ya cargado
+          is_liked_by_user: updatedPost.is_liked_by_user ?? item.is_liked_by_user,
+          user: item.user 
+        };
+      }
+
+      // Caso 2: El item es un Repost y su post *anidado* coincide con el ID
+      if (item.type === 'repost' && item.post && item.post.id === updatedPost.id) {
+        return {
+          ...item, // Mantenemos el wrapper del Repost (quién reposteó, etc.)
+          post: { 
+            ...item.post,
+            ...updatedPost,
+            is_liked_by_user: updatedPost.is_liked_by_user ?? item.post.is_liked_by_user,
+            user: item.post.user 
+          }
+        };
+      }
+      // Si no coincide, devolvemos el item sin cambios
+      return item;
+    });
   }
 
   /**
