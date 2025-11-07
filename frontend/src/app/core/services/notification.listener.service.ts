@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, NgZone } from '@angular/core';
 import { NotificationService } from './notification.service';
 import { EchoService } from './echo.service';
 
@@ -8,27 +8,42 @@ import { EchoService } from './echo.service';
 export class NotificationListenerService {
     private notificationService = inject(NotificationService);
     private echoService = inject(EchoService);
+    private ngZone = inject(NgZone);
+    private initializedUsers = new Set<string>();
 
-    constructor() {
-        const userId = localStorage.getItem('user_id');
-        if (!userId || !this.echoService.echo) return;
 
-        const notificationTypes = [
-            'NewFollowNotification',
-            'NewReactionNotification',
-            'NewRepostNotification'
-        ];
+    public registerUserNotifications(userId: string) {
+        if (this.initializedUsers.has(userId)) return;
 
-        notificationTypes.forEach(type => {
+        const tryRegister = () => {
+            if (!this.echoService.echo) {
+                console.warn('⏳ Esperando que Echo esté listo...');
+                setTimeout(tryRegister, 500);
+                return;
+            }
+
+            console.log(`🎧 Registrando listener para users.${userId}`);
+
             this.echoService.listenPrivate(
-                `App.Models.User.${userId}`,
-                `.App\\Notifications\\${type}`,
-                (data: any) => {
-                    console.log('🔔 Notificación recibida:', data);
-                    this.notificationService.addNotification(data);
+                `users.${userId}`,
+                '.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated',
+                (eventData: any) => {
+                    console.log('📩 Evento recibido:', eventData);
+
+                    const parsed = typeof eventData.data === 'string'
+                        ? JSON.parse(eventData.data)
+                        : eventData.data;
+
+                    this.ngZone.run(() => {
+                        this.notificationService.addNotification(parsed);
+                    });
                 }
             );
-        });
-    }
-}
 
+            this.initializedUsers.add(userId);
+        };
+
+        tryRegister();
+    }
+
+}

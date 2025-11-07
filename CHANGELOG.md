@@ -1,3 +1,48 @@
+
+## [feature/frontend/websocket] - 2025-11-07
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Fixed
+
+* Adaptación final del componente principal `MainComponent` para reflejar la nueva estructura y funcionamiento.
+* Adaptación del `NotificationService` para manejar notificaciones en tiempo real vía WebSocket.
+
+### Added
+
+* Adaptación del `MainComponent` para manejar eventos WebSocket en vivo y carga desde backend.
+* Nuevo servicio `NotificationListenerService` para manejar notificaciones de usuario en tiempo real.
+* Nuevo servicio `EchoService` para gestionar canales privados y eventos en WebSocket.
+* Obtención del token JWT y user_id desde `localStorage` para autenticación en tiempo real.
+* Middleware agregado para rutas de broadcasting en backend.
+* Correcciones y mejoras en el driver Reverb para conexión con Pusher.
+* Refactorización e implementación de transmisión en canales privados para notificaciones en backend.
+* Nuevas notificaciones para acciones específicas (seguidores, reposts, reacciones) que reemplazan el evento genérico.
+* Servicio backend para manejar trabajos en cola vía Redis.
+* Agregado soporte para notificaciones WebSocket, configuración de Nginx y phpMyAdmin, assets de Swagger y generación de claves/JWT en Laravel.
+* Notificaciones WebSocket integradas en el layout principal de la aplicación.
+
+---
+
+### Archivos afectados
+
+* `frontend/src/app/layout/main/main.component.html`
+* `frontend/src/app/core/services/notification.service.ts`
+* `frontend/src/app/layout/main/main.component.ts`
+* `frontend/src/app/core/services/notification.listener.service.ts`
+* `frontend/src/app/core/services/echo.service.ts`
+* `frontend/src/app/core/services/auth.service.ts`
+* `backend/bait-api/routes/channels.php`
+* `backend/bait-api/config/broadcasting.php`
+* `backend/bait-api/app/Notifications/NewFollowNotification.php`
+* `backend/bait-api/app/Notifications/NewReactionNotification.php`
+* `backend/bait-api/app/Notifications/NewRepostNotification.php`
+* `backend/bait-api/app/Modules/UserInteractions/Http/Controllers/FollowController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/RepostController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/PostReactionController.php`
+* `docker-compose.yml`
+
+
 ## [fix/front/ws] - 2025-11-06
 
 _(Cambios realizados por @ivanPeceto)_

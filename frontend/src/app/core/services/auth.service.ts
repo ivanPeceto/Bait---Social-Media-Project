@@ -58,7 +58,7 @@ export class AuthService {
       if (existing) {
         try {
           this.currentUser$.next(JSON.parse(existing));
-        } catch {}
+        } catch { }
       }
     }
   }
@@ -107,18 +107,22 @@ export class AuthService {
   }
 
   public getCurrentUser(): any | null {
-    // Devuelve el valor "vivo" actual que tiene el BehaviorSubject
     return this.currentUser$.getValue();
   }
 
   private saveSessionData(authData: AuthResponse): void {
     if (!isPlatformBrowser(this.platformId)) return;
+
     localStorage.setItem(this.JWT_TOKEN_KEY, authData.access_token);
     if (authData.refresh_token) {
       localStorage.setItem(this.REFRESH_TOKEN_KEY, authData.refresh_token);
     }
+
     localStorage.setItem('currentUser', JSON.stringify(authData.user));
     this.currentUser$.next(authData.user);
+
+    localStorage.setItem('jwt', authData.access_token);
+    localStorage.setItem('user_id', authData.user.id.toString());
   }
 
   private removeSessionData(): void {

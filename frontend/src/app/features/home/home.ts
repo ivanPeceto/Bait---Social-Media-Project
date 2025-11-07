@@ -36,6 +36,10 @@ import { User } from '../../core/models/user.model';
 import { PaginatedResponse } from '../../core/models/api-payloads.model';
 import { Post, Repost } from '../../core/models/post.model';
 
+function isRepost(item: Post | Repost): item is Repost {
+  return item.type === 'repost';
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -147,15 +151,7 @@ export default class Home implements OnInit, OnDestroy {
     if (content.length === 0 || content.length > 280) return;
     this.postService.updatePost(post.id, content).subscribe({
       next: (updated: Post) => {
-        this.posts = this.posts.map((p) =>
-          p.id === post.id
-            ? ({
-                ...p,
-                content_posts: updated.content_posts,
-                updated_at: updated.updated_at,
-              } as any)
-            : p
-        );
+        this.updatePostInArray(updated);
         this.editingPostId = null;
         this.editContent = '';
       },
@@ -172,14 +168,25 @@ export default class Home implements OnInit, OnDestroy {
       this.currentUser = user;
       this.cacheBustTs = Date.now();
       if (user && this.posts && this.posts.length > 0) {
-        this.posts = this.posts.map((p) => {
-          if (p.user_id === user.id) {
-            return {
-              ...p,
-              user: user,
-            } as any;
+
+        this.posts = this.posts.map((item) => {
+          
+          if (isRepost(item)) {
+            const updatedRepost = { ...item };
+            if (updatedRepost.user.id === user.id) {
+              updatedRepost.user = user; // Actualiza el reposter
+            }
+            if (updatedRepost.post.user.id === user.id) {
+              updatedRepost.post = { ...updatedRepost.post, user: user }; // Actualiza el autor original
+            }
+            return updatedRepost;
+
+          } else {
+             if (item.user_id === user.id) {
+              return { ...item, user: user };
+            }
+            return item;
           }
-          return p;
         });
       }
     });
@@ -198,9 +205,13 @@ export default class Home implements OnInit, OnDestroy {
       if (this.currentUser) {
         echo.leave(`App.Models.User.${this.currentUser.id}`);
       }
-      // Salir de todos los canales de posts
-      this.posts.forEach(post => {
-        echo.leaveChannel(`post.${post.id}`);
+      // Salir de todos los canales de posts (directos o anidados)
+      const postIds = new Set<number>();
+      this.posts.forEach(item => {
+        postIds.add(this.getPostFromItem(item).id);
+      });
+      postIds.forEach(id => {
+        echo.leaveChannel(`post.${id}`);
       });
     }
   }
@@ -219,10 +230,11 @@ export default class Home implements OnInit, OnDestroy {
 
     echo.private(`App.Models.User.${this.currentUser.id}`)
       .listen('.NewPost', (data: { post: Post }) => {
-        if (data.post && !this.posts.find(p => p.id === data.post.id)) {
-          // Sets a timeout to mmake sure that Angular sees the changes.
+        const newPost: Post = { ...data.post, type: 'post' };
+        
+        if (newPost && !this.posts.find(p => p.id === newPost.id && p.type === 'post')) {
           setTimeout(() => {
-            this.posts = [data.post, ...this.posts];
+            this.posts = [newPost, ...this.posts];
           }, 100);
         }
       });
@@ -310,22 +322,17 @@ export default class Home implements OnInit, OnDestroy {
       return;
     }
 
-    // --- [INICIO DE LA SOLUCIÓN DEFINITIVA] ---
-    // 1. Obtenemos el usuario MÁS FRESCO directamente del observable.
-    //    'take(1)' obtiene el valor actual y se desuscribe automáticamente.
     this.authService.currentUserChanges$.pipe(take(1)).subscribe((freshUser) => {
-      // 2. AHORA que tenemos el 'freshUser', llamamos al servicio para crear el post.
       this.postService.createPost(content).subscribe({
         next: (createdPost: Post) => {
-          // 3. Hidratamos el post usando el 'freshUser' que obtuvimos en el paso 1.
           const hydratedPost: Post = {
             ...createdPost,
             user: freshUser || createdPost.user,
             user_id: freshUser?.id || createdPost.user_id,
             multimedia_contents: createdPost.multimedia_contents || [],
-          } as any;
+            type: 'post'
+          };
 
-          // 4. El resto de tu lógica para subir la imagen (esto ya está bien)
           if (this.selectedFile) {
             this.isUploadingMedia = true;
             this.multimediaService.uploadToPost(createdPost.id, this.selectedFile).subscribe({
@@ -344,7 +351,7 @@ export default class Home implements OnInit, OnDestroy {
                 this.onRemoveSelectedImage();
                 this.postForm.reset();
                 alert('El post se creó, pero la imagen no pudo subirse.');
-                this.cacheBustTs = Date.now(); // Asegúrate de refrescar aquí también
+                this.cacheBustTs = Date.now(); 
               },
             });
           } else {
@@ -363,7 +370,6 @@ export default class Home implements OnInit, OnDestroy {
         },
       });
     });
-    // --- [FIN DE LA SOLUCIÓN DEFINITIVA] ---
   }
 
   /**
@@ -425,11 +431,7 @@ export default class Home implements OnInit, OnDestroy {
 
     const postIds = new Set<number>();
     this.posts.forEach(item => {
-      if (item.type === 'post') {
-        postIds.add(item.id);
-      } else if (item.type === 'repost' && item.post) {
-        postIds.add(item.post.id);
-      }
+      postIds.add(this.getPostFromItem(item).id);
     });
 
     postIds.forEach(id => {
@@ -455,21 +457,18 @@ export default class Home implements OnInit, OnDestroy {
   private updatePostInArray(updatedPost: Post): void {
     this.posts = this.posts.map(item => {
       
-      // Caso 1: El item es un Post y coincide con el ID
-      if (item.type === 'post' && item.id === updatedPost.id) {
+      if (!isRepost(item) && item.id === updatedPost.id) {
         return {
           ...item,
-          ...updatedPost, // Aplicamos los contadores nuevos
-          // Preservamos el estado optimista de 'like' y el 'user' ya cargado
+          ...updatedPost,
           is_liked_by_user: updatedPost.is_liked_by_user ?? item.is_liked_by_user,
           user: item.user 
         };
       }
 
-      // Caso 2: El item es un Repost y su post *anidado* coincide con el ID
-      if (item.type === 'repost' && item.post && item.post.id === updatedPost.id) {
+      if (isRepost(item) && item.post.id === updatedPost.id) {
         return {
-          ...item, // Mantenemos el wrapper del Repost (quién reposteó, etc.)
+          ...item,
           post: { 
             ...item.post,
             ...updatedPost,
@@ -478,7 +477,6 @@ export default class Home implements OnInit, OnDestroy {
           }
         };
       }
-      // Si no coincide, devolvemos el item sin cambios
       return item;
     });
   }
@@ -488,7 +486,9 @@ export default class Home implements OnInit, OnDestroy {
    * y luego llama al servicio para crear/eliminar la reacción en el backend.
    * @param post El objeto Post al que se le dio like/unlike.
    */
-  onToggleLike(post: Post): void {
+  onToggleLike(item: Post | Repost): void {
+    const post = this.getPostFromItem(item);
+
     const previousState = {
       is_liked_by_user: post.is_liked_by_user,
       reactions_count: post.reactions_count || 0,
@@ -516,6 +516,10 @@ export default class Home implements OnInit, OnDestroy {
     });
   }
 
+  getPostFromItem(item: Post | Repost): Post {
+    return isRepost(item) ? item.post : item;
+  }
+
   togglePostMenu(postId: number): void {
     this.openPostId = this.openPostId === postId ? null : postId;
   }
@@ -538,7 +542,9 @@ export default class Home implements OnInit, OnDestroy {
 
       request$.subscribe({
         next: () => {
-          this.posts = this.posts.filter((p) => p.id !== post.id);
+          this.posts = this.posts.filter(item => {
+            return this.getPostFromItem(item).id !== post.id;
+          });
         },
         error: (err) => {
           console.error('Error al eliminar el post', err);
@@ -553,23 +559,17 @@ export default class Home implements OnInit, OnDestroy {
 
     this.interactionService.toggleRepost(payload).subscribe({
       next: (updatedPost) => {
-        // --- [FIX CONTADOR] ---
-        // 1. Actualizar el contador con la respuesta de la API
-        post.reposts_count = updatedPost.reposts_count;
-
-        // 2. Forzar la detección de cambios de Angular
-        const index = this.posts.findIndex((p) => p.id === post.id);
-        if (index !== -1) {
-          this.posts[index] = { ...post }; // Reemplazar objeto
-          this.posts = [...this.posts]; // Reemplazar array
-        }
-        // --- [FIN FIX] ---
+        this.updatePostInArray(updatedPost);
       },
       error: (err) => {
         console.error('Error al repostear:', err);
-        post.reposts_count = previousRepostCount; // Revertir en caso de error
+        post.reposts_count = previousRepostCount; 
       },
     });
+  }
+
+  asRepost(item: Post | Repost): Repost {
+    return item as Repost;
   }
 
   openComments(post: Post): void {
@@ -598,14 +598,30 @@ export default class Home implements OnInit, OnDestroy {
   }
 
   private updatePostCommentsCount(postId: number, delta: number): void {
-    this.posts = this.posts.map((p) =>
-      p.id === postId
-        ? ({ ...p, comments_count: Math.max(0, (p.comments_count || 0) + delta) } as any)
-        : p
-    );
-    if (this.selectedPostForComments && this.selectedPostForComments.id === postId) {
-      this.selectedPostForComments =
-        this.posts.find((p) => p.id === postId) || this.selectedPostForComments;
+    let foundPost: Post | null = null;
+
+    this.posts = this.posts.map((item) => {
+      const post = this.getPostFromItem(item);
+      
+      if (post.id === postId) {
+         const updatedPost: Post = { 
+           ...post, 
+           comments_count: Math.max(0, (post.comments_count || 0) + delta) 
+         };
+
+         foundPost = updatedPost; 
+
+         if (isRepost(item)) {
+           return { ...item, post: updatedPost };
+         }
+         return updatedPost;
+      }
+      return item;
+    });
+
+    if (this.selectedPostForComments && this.selectedPostForComments.id === postId && foundPost) {
+      this.selectedPostForComments = foundPost;
     }
   }
+  
 }

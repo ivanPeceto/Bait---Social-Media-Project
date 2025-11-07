@@ -8,8 +8,8 @@ services:
     working_dir: /var/www
     volumes:
       - ./backend/bait-api:/var/www
-      - /var/www/vendor         
-      - /var/www/bootstrap/cache
+      #- /var/www/vendor         
+      #- /var/www/bootstrap/cache
     ports:
       - "8001:8000"
     depends_on:
@@ -86,6 +86,7 @@ services:
     depends_on:
       - frontend
       - backend
+      - reverb
 
   reverb:
     build:
@@ -98,14 +99,32 @@ services:
       - "8081:8080"
     volumes:
       - ./backend/bait-api:/var/www
-      - /var/www/vendor         
-      - /var/www/bootstrap/cache
+      #- /var/www/vendor         
+      #- /var/www/bootstrap/cache
     depends_on:
       - redis 
     env_file:
       - .env
-    command: /bin/sh -c "php artisan config:clear && sleep 10 && php artisan reverb:start --host=0.0.0.0 --port=8080"
+    command: /bin/sh -c "php artisan config:cache && sleep 2 && php artisan reverb:start --host=0.0.0.0 --port=8080"
 
+  backend-worker:
+    build:
+      context: ./backend/bait-api
+      dockerfile: Dockerfile
+    container_name: bait-backend-worker
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend/bait-api:/var/www
+      #- /var/www/vendor
+      #- /var/www/bootstrap/cache
+    depends_on:
+      - redis
+      - backend
+    command: php artisan queue:work redis --tries=3
+    env_file:
+      - .env
+      
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: bait-phpmyadmin
