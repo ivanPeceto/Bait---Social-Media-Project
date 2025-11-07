@@ -48,7 +48,7 @@
           </a>
         </li>
 
-        <li *ngIf="isPrivilegedUser()">
+        <li *ngIf="isPrivileged">
           <a
             routerLink="/admin"
             class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 text-yellow-400"
@@ -72,6 +72,7 @@
         </li>
         <li class="relative">
           <button
+            data-role="notifications-button"
             (click)="toggleNotificationsPanel()"
             type="button"
             class="w-full relative flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 text-left text-white focus:outline-none"
@@ -92,23 +93,27 @@
             </svg>
             <span class="font-semibold text-lg">Notificaciones</span>
             <span
-              *ngIf="unreadNotificationsCount > 0"
+              *ngIf="unreadNotificationsCount$ | async as count"
               class="absolute top-1 right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
+              >{{ count }}</span
             >
-              {{ unreadNotificationsCount }}
-            </span>
           </button>
           <div
             *ngIf="showNotificationsPanel"
-            class="absolute left-0 mt-2 w-80 max-w-sm bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-30 overflow-hidden"
+            class="notifications-panel absolute left-0 mt-2 w-80 max-w-sm bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-30 overflow-hidden"
           >
             <div class="p-3 border-b border-gray-700">
               <h3 class="text-base font-semibold text-white">Notificaciones</h3>
             </div>
             <div class="max-h-96 overflow-y-auto">
-              <ul *ngIf="notifications$ | async as notifications; else loadingOrEmpty">
+              <ul
+                *ngIf="
+                  !isLoadingNotifications && (notifications$ | async) as notifications;
+                  else loadingOrEmpty
+                "
+              >
                 <li
-                  *ngFor="let notification of notifications"
+                  *ngFor="let notification of notifications; trackBy: trackById"
                   (click)="markNotificationAsRead(notification, $event)"
                   class="p-3 border-b border-gray-700 hover:bg-gray-700 cursor-pointer transition-colors"
                   [class.bg-gray-700]="notification.read_at"
@@ -151,7 +156,9 @@
                 </li>
               </ul>
               <ng-template #loadingOrEmpty>
-                <div class="p-4 text-center text-sm text-gray-500">Cargando notificaciones...</div>
+                <div *ngIf="isLoadingNotifications" class="p-4 text-center text-sm text-gray-500">
+                  Cargando notificaciones...
+                </div>
               </ng-template>
             </div>
           </div>
@@ -183,9 +190,7 @@
       <router-outlet></router-outlet>
     </div>
 
-    <aside
-      class="hidden lg:block lg:col-span-4 sticky top-20 h-[calc(100vh-6rem)] flex-col pl-6"
-    >
+    <aside class="hidden lg:block lg:col-span-4 sticky top-20 h-[calc(100vh-6rem)] flex-col pl-6">
       <div class="p-4">
         <h3 class="font-semibold text-lg">Chats</h3>
       </div>
