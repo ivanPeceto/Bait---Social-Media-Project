@@ -2,6 +2,17 @@
 
 _(Cambios realizados por @ivanPeceto)_
 
+### Bugfix
+* Corrige redirección incorrecta a storage en `nginx.conf` arreglando el bug de imagenes default inexistentes.
+* Sube al repositorio de manera forsoza las imagenes default de avatars y banners.
+
+### Affects 
+* `nginx/nginx.conf.template`
+
+## [fix/front/ws] - 2025-11-05
+
+_(Cambios realizados por @ivanPeceto)_
+
 ### Added
 
 * Añade nueva variable `VITE_APP_URL_BASE` en `.env.example`.

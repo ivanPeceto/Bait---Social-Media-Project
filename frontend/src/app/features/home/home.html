@@ -80,7 +80,7 @@
     <div class="flex justify-between">
       <div class="flex items-center space-x-3">
           <img class="w-10 h-10 rounded-full flex-shrink-0"
-          [src]="post.user?.avatar?.url_avatars ? (post.user?.avatar?.url_avatars | mediaUrl:cacheBustTs) : 'assets/images/iconousuario.png'"
+          [src]="post.user?.avatar?.url_avatars"
                alt="Avatar de {{ post.user?.name || 'Usuario' }}">
           <div> <a [routerLink]="['/profile', post.user?.username]" class="font-semibold text-sm hover:underline text-white">{{ post.user?.name || 'Usuario' }}</a>
               <span class="text-sm text-gray-400 ml-1">@{{ post.user?.username || 'usuario' }}</span>
