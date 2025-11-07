@@ -8,6 +8,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Notifications\Notification;
 
 class NewRepostNotification extends Notification implements ShouldBroadcast
@@ -45,13 +47,29 @@ class NewRepostNotification extends Notification implements ShouldBroadcast
     }
 
 
-    public function toBroadcast(object $notifiable): array {
-        return [
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        \Log::info('📢 Broadcasting NewRepostNotification para usuario ' . $notifiable->id);
+
+        return new BroadcastMessage([
+            'id' => (string) \Str::uuid(),
+            'type' => static::class,
             'data' => [
                 'user_id' => $this->user->id,
                 'post_id' => $this->post->id,
                 'message' => "{$this->user->name} reposteó tu publicación."
-            ]
-        ];
+            ],
+            'read_at' => null,
+            'created_at' => now()->toISOString(),
+        ]);
+    }
+
+    public function broadcastOn(): PrivateChannel
+    {
+        $userId = $this->post->user->id;
+
+        \Log::info('➡️ Canal broadcast: users.' . $userId);
+
+        return new PrivateChannel('users.' . $userId);
     }
 }
