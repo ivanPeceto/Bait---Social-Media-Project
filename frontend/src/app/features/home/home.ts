@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import {
   FormBuilder,
@@ -18,10 +18,10 @@ import {
   take,
   catchError,
 } from 'rxjs/operators';
+import Echo from 'laravel-echo';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PostService } from '../../core/services/post.service';
-import { Post } from '../../core/models/post.model';
 import { SearchService, UserSearchResult } from '../../core/services/search.service';
 import { InteractionService } from '../../core/services/interaction.service';
 import { CreateReactionPayload, CreateRepostPayload } from '../../core/models/api-payloads.model';
@@ -31,6 +31,14 @@ import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
 import { MultimediaContent } from '../../core/models/multimedia-content.model';
 import { MultimediaContentService } from '../../core/services/multimedia-content.service';
 import { PostCommentsModalComponent } from '../comments/components/post-comments-modal/post-comments-modal.component';
+import { EchoService } from '../../core/services/echo.service';
+import { User } from '../../core/models/user.model';
+import { PaginatedResponse } from '../../core/models/api-payloads.model';
+import { Post, Repost } from '../../core/models/post.model';
+
+function isRepost(item: Post | Repost): item is Repost {
+  return item.type === 'repost';
+}
 
 @Component({
   selector: 'app-home',
@@ -45,12 +53,15 @@ import { PostCommentsModalComponent } from '../comments/components/post-comments
   ],
   templateUrl: './home.html',
 })
-export default class Home implements OnInit {
+export default class Home implements OnInit, OnDestroy {
+
   private interactionService = inject(InteractionService);
   private authService = inject(AuthService);
   private searchService = inject(SearchService);
   private router = inject(Router);
   private multimediaService = inject(MultimediaContentService);
+  private echoService = inject(EchoService);
+
   private readonly LIKE_REACTION_TYPE_ID = 1;
   public readonly apiUrlForImages = environment.baseUrl;
   searchControl = new FormControl('');
@@ -58,14 +69,18 @@ export default class Home implements OnInit {
   isSearching = false;
   showResults = false;
   public currentUser: any;
-  public posts: Post[] = [];
+  public posts: (Post | Repost)[] = [];
+  public currentPage = 1;
+  public lastPage = 1;
+  public isLoadingMore = false;
   public postForm: FormGroup;
   public openPostId: number | null = null;
   public editingPostId: number | null = null;
   public editContent: string = '';
   public apiErrors: any = null;
+  public echo: Echo<'pusher'> | null = null;
 
-  public isLoading = true;
+  public isLoading = false;
   public cacheBustTs = Date.now();
   public selectedFile: File | null = null;
   public previewUrl: string | null = null;
@@ -136,15 +151,7 @@ export default class Home implements OnInit {
     if (content.length === 0 || content.length > 280) return;
     this.postService.updatePost(post.id, content).subscribe({
       next: (updated: Post) => {
-        this.posts = this.posts.map((p) =>
-          p.id === post.id
-            ? ({
-                ...p,
-                content_posts: updated.content_posts,
-                updated_at: updated.updated_at,
-              } as any)
-            : p
-        );
+        this.updatePostInArray(updated);
         this.editingPostId = null;
         this.editContent = '';
       },
@@ -161,19 +168,76 @@ export default class Home implements OnInit {
       this.currentUser = user;
       this.cacheBustTs = Date.now();
       if (user && this.posts && this.posts.length > 0) {
-        this.posts = this.posts.map((p) => {
-          if (p.user_id === user.id) {
-            return {
-              ...p,
-              user: user,
-            } as any;
+
+        this.posts = this.posts.map((item) => {
+          
+          if (isRepost(item)) {
+            const updatedRepost = { ...item };
+            if (updatedRepost.user.id === user.id) {
+              updatedRepost.user = user; // Actualiza el reposter
+            }
+            if (updatedRepost.post.user.id === user.id) {
+              updatedRepost.post = { ...updatedRepost.post, user: user }; // Actualiza el autor original
+            }
+            return updatedRepost;
+
+          } else {
+             if (item.user_id === user.id) {
+              return { ...item, user: user };
+            }
+            return item;
           }
-          return p;
         });
       }
     });
     this.loadPosts();
     this.setupSearch();
+    this.setupWebSocketListeners();
+  }
+
+  /**
+   * Limpia los listeners de WebSocket al destruir el componente.
+   */
+  ngOnDestroy(): void {
+    const echo = this.echoService.echo;
+    if (echo) {
+      // Salir del canal privado
+      if (this.currentUser) {
+        echo.leave(`users.${this.currentUser.id}`);
+      }
+      // Salir de todos los canales de posts (directos o anidados)
+      const postIds = new Set<number>();
+      this.posts.forEach(item => {
+        postIds.add(this.getPostFromItem(item).id);
+      });
+      postIds.forEach(id => {
+        echo.leaveChannel(`post.${id}`);
+      });
+    }
+  }
+
+  /**
+   * Configures ws listeners for posts feed.
+  */
+  private setupWebSocketListeners(): void {
+    if (!this.currentUser) return;
+    
+    const echo = this.echoService.echo;
+    if (!echo) {
+      console.warn('Echo instance not available. Real-time updates disabled.');
+      return; 
+    }
+
+    echo.private(`users.${this.currentUser.id}`)
+      .listen('.NewPost', (data: { post: Post }) => {
+        const newPost: Post = { ...data.post, type: 'post' };
+        
+        if (newPost && !this.posts.find(p => p.id === newPost.id && p.type === 'post')) {
+          setTimeout(() => {
+            this.posts = [newPost, ...this.posts];
+          }, 100);
+        }
+      });
   }
 
   private setupSearch(): void {
@@ -258,22 +322,17 @@ export default class Home implements OnInit {
       return;
     }
 
-    // --- [INICIO DE LA SOLUCIÓN DEFINITIVA] ---
-    // 1. Obtenemos el usuario MÁS FRESCO directamente del observable.
-    //    'take(1)' obtiene el valor actual y se desuscribe automáticamente.
     this.authService.currentUserChanges$.pipe(take(1)).subscribe((freshUser) => {
-      // 2. AHORA que tenemos el 'freshUser', llamamos al servicio para crear el post.
       this.postService.createPost(content).subscribe({
         next: (createdPost: Post) => {
-          // 3. Hidratamos el post usando el 'freshUser' que obtuvimos en el paso 1.
           const hydratedPost: Post = {
             ...createdPost,
             user: freshUser || createdPost.user,
             user_id: freshUser?.id || createdPost.user_id,
             multimedia_contents: createdPost.multimedia_contents || [],
-          } as any;
+            type: 'post'
+          };
 
-          // 4. El resto de tu lógica para subir la imagen (esto ya está bien)
           if (this.selectedFile) {
             this.isUploadingMedia = true;
             this.multimediaService.uploadToPost(createdPost.id, this.selectedFile).subscribe({
@@ -292,7 +351,7 @@ export default class Home implements OnInit {
                 this.onRemoveSelectedImage();
                 this.postForm.reset();
                 alert('El post se creó, pero la imagen no pudo subirse.');
-                this.cacheBustTs = Date.now(); // Asegúrate de refrescar aquí también
+                this.cacheBustTs = Date.now(); 
               },
             });
           } else {
@@ -311,49 +370,115 @@ export default class Home implements OnInit {
         },
       });
     });
-    // --- [FIN DE LA SOLUCIÓN DEFINITIVA] ---
   }
 
-  // --- INICIO DE MODIFICACIÓN: loadPosts ---
   /**
    * Carga la lista inicial de posts y luego verifica el estado de 'like'
    * del usuario actual para cada post mediante llamadas adicionales.
-   * (Nota: Este enfoque N+1 no es eficiente para muchos posts).
    */
   loadPosts(): void {
-    this.postService
-      .getPosts()
-      .pipe(
-        switchMap((initialPosts: Post[] | any) => {
-          // Extrae si viene en { data: [...] } o devuelve el array directamente
-          const postsArray = Array.isArray(initialPosts?.data)
-            ? initialPosts.data
-            : Array.isArray(initialPosts)
-            ? initialPosts
-            : [];
-          if (postsArray.length === 0) return of([]);
+    // Evitar cargas múltiples si ya se está cargando
+    if (this.isLoading || this.isLoadingMore) return;
 
-          const reactionChecks$: Observable<UserReactionStatus>[] = postsArray.map((post: Post) =>
-            this.interactionService
-              .checkUserReaction(post.id)
-              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
-          );
-          return forkJoin(reactionChecks$).pipe(
-            map((reactionStatuses: UserReactionStatus[]) =>
-              postsArray.map((post: Post, index: number) => {
-                post.is_liked_by_user =
-                  reactionStatuses[index].has_reacted &&
-                  reactionStatuses[index].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-                return post;
-              })
-            )
-          );
+    if (this.currentPage === 1) {
+      this.isLoading = true;
+    } else {
+      this.isLoadingMore = true;
+    }
+
+    this.postService.getFeed(this.currentPage)
+      .pipe(
+        map((response: any) => {
+          this.currentPage = response.current_page;
+          this.lastPage = response.last_page;
+          
+          return response.data; 
+        }),
+        catchError((err) => {
+          console.error('Error al cargar el feed:', err);
+          return of([]);
         })
       )
       .subscribe({
-        next: (postsWithLikeStatus: Post[]) => (this.posts = postsWithLikeStatus),
-        error: (err) => console.error('Error al cargar posts o verificar likes:', err),
+        next: (feedItems: (Post | Repost)[]) => {
+          if (this.currentPage === 1) {
+            // Si es la página 1, reemplazamos el contenido
+            this.posts = feedItems;
+          } else {
+            // Si son páginas siguientes, las añadimos (para scroll infinito)
+            this.posts = [...this.posts, ...feedItems];
+          }
+          
+          this.isLoading = false;
+          this.isLoadingMore = false;
+          this.listenToPostUpdates(); 
+        },
+        error: (err) => {
+          console.error('Error en la suscripción de loadPosts:', err);
+          this.isLoading = false;
+          this.isLoadingMore = false;
+        },
       });
+  }
+
+  /**
+   * Se suscribe a los canales públicos de CADA post visible para
+   * escuchar actualizaciones de likes y reposts.
+   */
+  private listenToPostUpdates(): void {
+    const echo = this.echoService.echo;
+    if (!echo) return;
+
+    const postIds = new Set<number>();
+    this.posts.forEach(item => {
+      postIds.add(this.getPostFromItem(item).id);
+    });
+
+    postIds.forEach(id => {
+      echo.leaveChannel(`post.${id}`);
+    });
+
+    postIds.forEach(id => {
+      echo.channel(`post.${id}`)
+        .listen('.PostReactionUpdated', (data: { post: Post }) => {
+          this.updatePostInArray(data.post);
+        })
+        .listen('.PostRepostUpdated', (data: { post: Post }) => {
+          this.updatePostInArray(data.post);
+        });
+    });
+  }
+
+  /**
+   * Helper para actualizar un post en el array 'this.posts'.
+   * Ahora busca el 'updatedPost' tanto si es un Post directo
+   * como si es un Post anidado dentro de un Repost.
+   */
+  private updatePostInArray(updatedPost: Post): void {
+    this.posts = this.posts.map(item => {
+      
+      if (!isRepost(item) && item.id === updatedPost.id) {
+        return {
+          ...item,
+          ...updatedPost,
+          is_liked_by_user: updatedPost.is_liked_by_user ?? item.is_liked_by_user,
+          user: item.user 
+        };
+      }
+
+      if (isRepost(item) && item.post.id === updatedPost.id) {
+        return {
+          ...item,
+          post: { 
+            ...item.post,
+            ...updatedPost,
+            is_liked_by_user: updatedPost.is_liked_by_user ?? item.post.is_liked_by_user,
+            user: item.post.user 
+          }
+        };
+      }
+      return item;
+    });
   }
 
   /**
@@ -361,7 +486,9 @@ export default class Home implements OnInit {
    * y luego llama al servicio para crear/eliminar la reacción en el backend.
    * @param post El objeto Post al que se le dio like/unlike.
    */
-  onToggleLike(post: Post): void {
+  onToggleLike(item: Post | Repost): void {
+    const post = this.getPostFromItem(item);
+
     const previousState = {
       is_liked_by_user: post.is_liked_by_user,
       reactions_count: post.reactions_count || 0,
@@ -389,6 +516,10 @@ export default class Home implements OnInit {
     });
   }
 
+  getPostFromItem(item: Post | Repost): Post {
+    return isRepost(item) ? item.post : item;
+  }
+
   togglePostMenu(postId: number): void {
     this.openPostId = this.openPostId === postId ? null : postId;
   }
@@ -411,7 +542,9 @@ export default class Home implements OnInit {
 
       request$.subscribe({
         next: () => {
-          this.posts = this.posts.filter((p) => p.id !== post.id);
+          this.posts = this.posts.filter(item => {
+            return this.getPostFromItem(item).id !== post.id;
+          });
         },
         error: (err) => {
           console.error('Error al eliminar el post', err);
@@ -426,29 +559,28 @@ export default class Home implements OnInit {
 
     this.interactionService.toggleRepost(payload).subscribe({
       next: (updatedPost) => {
-        // --- [FIX CONTADOR] ---
-        // 1. Actualizar el contador con la respuesta de la API
-        post.reposts_count = updatedPost.reposts_count;
-
-        // 2. Forzar la detección de cambios de Angular
-        const index = this.posts.findIndex((p) => p.id === post.id);
-        if (index !== -1) {
-          this.posts[index] = { ...post }; // Reemplazar objeto
-          this.posts = [...this.posts]; // Reemplazar array
-        }
-        // --- [FIN FIX] ---
+        this.updatePostInArray(updatedPost);
       },
       error: (err) => {
         console.error('Error al repostear:', err);
-        post.reposts_count = previousRepostCount; // Revertir en caso de error
+        post.reposts_count = previousRepostCount; 
       },
     });
+  }
+
+  asRepost(item: Post | Repost): Repost {
+    return item as Repost;
   }
 
   openComments(post: Post): void {
     this.selectedPostForComments = post;
     this.isCommentsModalOpen = true;
   }
+
+  //openCommentModal(post: Post): void {
+  //  this.selectedPostForModal = post;
+  //  this.isCommentModalOpen = true;
+  //}
 
   closeComments(): void {
     this.isCommentsModalOpen = false;
@@ -466,14 +598,30 @@ export default class Home implements OnInit {
   }
 
   private updatePostCommentsCount(postId: number, delta: number): void {
-    this.posts = this.posts.map((p) =>
-      p.id === postId
-        ? ({ ...p, comments_count: Math.max(0, (p.comments_count || 0) + delta) } as any)
-        : p
-    );
-    if (this.selectedPostForComments && this.selectedPostForComments.id === postId) {
-      this.selectedPostForComments =
-        this.posts.find((p) => p.id === postId) || this.selectedPostForComments;
+    let foundPost: Post | null = null;
+
+    this.posts = this.posts.map((item) => {
+      const post = this.getPostFromItem(item);
+      
+      if (post.id === postId) {
+         const updatedPost: Post = { 
+           ...post, 
+           comments_count: Math.max(0, (post.comments_count || 0) + delta) 
+         };
+
+         foundPost = updatedPost; 
+
+         if (isRepost(item)) {
+           return { ...item, post: updatedPost };
+         }
+         return updatedPost;
+      }
+      return item;
+    });
+
+    if (this.selectedPostForComments && this.selectedPostForComments.id === postId && foundPost) {
+      this.selectedPostForComments = foundPost;
     }
   }
+  
 }

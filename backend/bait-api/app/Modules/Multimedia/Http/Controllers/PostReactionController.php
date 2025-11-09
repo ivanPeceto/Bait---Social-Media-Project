@@ -8,6 +8,7 @@ use App\Modules\Multimedia\Domain\Models\Post;
 use App\Modules\Multimedia\Domain\Models\PostReaction;
 use App\Modules\Multimedia\Http\Requests\Reaction\CreatePostReactionRequest;
 use App\Modules\Multimedia\Http\Resources\PostReactionResource;
+use App\Notifications\NewReactionNotification;
 use Illuminate\Http\JsonResponse;
 
 class PostReactionController extends Controller
@@ -92,7 +93,9 @@ class PostReactionController extends Controller
 
         $post = Post::findOrFail($post_id);
 
-        event(new NewReactionEvent(auth()->user(), $post));
+        //event(new NewReactionEvent(auth()->user(), $post));
+
+        $post->user->notify(new NewReactionNotification(auth()->user(), $post));
 
         return response()->json(new PostReactionResource($reaction->load('user', 'reactionType')), 201);
     }

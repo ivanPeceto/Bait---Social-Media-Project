@@ -8,12 +8,14 @@ if (! config('broadcasting.connections.reverb.key')) {
     return;
 }
 
+Broadcast::routes(['middleware' => ['auth:api']]);
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+Broadcast::channel('users.{id}', function ($user, $id) {
+    logger("Broadcast auth user:", ['user' => $user]);
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('chat.{chat_id}', function ($user, $chat_id){
+Broadcast::channel('chats.{chat_id}', function ($user, $chat_id){
     $chat = Chat::find($chat_id);
     return $chat && $chat->users->contains($user);
 });

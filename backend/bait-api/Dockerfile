@@ -39,6 +39,11 @@ RUN php artisan config:cache
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
+RUN php artisan vendor:publish --provider="L5Swagger\L5SwaggerServiceProvider" --tag=public --force
+
+RUN chown -R www-data:www-data public/vendor/swagger-ui
+RUN chmod -R 755 public/vendor/swagger-ui
+
 EXPOSE 8000
 
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

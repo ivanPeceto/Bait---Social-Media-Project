@@ -1,82 +1,162 @@
 <div class="bg-gray-900 min-h-screen text-gray-200">
-
   <main class="w-full px-4 sm:px-6 lg:px-8 py-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12">
-
-    <nav class="hidden md:block md:col-span-1 lg:col-span-3 h-fit sticky top-20 border-gray-700 pr-6">
+    <nav
+      class="hidden md:block md:col-span-1 lg:col-span-3 h-fit sticky top-20 border-gray-700 pr-6"
+    >
       <div class="flex justify-center mb-6">
         <a routerLink="/" class="inline-block">
-            <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="h-10">
+          <img src="assets/images/baitsinfondo.png" alt="Bait Logo" class="h-10" />
         </a>
       </div>
       <ul class="space-y-2">
         <li>
           <a routerLink="/" class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4">
-            <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0L2.41 11.47a.75.75 0 101.06 1.06l8.69-8.69z" />
-              <path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z" />
+            <svg
+              class="w-6 h-6 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0L2.41 11.47a.75.75 0 101.06 1.06l8.69-8.69z"
+              />
+              <path
+                d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"
+              />
             </svg>
             <span class="font-semibold text-lg">Inicio</span>
           </a>
         </li>
         <li>
-          <a routerLink="/profile" class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4">
-            <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zM12 6a3 3 0 100 6 3 3 0 000-6zM12 18.75a7.125 7.125 0 00-6.362 3.51c.31-.043.626-.078.948-.11a19.454 19.454 0 013.916.002 7.125 7.125 0 003 0 19.454 19.454 0 013.916-.002c.322.032.638.067.948.11A7.125 7.125 0 0012 18.75z" clip-rule="evenodd" />
+          <a
+            routerLink="/profile"
+            class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4"
+          >
+            <svg
+              class="w-6 h-6 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zM12 6a3 3 0 100 6 3 3 0 000-6zM12 18.75a7.125 7.125 0 00-6.362 3.51c.31-.043.626-.078.948-.11a19.454 19.454 0 013.916.002 7.125 7.125 0 003 0 19.454 19.454 0 013.916-.002c.322.032.638.067.948.11A7.125 7.125 0 0012 18.75z"
+                clip-rule="evenodd"
+              />
             </svg>
             <span class="font-semibold text-lg">Mi Cuenta</span>
           </a>
         </li>
-        
-        <li *ngIf="isPrivilegedUser()">
-          <a routerLink="/admin" class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 text-yellow-400">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+
+        <li *ngIf="isPrivileged">
+          <a
+            routerLink="/admin"
+            class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 text-yellow-400"
+          >
+            <svg
+              class="w-6 h-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
             </svg>
             <span class="font-semibold text-lg">Panel de Admin</span>
           </a>
         </li>
         <li class="relative">
-          <button (click)="toggleNotificationsPanel()" type="button" class="w-full relative flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 text-left text-white focus:outline-none">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+          <button
+            data-role="notifications-button"
+            (click)="toggleNotificationsPanel()"
+            type="button"
+            class="w-full relative flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 text-left text-white focus:outline-none"
+          >
+            <svg
+              class="w-6 h-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+              />
             </svg>
             <span class="font-semibold text-lg">Notificaciones</span>
-            <span *ngIf="unreadNotificationsCount > 0" class="absolute top-1 right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
-              {{ unreadNotificationsCount }}
-            </span>
+            <span
+              *ngIf="unreadNotificationsCount$ | async as count"
+              class="absolute top-1 right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
+              >{{ count }}</span
+            >
           </button>
-          <div *ngIf="showNotificationsPanel" class="absolute left-0 mt-2 w-80 max-w-sm bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-30 overflow-hidden">
+          <div
+            *ngIf="showNotificationsPanel"
+            class="notifications-panel absolute left-0 mt-2 w-80 max-w-sm bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-30 overflow-hidden"
+          >
             <div class="p-3 border-b border-gray-700">
               <h3 class="text-base font-semibold text-white">Notificaciones</h3>
             </div>
             <div class="max-h-96 overflow-y-auto">
-              <ul *ngIf="notifications$ | async as notifications; else loadingOrEmpty">
-                <li *ngFor="let notification of notifications"
-                    (click)="markNotificationAsRead(notification, $event)"
-                    class="p-3 border-b border-gray-700 hover:bg-gray-700 cursor-pointer transition-colors"
-                    [class.bg-gray-700]="notification.read_at"
-                    [class.opacity-70]="notification.read_at">
+              <ul
+                *ngIf="
+                  !isLoadingNotifications && (notifications$ | async) as notifications;
+                  else loadingOrEmpty
+                "
+              >
+                <li
+                  *ngFor="let notification of notifications; trackBy: trackById"
+                  (click)="markNotificationAsRead(notification, $event)"
+                  class="p-3 border-b border-gray-700 hover:bg-gray-700 cursor-pointer transition-colors"
+                  [class.bg-gray-700]="notification.read_at"
+                  [class.opacity-70]="notification.read_at"
+                >
                   <div class="flex items-start space-x-3">
                     <div class="flex-shrink-0 pt-1">
-                      <svg *ngIf="notification.type.includes('Follow')" class="w-5 h-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M15.75 8.25a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0V9A.75.75 0 0115.75 8.25zM4.5 9a.75.75 0 01.75-.75h4.5a.75.75 0 010 1.5h-4.5A.75.75 0 014.5 9zm0 3.75a.75.75 0 01.75-.75h4.5a.75.75 0 010 1.5h-4.5a.75.75 0 01-.75-.75zM17.809 11.36a.75.75 0 01.196 1.048l-2.43 3.644a.75.75 0 11-1.25-.832l2.43-3.644a.75.75 0 011.054-.216zM6.53 11.36a.75.75 0 00-.196 1.048l2.43 3.644a.75.75 0 101.25-.832L7.584 11.58a.75.75 0 00-1.054-.22zM8 4.25a.75.75 0 01.75.75v.5c0 .414.336.75.75.75h1a.75.75 0 010 1.5h-1a2.25 2.25 0 00-2.25 2.25v.5a.75.75 0 01-1.5 0v-.5A3.75 3.75 0 018.75 5h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 00-.75.75v.5a.75.75 0 01-.75.75z" clip-rule="evenodd" />
+                      <svg
+                        *ngIf="notification.type.includes('Follow')"
+                        class="w-5 h-5 text-blue-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M15.75 8.25a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0V9A.75.75 0 0115.75 8.25zM4.5 9a.75.75 0 01.75-.75h4.5a.75.75 0 010 1.5h-4.5A.75.75 0 014.5 9zm0 3.75a.75.75 0 01.75-.75h4.5a.75.75 0 010 1.5h-4.5a.75.75 0 01-.75-.75zM17.809 11.36a.75.75 0 01.196 1.048l-2.43 3.644a.75.75 0 11-1.25-.832l2.43-3.644a.75.75 0 011.054-.216zM6.53 11.36a.75.75 0 00-.196 1.048l2.43 3.644a.75.75 0 101.25-.832L7.584 11.58a.75.75 0 00-1.054-.22zM8 4.25a.75.75 0 01.75.75v.5c0 .414.336.75.75.75h1a.75.75 0 010 1.5h-1a2.25 2.25 0 00-2.25 2.25v.5a.75.75 0 01-1.5 0v-.5A3.75 3.75 0 018.75 5h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 00-.75.75v.5a.75.75 0 01-.75.75z"
+                          clip-rule="evenodd"
+                        />
                       </svg>
                     </div>
                     <div class="flex-1">
                       <p class="text-sm text-gray-300">{{ notification.data.message }}</p>
                       <p class="text-xs text-gray-500 mt-0.5">
-                        {{ notification.created_at | date:'short' }}
-                        <span *ngIf="!notification.read_at" class="ml-2 inline-block h-2 w-2 rounded-full bg-blue-500" aria-label="No leída"></span>
+                        {{ notification.created_at | date : 'short' }}
+                        <span
+                          *ngIf="!notification.read_at"
+                          class="ml-2 inline-block h-2 w-2 rounded-full bg-blue-500"
+                          aria-label="No leída"
+                        ></span>
                       </p>
                     </div>
                   </div>
                 </li>
-                <li *ngIf="notifications.length === 0" class="p-4 text-center text-sm text-gray-500">
+                <li
+                  *ngIf="notifications.length === 0"
+                  class="p-4 text-center text-sm text-gray-500"
+                >
                   No tienes notificaciones nuevas.
                 </li>
               </ul>
               <ng-template #loadingOrEmpty>
-                <div class="p-4 text-center text-sm text-gray-500">
+                <div *ngIf="isLoadingNotifications" class="p-4 text-center text-sm text-gray-500">
                   Cargando notificaciones...
                 </div>
               </ng-template>
@@ -84,9 +164,21 @@
           </div>
         </li>
         <li>
-          <a (click)="logout()" class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 cursor-pointer">
-            <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z" clip-rule="evenodd" />
+          <a
+            (click)="logout()"
+            class="flex items-center p-2 rounded-md hover:bg-gray-700 space-x-4 cursor-pointer"
+          >
+            <svg
+              class="w-6 h-6 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z"
+                clip-rule="evenodd"
+              />
             </svg>
             <span class="font-semibold text-lg">Cerrar Sesión</span>
           </a>
@@ -98,7 +190,7 @@
       <router-outlet></router-outlet>
     </div>
 
-    <aside class="hidden lg:block lg:col-span-4 sticky top-20 h-[calc(100vh-6rem)] flex flex-col pl-6">
+    <aside class="hidden lg:block lg:col-span-4 sticky top-20 h-[calc(100vh-6rem)] flex-col pl-6">
       <div class="p-4">
         <h3 class="font-semibold text-lg">Chats</h3>
       </div>
@@ -106,32 +198,62 @@
         <ul class="divide-y divide-gray-700">
           <li class="flex justify-between items-center p-4 hover:bg-gray-700 group">
             <a href="#" class="flex items-center space-x-3">
-              <img class="w-10 h-10 rounded-full" src="assets/images/iconousuario.png" alt="Avatar">
+              <img
+                class="w-10 h-10 rounded-full"
+                src="assets/images/iconousuario.png"
+                alt="Avatar"
+              />
               <div>
                 <p class="font-semibold text-sm">Nombre Usuario 1</p>
               </div>
             </a>
             <button class="text-gray-400 hover:text-white p-1 rounded-full transition-colors">
-              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+              <svg
+                class="w-5 h-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
+                />
               </svg>
             </button>
           </li>
           <li class="flex justify-between items-center p-4 hover:bg-gray-700 group">
             <a href="#" class="flex items-center space-x-3">
-              <img class="w-10 h-10 rounded-full" src="assets/images/iconousuario.png" alt="Avatar">
+              <img
+                class="w-10 h-10 rounded-full"
+                src="assets/images/iconousuario.png"
+                alt="Avatar"
+              />
               <div>
                 <p class="font-semibold text-sm">Otro Usuario</p>
               </div>
             </a>
             <button class="text-gray-400 hover:text-white p-1 rounded-full transition-colors">
-              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+              <svg
+                class="w-5 h-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
+                />
               </svg>
             </button>
           </li>
         </ul>
       </div>
     </aside>
-    </main>
+  </main>
 </div>
