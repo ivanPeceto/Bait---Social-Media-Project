@@ -80,7 +80,7 @@ export default class Home implements OnInit, OnDestroy {
   public apiErrors: any = null;
   public echo: Echo<'pusher'> | null = null;
 
-  public isLoading = true;
+  public isLoading = false;
   public cacheBustTs = Date.now();
   public selectedFile: File | null = null;
   public previewUrl: string | null = null;
@@ -203,7 +203,7 @@ export default class Home implements OnInit, OnDestroy {
     if (echo) {
       // Salir del canal privado
       if (this.currentUser) {
-        echo.leave(`App.Models.User.${this.currentUser.id}`);
+        echo.leave(`users.${this.currentUser.id}`);
       }
       // Salir de todos los canales de posts (directos o anidados)
       const postIds = new Set<number>();
@@ -228,7 +228,7 @@ export default class Home implements OnInit, OnDestroy {
       return; 
     }
 
-    echo.private(`App.Models.User.${this.currentUser.id}`)
+    echo.private(`users.${this.currentUser.id}`)
       .listen('.NewPost', (data: { post: Post }) => {
         const newPost: Post = { ...data.post, type: 'post' };
         
@@ -388,9 +388,9 @@ export default class Home implements OnInit, OnDestroy {
 
     this.postService.getFeed(this.currentPage)
       .pipe(
-        map((response: PaginatedResponse<Post | Repost>) => {
-          this.currentPage = response.meta.current_page;
-          this.lastPage = response.meta.last_page;
+        map((response: any) => {
+          this.currentPage = response.current_page;
+          this.lastPage = response.last_page;
           
           return response.data; 
         }),

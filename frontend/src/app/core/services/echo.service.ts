@@ -28,7 +28,7 @@ export class EchoService {
     const wsHost = new URL(environment.wsUrl).hostname;
     const wsPort = new URL(environment.wsUrl).port || 80;
     const forceTLS = new URL(environment.wsUrl).protocol === 'https:';
-    const authEndpoint = `${environment.apiUrl}/broadcasting/auth`;
+    const authEndpoint = `${environment.baseUrl}/broadcasting/auth`;
     const tokenJWT = localStorage.getItem('jwt');
 
     this.echo = new Echo({

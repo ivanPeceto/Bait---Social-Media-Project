@@ -1,3 +1,16 @@
+## [fix/front/ws] - 2025-11-08
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Añade el nombre "NewPost" con `broadcastAs` para que el frontend lo pueda interpretar el frontend.
+* Corrige nombre de canal "App.Models.User{id}" al nombre correcto "users.{id}" en `home.ts`
+* Corrige error de tipeo en el FeedController
+
+### Affects
+* `backend/bait-api/app/Events/NewPost.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `frontend/src/app/features/home/home.ts`
 
 ## [feature/frontend/websocket] - 2025-11-07
 
@@ -41,16 +54,6 @@ _(Cambios realizados por @jmrodriguezspinker)_
 * `backend/bait-api/app/Modules/Multimedia/Http/Controllers/RepostController.php`
 * `backend/bait-api/app/Modules/Multimedia/Http/Controllers/PostReactionController.php`
 * `docker-compose.yml`
-
-
-## [fix/front/ws] - 2025-11-06
-
-_(Cambios realizados por @ivanPeceto)_
-
-### Changed
-
-### Affects
-* ``
 
 ## [fix/front/ws] - 2025-11-06
 

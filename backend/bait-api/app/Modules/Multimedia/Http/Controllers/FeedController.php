@@ -80,8 +80,8 @@ class FeedController extends Controller
                     ->with([
                         'user.avatar',
                         'user.banner',
-                        'multimediaContents',
-                        'userReaction',
+                        'multimedia_contents',
+                        'reactions',
                     ])
                     ->withCount(['reactions', 'comments', 'reposts'])
                     ->get()
@@ -95,8 +95,8 @@ class FeedController extends Controller
                 'user.banner',
                 'post.user.avatar', 
                 'post.user.banner',
-                'post.multimediaContents',
-                'post.userReaction',
+                'post.multimedia_contents',
+                'post.reactions',
                 'post' => function ($query) {
                     $query->withCount(['reactions', 'comments', 'reposts']);
                 }
