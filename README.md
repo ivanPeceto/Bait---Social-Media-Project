@@ -75,12 +75,13 @@ To get the project up and running, follow these steps:
     ```
 
 5. Access the application:
-    - The frontend will be available at `http://localhost:4200`.
-    - The backend API will be available at `http://localhost:8001`. 
-    - The API documentation can be accessed at `http://localhost:8001/api/documentation`.
-
-    
-
+    - When the installation process finishes, you'll see this message on your console
+    ```bash
+    Servidor disponible en segundo plano.
+    Acceso por Nginx (Host IP):  http://your.system.ip.adress/
+    ```
+    - Accessing the ip adress shown will lead you to the application!
+   
 ## License
 
 This project is open-source and is licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
