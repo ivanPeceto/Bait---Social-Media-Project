@@ -18,6 +18,7 @@ export interface UpdateCommentPayload {
 export interface CreateReactionPayload {
   post_id: number;
   reaction_type_id: number;
+  action?: 'create' | 'update' | 'delete';
 }
 
 export interface CreateRepostPayload {

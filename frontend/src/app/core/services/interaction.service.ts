@@ -16,12 +16,11 @@ export class InteractionService {
   /**
    * Envía una reacción (like) o la quita a un post.
    * Llama a POST /api/post-reactions.
-   * El backend maneja la lógica de 'toggle' y devuelve el Post actualizado.
-   *
+   * El backend maneja la lógica según la 'action' (create, delete, update).   *
    * @param payload Objeto con { post_id, reaction_type_id }
    * @returns Observable que emite el objeto Post actualizado.
    */
-  toggleReaction(payload: CreateReactionPayload): Observable<Post> {
+  manageReaction(payload: CreateReactionPayload): Observable<Post> {
     return this.http.post<Post>(`${this.apiUrl}/post-reactions`, payload);
   }
 

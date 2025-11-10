@@ -49,12 +49,19 @@ class RepostController extends Controller
     public function store(CreateRepostRequest $request): JsonResponse
     {
         $post_id = $request->validated('post_id');
+
+        $post = Post::findOrFail($post_id);
+
+        if (auth()->id() === $post->user->id) {
+            return response()->json(['message' => 'Can not repost your own posts.'], 422);
+        }
+
         $repost = Repost::create([
             'user_id' => auth()->id(),
             'post_id' => $post_id,
         ]);
 
-        $post = Post::findOrFail($post_id);
+        
 
         //event(new NewRepost(auth()->user(), $post));
 

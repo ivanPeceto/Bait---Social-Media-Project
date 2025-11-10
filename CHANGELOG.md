@@ -1,3 +1,49 @@
+## [feat/websockets] - 2025-11-10
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Adds
+* `frontend/src/app/core/services/chats.service.ts`
+* `frontend/src/app/core/models/chats.model.ts`
+* `frontend/src/app/features/chat/chat-sidebar/chat-sidebar.component.html`
+* `frontend/src/app/features/chat/chat-sidebar/chat-sidebar.component.ts`
+* `frontend/src/app/features/chat/chat-window/chat-window.component.html`
+* `frontend/src/app/features/chat/chat-window/chat-window.component.ts`
+* `frontend/src/app/features/chat/chat.component.ts`
+* ``
+
+### Changed
+* Implementa los nuevos módulos de chat en `main.component.ts`
+
+### Affects
+* `frontend/src/app/core/models/api-payloads.model.ts`
+* `frontend/src/app/layout/main/main.component.ts`
+
+## [feat/websockets] - 2025-11-09
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed 
+* Corrige llamado a relación incorrecta en `SendNewRepostNotification`
+* Añade implementacion de Queue's a `SendNewReactionNotification` 
+* Añade atributo "action" a `CreateReactionPayload` en `api-payloads.model.ts`.
+* Refactoriza el método `toggleReaction` ahora llamado `manageReaction` en `interaction.service.ts`
+* Añade verificación en el backend para evitar que un usuario repostee su propio posteo. Afecta `RepostController`.
+* Añade el helper `updatePostInArray` en `profile.component.ts`.
+
+## Bufix
+* Corrige inconsistencias en el código de `PostReactionController` que impedían el funcionamiento de las notificaciones.
+
+### Affects
+* `backend/bait-api/app/Listeners/SendNewRepostNotification.php`
+* `backend/bait-api/app/Listeners/SendNewReactionNotification.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/PostReactionController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/RepostController.php`
+* `frontend/src/app/core/models/api-payloads.model.ts`
+* `frontend/src/app/core/services/interaction.service.ts`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/features/profile/profile.component.ts`
+
 ## [fix/front/ws] - 2025-11-08
 
 _(Cambios realizados por @ivanPeceto)_

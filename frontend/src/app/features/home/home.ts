@@ -494,21 +494,29 @@ export default class Home implements OnInit, OnDestroy {
       reactions_count: post.reactions_count || 0,
     };
 
-    if (post.is_liked_by_user) {
-      post.reactions_count = (post.reactions_count || 1) - 1;
-      post.is_liked_by_user = false;
-    } else {
-      post.reactions_count = (post.reactions_count || 0) + 1;
-      post.is_liked_by_user = true;
-    }
-
     const payload: CreateReactionPayload = {
       post_id: post.id,
       reaction_type_id: this.LIKE_REACTION_TYPE_ID,
     };
-    this.interactionService.toggleReaction(payload).subscribe({
-      next: (response) => {},
+
+    if (post.is_liked_by_user) {
+      post.reactions_count = (post.reactions_count || 1) - 1;
+      post.is_liked_by_user = false;
+      payload.action = 'delete';
+    } else {
+      post.reactions_count = (post.reactions_count || 0) + 1;
+      post.is_liked_by_user = true;
+      payload.action = 'create'; 
+    }
+
+    this.interactionService.manageReaction(payload).subscribe({
+      next: (response) => {
+        this.updatePostInArray(post);
+        // Éxito. La UI ya se actualizó optimistamente.
+        // El evento WS actualizará a otros usuarios.
+      },
       error: (err) => {
+        // Si falla, revertimos la UI al estado anterior
         console.error('Error al reaccionar al post:', err);
         post.is_liked_by_user = previousState.is_liked_by_user;
         post.reactions_count = previousState.reactions_count;
