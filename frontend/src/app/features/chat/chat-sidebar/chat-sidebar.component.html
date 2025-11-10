@@ -10,7 +10,7 @@
               <div class="flex items-center space-x-3">
                 <img 
                   class="w-10 h-10 rounded-full flex-shrink-0"
-                  [src]="(getOtherUser(chat)?.avatar?.url_avatar | mediaUrl) || 'assets/images/iconousuario.png'"
+                  [src]="(getOtherUser(chat)?.avatar?.url_avatars | mediaUrl) || 'assets/images/iconousuario.png'"
                   [alt]="getOtherUser(chat)?.name || 'Usuario'">
                 
                 <div>

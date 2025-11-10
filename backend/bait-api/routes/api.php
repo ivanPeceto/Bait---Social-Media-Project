@@ -194,6 +194,7 @@ Route::middleware('auth:api')->prefix('chats')->group(function () {
     Route::get('/{chat}',   [ChatController::class, 'show']);
     Route::get('{chat}/messages',  [MessageController::class, 'index']); 
     Route::post('{chat}/messages', [MessageController::class, 'store']); 
+    Route::get('/chattable-users', [ChatController::class, 'getChattableUsers']);
 });
 
 /*end UserInteractions routes*/

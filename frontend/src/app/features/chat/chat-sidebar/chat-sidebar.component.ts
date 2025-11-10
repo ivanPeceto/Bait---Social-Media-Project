@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
-import { ChatService } from '../../../core/services/chat.service';
+import { ChatService } from '../../../core/services/chats.service';
 import { Chat } from '../../../core/models/chats.model';
 import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -17,8 +17,8 @@ export class ChatSidebarComponent implements OnInit {
   private chatService = inject(ChatService);
   private authService = inject(AuthService);
 
-  public chats$: Observable<Chat[]>;
-  private currentUser: User | null | undefined;
+  public chats$!: Observable<Chat[]>;
+  private currentUser!: User | null;
 
   @Output() chatSelected = new EventEmitter<Chat>();
 

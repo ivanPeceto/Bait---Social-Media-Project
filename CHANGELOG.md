@@ -2,6 +2,18 @@
 
 _(Cambios realizados por @ivanPeceto)_
 
+### Changed
+* Crea un nuevo endpoint que devuelve todos los usuarios con los que podemos iniciar un chat.
+* Añade los métodos y documentación necesarios en `ChatController`.
+
+### Affects
+* `backend/bait-api/app/Modules/UserInteractions/Http/Controllers/ChatController.php`
+* `backend/bait-api/routes/api.php`
+
+## [feat/websockets] - 2025-11-10
+
+_(Cambios realizados por @ivanPeceto)_
+
 ### Adds
 * `frontend/src/app/core/services/chats.service.ts`
 * `frontend/src/app/core/models/chats.model.ts`
@@ -10,7 +22,6 @@ _(Cambios realizados por @ivanPeceto)_
 * `frontend/src/app/features/chat/chat-window/chat-window.component.html`
 * `frontend/src/app/features/chat/chat-window/chat-window.component.ts`
 * `frontend/src/app/features/chat/chat.component.ts`
-* ``
 
 ### Changed
 * Implementa los nuevos módulos de chat en `main.component.ts`

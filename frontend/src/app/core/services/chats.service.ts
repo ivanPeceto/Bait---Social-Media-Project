@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
-import { Message, Chat } from '../models/';
+import { Message, Chat } from '../models/chats.model';
 import { PaginatedResponse } from '../models/api-payloads.model';
 
 @Injectable({

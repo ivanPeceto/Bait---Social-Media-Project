@@ -2,12 +2,13 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { ChatService } from '../../../core/services/chat.service';
+import { ChatService } from '../../../core/services/chats.service';
 import { Chat, Message } from '../../../core/models/chats.model';
 import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { EchoService } from '../../../core/services/echo.service';
 import { MediaUrlPipe } from '../../../core/pipes/media-url.pipe';
+import { PaginatedResponse } from '../../../core/models/api-payloads.model';
 
 @Component({
   selector: 'app-chat-window',
@@ -21,12 +22,12 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   private echoService = inject(EchoService);
   private fb = inject(FormBuilder);
 
-  @Input() chat: Chat;
+  @Input() chat!: Chat;
   @Output() close = new EventEmitter<void>();
 
   public messages: Message[] = [];
   public otherUser: User | undefined;
-  public currentUser: User | null;
+  public currentUser!: User | null;
   public isLoading = true;
   
   public messageForm = this.fb.group({
@@ -43,7 +44,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   loadMessages(): void {
     this.isLoading = true;
     this.chatService.getChatMessages(this.chat.id).subscribe({
-      next: (paginatedResponse) => {
+      next: (paginatedResponse: PaginatedResponse<Message>) => {
         this.messages = paginatedResponse.data.reverse();
         this.isLoading = false;
       },
