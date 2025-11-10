@@ -3,6 +3,18 @@
 _(Cambios realizados por @ivanPeceto)_
 
 ### Changed
+* Elimina lineas comentadas.
+
+### Affects
+* `start_server.sh`
+* `docker-compose.yml`
+* ``
+
+## [feat/websockets] - 2025-11-10
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
 * Crea un nuevo endpoint que devuelve todos los usuarios con los que podemos iniciar un chat.
 * Añade los métodos y documentación necesarios en `ChatController`.
 * Añade a `chats.controller` el método que utiliza el nuevo endpoint.
