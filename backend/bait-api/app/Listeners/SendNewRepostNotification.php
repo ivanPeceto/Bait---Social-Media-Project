@@ -7,7 +7,7 @@ use App\Notifications\NewRepostNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class SendNewRepostNotification
+class SendNewRepostNotification implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -22,11 +22,13 @@ class SendNewRepostNotification
      */
     public function handle(NewRepost $event): void
     {
-        $postOwner = $event->post->user;
-        $repostingUser = $event->user;
+        $event->repost->load('post.user', 'user');
+
+        $postOwner = $event->repost->post->user;
+        $repostingUser = $event->repost->user;
 
         if($postOwner->id !== $repostingUser->id){
-            $postOwner->notify(new NewRepostNotification($repostingUser, $event->post));
+            $postOwner->notify(new NewRepostNotification($repostingUser, $event->repost->post));
         }
     }
 }

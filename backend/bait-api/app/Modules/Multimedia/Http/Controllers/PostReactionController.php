@@ -70,10 +70,15 @@ class PostReactionController extends Controller
         $action = $request->action;
 
         if ($action === 'delete') {
-            PostReaction::where('user_id', $user_id)
+            $reaction = PostReaction::where('user_id', $user_id)
                         ->where('post_id', $post_id)
                         ->where('reaction_type_id', $reaction_type_id)
-                        ->delete();
+                        ->first();
+            if ($reaction) {
+                $reaction_copy = $reaction;
+                $reaction->delete();
+                event(new NewReactionEvent($reaction_copy));
+            }
             return response()->json(['message' => 'Reaction removed successfully.'], 200);
         }
 
@@ -93,9 +98,7 @@ class PostReactionController extends Controller
 
         $post = Post::findOrFail($post_id);
 
-        //event(new NewReactionEvent(auth()->user(), $post));
-
-        $post->user->notify(new NewReactionNotification(auth()->user(), $post));
+        event(new NewReactionEvent($reaction));
 
         return response()->json(new PostReactionResource($reaction->load('user', 'reactionType')), 201);
     }

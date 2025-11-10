@@ -189,6 +189,7 @@ Route::middleware('auth:api')->prefix('follows')->group(function () {
 });
 
 Route::middleware('auth:api')->prefix('chats')->group(function () {
+    Route::get('/chattable-users', [ChatController::class, 'getChattableUsers']);
     Route::get('/',         [ChatController::class, 'index']);
     Route::post('/',        [ChatController::class, 'store']);
     Route::get('/{chat}',   [ChatController::class, 'show']);

@@ -606,28 +606,38 @@ export class ProfileComponent implements OnInit {
   }
 
   onToggleLike(post: Post): void {
-    const previousState = {
-      is_liked_by_user: post.is_liked_by_user,
-      reactions_count: post.reactions_count || 0,
-    };
-    post.is_liked_by_user = !post.is_liked_by_user;
-    post.reactions_count = post.is_liked_by_user
-      ? previousState.reactions_count + 1
-      : Math.max(0, previousState.reactions_count - 1);
+      const previousState = {
+        is_liked_by_user: post.is_liked_by_user,
+        reactions_count: post.reactions_count || 0,
+      };
+      
+      const payload: CreateReactionPayload = {
+        post_id: post.id,
+        reaction_type_id: this.LIKE_REACTION_TYPE_ID,
+      };
 
-    const payload: CreateReactionPayload = {
-      post_id: post.id,
-      reaction_type_id: this.LIKE_REACTION_TYPE_ID,
-    };
-    this.interactionService.toggleReaction(payload).subscribe({
-      error: (err) => {
-        console.error('Error like:', err);
-        post.is_liked_by_user = previousState.is_liked_by_user;
-        post.reactions_count = previousState.reactions_count;
-        alert('Error al dar Me Gusta.');
-      },
-    });
-  }
+      if (post.is_liked_by_user) {
+        post.reactions_count = (post.reactions_count || 1) - 1;
+        post.is_liked_by_user = false;
+        payload.action = 'delete'; 
+      } else {
+        post.reactions_count = (post.reactions_count || 0) + 1;
+        post.is_liked_by_user = true;
+        payload.action = 'create';
+      }
+      this.interactionService.manageReaction(payload).subscribe({
+        next: (response) => {
+          // Éxito. La UI ya se actualizó optimistamente.
+          // El evento WS actualizará a otros usuarios.
+        },
+        error: (err) => {
+          console.error('Error al reaccionar al post (perfil):', err);
+          post.is_liked_by_user = previousState.is_liked_by_user;
+          post.reactions_count = previousState.reactions_count;
+          alert('Error al dar Me Gusta.');
+        },
+      });
+    }
 
   onToggleRepost(post: Post): void {
     const payload: CreateRepostPayload = { post_id: post.id };
@@ -635,42 +645,46 @@ export class ProfileComponent implements OnInit {
 
     this.interactionService.toggleRepost(payload).subscribe({
       next: (updatedPost) => {
-        console.log('toggleRepost response:', updatedPost);
+        this.updatePostInArray(updatedPost);
 
-        // --- [INICIO SOLUCIÓN SEGURA REPOSTS] ---
-        if (updatedPost && typeof updatedPost.reposts_count === 'number') {
-          // [FIX BUG A - CONTADOR]
-          // 1. Actualizar la propiedad del post
-          post.reposts_count = updatedPost.reposts_count;
-
-          // 2. Forzar la detección en la pestaña 'Posts'
-          const postIndex = this.userPosts.findIndex((p) => p.id === post.id);
-          if (postIndex !== -1) {
-            this.userPosts[postIndex] = { ...post };
-            this.userPosts = [...this.userPosts];
-          }
-
-          // 3. Forzar la detección en la pestaña 'Reposts'
-          const repostIndex = this.userReposts.findIndex((p) => p.id === post.id);
-          if (repostIndex !== -1) {
-            this.userReposts[repostIndex] = { ...post };
-            this.userReposts = [...this.userReposts];
-          }
-        }
-
-        // [FIX BUG B - LISTA]
-        // 4. Recargar la lista de reposts desde la API para asegurar 100% de consistencia
         if (this.isOwnProfile && this.user?.id) {
           this.loadUserReposts(this.user.id);
         }
-        // --- [FIN SOLUCIÓN SEGURA REPOSTS] ---
       },
       error: (err) => {
         console.error('Error repost:', err);
-        // --- [ROLLBACK] ---
         post.reposts_count = previousRepostCount;
         alert('Error al repostear.');
       },
+    });
+  }
+
+  /**
+   * Helper para actualizar un post en AMBAS listas (posts y reposts).
+   */
+  private updatePostInArray(updatedPost: Post): void {
+    this.userPosts = this.userPosts.map(post => {
+      if (post.id === updatedPost.id) {
+        return {
+          ...post,
+          ...updatedPost,
+          is_liked_by_user: updatedPost.is_liked_by_user ?? post.is_liked_by_user,
+          user: post.user 
+        };
+      }
+      return post;
+    });
+    
+    this.userReposts = this.userReposts.map(post => {
+      if (post.id === updatedPost.id) {
+        return {
+          ...post,
+          ...updatedPost,
+          is_liked_by_user: updatedPost.is_liked_by_user ?? post.is_liked_by_user,
+          user: post.user 
+        };
+      }
+      return post;
     });
   }
 }

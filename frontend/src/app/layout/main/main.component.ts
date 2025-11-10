@@ -6,11 +6,12 @@ import { AuthService } from '../../core/services/auth.service';
 import { EchoService } from '../../core/services/echo.service';
 import { NotificationService, Notification } from '../../core/services/notification.service';
 import { NotificationListenerService } from '../../core/services/notification.listener.service';
+import { ChatComponent } from '../../features/chat/chat.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink],
+  imports: [CommonModule, RouterOutlet, RouterLink, ChatComponent],
   templateUrl: './main.component.html',
 })
 export class MainComponent implements OnInit {
