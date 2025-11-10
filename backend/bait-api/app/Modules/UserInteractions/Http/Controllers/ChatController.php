@@ -88,7 +88,7 @@ class ChatController extends Controller
         $potentialChats = $user->chats()
                                ->with('users:id') 
                                ->withCount('users')
-                               ->where('users_count', $participantCount)
+                               ->having('users_count', '=', $participantCount)
                                ->get();
         
         // Filtramos los chats para encontrar una coincidencia

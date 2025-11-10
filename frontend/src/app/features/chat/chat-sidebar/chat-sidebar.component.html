@@ -1,8 +1,7 @@
 <div class="flex flex-col h-full"> 
-  <h3 class="text-white text-lg font-semibold p-4 border-b border-gray-700 flex-shrink-0">Mensajes</h3>
   
-  <div class="flex-1 overflow-y-auto">
-    <div *ngIf="chats$ | async as chats; else loading">
+  <h3 class="text-white text-lg font-semibold p-4 border-b border-gray-700 flex-shrink-0">Mensajes</h3>
+  <div class="flex-1 overflow-y-auto"> <div *ngIf="chats$ | async as chats; else loadingChats">
       <div *ngIf="chats.length > 0; else noChats">
         <ul class="divide-y divide-gray-700">
           <li *ngFor="let chat of chats; trackBy: trackByChatId">
@@ -12,7 +11,6 @@
                   class="w-10 h-10 rounded-full flex-shrink-0"
                   [src]="(getOtherUser(chat)?.avatar?.url_avatars | mediaUrl) || 'assets/images/iconousuario.png'"
                   [alt]="getOtherUser(chat)?.name || 'Usuario'">
-                
                 <div>
                   <span class="text-white font-semibold text-sm">{{ getOtherUser(chat)?.name || 'Usuario' }}</span>
                   <p class="text-gray-400 text-xs">
@@ -25,12 +23,40 @@
         </ul>
       </div>
       <ng-template #noChats>
-        <p class="p-4 text-sm text-gray-400">No tienes conversaciones.</p>
+        <p class="p-4 text-sm text-gray-400">No tienes conversaciones activas.</p>
       </ng-template>
     </div>
-    
-    <ng-template #loading>
+    <ng-template #loadingChats>
       <p class="p-4 text-sm text-gray-400">Cargando chats...</p>
+    </ng-template>
+  </div>
+
+  <h3 class="text-white text-lg font-semibold p-4 border-b border-t border-gray-700 flex-shrink-0">Iniciar Chat</h3>
+  <div class="flex-1 overflow-y-auto"> <div *ngIf="chattableUsers$ | async as users; else loadingUsers">
+      <div *ngIf="users.length > 0; else noUsers">
+        <ul class="divide-y divide-gray-700">
+          <li *ngFor="let user of users; trackBy: trackByUserId">
+            <button (click)="onSelectUser(user)" class="w-full text-left p-4 hover:bg-gray-700 transition-colors duration-150">
+              <div class="flex items-center space-x-3">
+                <img 
+                  class="w-10 h-10 rounded-full flex-shrink-0"
+                  [src]="(user.avatar?.url_avatars | mediaUrl) || 'assets/images/iconousuario.png'"
+                  [alt]="user.name">
+                <div>
+                  <span class.bind="text-white font-semibold text-sm">{{ user.name }}</span>
+                  <p class.bind="text-gray-400 text-xs">@{{ user.username }}</p>
+                </div>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <ng-template #noUsers>
+        <p class="p-4 text-sm text-gray-400">Nadie con quien chatear. ¡Sigue a más gente!</p>
+      </ng-template>
+    </div>
+    <ng-template #loadingUsers>
+      <p class="p-4 text-sm text-gray-400">Buscando usuarios...</p>
     </ng-template>
   </div>
 </div>

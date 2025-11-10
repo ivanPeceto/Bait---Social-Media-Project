@@ -36,7 +36,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    this.otherUser = this.chat.users.find(u => u.id !== this.currentUser?.id);
+    this.otherUser = this.chat.participants.find(u => u.id !== this.currentUser?.id);
     this.loadMessages();
     this.listenForMessages();
   }

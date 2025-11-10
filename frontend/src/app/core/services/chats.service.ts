@@ -78,4 +78,15 @@ export class ChatService {
       map(response => response.data)
     );
   }
+  
+  /**
+   * Obtiene todos los usuarios con los que se puede iniciar un chat (seguimiento mutuo).
+   * Corresponde a: ChatController::getChattableUsers
+   * GET /api/chats/chattable-users
+   */
+  getChattableUsers(): Observable<User[]> {
+    return this.http.get<{ data: User[] }>(`${this.apiUrl}/chattable-users`).pipe(
+      map(response => response.data)
+    );
+  }
 }

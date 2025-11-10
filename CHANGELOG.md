@@ -5,10 +5,20 @@ _(Cambios realizados por @ivanPeceto)_
 ### Changed
 * Crea un nuevo endpoint que devuelve todos los usuarios con los que podemos iniciar un chat.
 * Añade los métodos y documentación necesarios en `ChatController`.
+* Añade a `chats.controller` el método que utiliza el nuevo endpoint.
+* Corrige llamado a función eloquent incorrecta en `ChatController`.
+* Corrige campo erroneo `users`, el cual  debía ser `participants`, en `chats.model.ts`.
+* Corrige acceso incorrecto a propiedades de usuario en `chat-window.component.html`.
 
 ### Affects
 * `backend/bait-api/app/Modules/UserInteractions/Http/Controllers/ChatController.php`
 * `backend/bait-api/routes/api.php`
+* `frontend/src/app/core/services/chats.service.ts`
+* `backend/bait-api/app/Modules/UserInteractions/Http/Controllers/ChatController.php`
+* `frontend/src/app/core/models/chats.model.ts`
+* `frontend/src/app/features/chat/chat-sidebar/chat-sidebar.component.ts`
+* `frontend/src/app/features/chat/chat-sidebar/chat-window.component.ts`
+* `frontend/src/app/features/chat/chat-window/chat-window.component.html`
 
 ## [feat/websockets] - 2025-11-10
 
