@@ -1,14 +1,23 @@
-## [feat/websockets] - 2025-11-10
+## [fix/front/comments] - 2025-11-10
 
 _(Cambios realizados por @ivanPeceto)_
 
 ### Changed
-* Elimina lineas comentadas.
+* Elimina lineas comentadas en `start_server.sh` y `docker-compose.yml`.
+* Refactoriza el modal de comentarios para transformarlo en una sección desplegable de los posteos. 
+
+### Eliminates
+* `frontend/src/app/features/comments/components/post-comments-modal/post-comments-modal.component.html`
+* `frontend/src/app/features/comments/components/post-comments-modal/post-comments-modal.component.ts`
 
 ### Affects
 * `start_server.sh`
 * `docker-compose.yml`
-* ``
+* `frontend/src/app/features/home/home.ts`
+
+### Adds
+* `frontend/src/app/features/comments/components/post-comments-section/post-comments-section.html`
+* `frontend/src/app/features/comments/components/post-comments-section/post-comments-section.ts`
 
 ## [feat/websockets] - 2025-11-10
 
