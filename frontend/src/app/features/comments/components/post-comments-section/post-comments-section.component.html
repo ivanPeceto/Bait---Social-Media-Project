@@ -1,0 +1,23 @@
+<div class="mt-4 pt-2">
+  
+  <app-comment-form (commentSubmitted)="addComment($event)"></app-comment-form>
+  
+  <div class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+    <div *ngIf="isLoading" class="p-6 text-center text-gray-500">Cargando comentarios...</div>
+    <div *ngIf="error" class="p-6 text-center text-red-400">{{ error }}</div>
+    
+    <ng-container *ngIf="comments$ | async as comments">
+      <app-comment-item 
+        *ngFor="let comment of localComments" 
+        [comment]="comment"
+        (commentDeleted)="handleDeleteComment($event)" 
+        (commentUpdated)="handleUpdateComment($event)"
+        class="block border-b border-gray-700 last:border-b-0"
+      ></app-comment-item>
+      
+      <div *ngIf="!isLoading && localComments.length === 0 && !error" class="p-6 text-center text-gray-500">
+        Aún no hay comentarios. ¡Sé el primero!
+      </div>
+    </ng-container>
+  </div>
+</div>

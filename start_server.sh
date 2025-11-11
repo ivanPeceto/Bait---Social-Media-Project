@@ -16,7 +16,7 @@ if [ -z "$IP_ADDRESS" ]; then
     exit 1
 fi
 
-# --- -------- ---
+# ----------------
 
 # Menú de flahs y uso
 show_help() {

@@ -103,16 +103,6 @@
     <p>No hay publicaciones para mostrar.</p>
     <p>¡Sigue a otros usuarios o escribe tu primera publicación!</p>
   </div>
-  
-  <app-post-comments-modal
-    *ngIf="selectedPostForComments"
-    [post]="selectedPostForComments"
-    [isOpen]="isCommentsModalOpen"
-    (closeModal)="closeComments()"
-    (commentAdded)="onCommentAdded()"
-    (commentDeleted)="onCommentDeleted()"
-  ></app-post-comments-modal>
-
 </div>
 <ng-template #postTemplate let-post>
   
@@ -176,5 +166,10 @@
       <span class="text-xs">{{ post.reactions_count || 0 }}</span>
     </button>
   </div>
-
+    <app-post-comments-section
+    *ngIf="openCommentPostId === post.id"
+    [post]="post"
+    (commentAdded)="onCommentAdded()"
+    (commentDeleted)="onCommentDeleted()"
+  ></app-post-comments-section>
 </ng-template>

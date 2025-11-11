@@ -30,7 +30,7 @@ import { environment } from '../../../environments/environment';
 import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
 import { MultimediaContent } from '../../core/models/multimedia-content.model';
 import { MultimediaContentService } from '../../core/services/multimedia-content.service';
-import { PostCommentsModalComponent } from '../comments/components/post-comments-modal/post-comments-modal.component';
+import { PostCommentsSectionComponent } from '../comments/components/post-comments-section/post-comments-section.component';
 import { EchoService } from '../../core/services/echo.service';
 import { User } from '../../core/models/user.model';
 import { PaginatedResponse } from '../../core/models/api-payloads.model';
@@ -49,7 +49,7 @@ function isRepost(item: Post | Repost): item is Repost {
     DatePipe,
     RouterLink,
     MediaUrlPipe,
-    PostCommentsModalComponent,
+    PostCommentsSectionComponent,
   ],
   templateUrl: './home.html',
 })
@@ -80,13 +80,13 @@ export default class Home implements OnInit, OnDestroy {
   public apiErrors: any = null;
   public echo: Echo<'pusher'> | null = null;
 
+  public openCommentPostId: number | null = null;
+
   public isLoading = false;
   public cacheBustTs = Date.now();
   public selectedFile: File | null = null;
   public previewUrl: string | null = null;
   public isUploadingMedia = false;
-  public isCommentsModalOpen = false;
-  public selectedPostForComments: Post | null = null;
 
   constructor(private fb: FormBuilder, private postService: PostService) {
     this.postForm = this.fb.group({
@@ -580,34 +580,41 @@ export default class Home implements OnInit, OnDestroy {
     return item as Repost;
   }
 
+  /**
+   * Alterna la visibilidad de la sección de comentarios para un post.
+   */
   openComments(post: Post): void {
-    this.selectedPostForComments = post;
-    this.isCommentsModalOpen = true;
+    if (this.openCommentPostId === post.id) {
+      // Si ya está abierto, ciérralo
+      this.openCommentPostId = null;
+    } else {
+      // Si está cerrado, ábrelo
+      this.openCommentPostId = post.id;
+    }
   }
 
-  //openCommentModal(post: Post): void {
-  //  this.selectedPostForModal = post;
-  //  this.isCommentModalOpen = true;
-  //}
-
-  closeComments(): void {
-    this.isCommentsModalOpen = false;
-    this.selectedPostForComments = null;
-  }
-
+  /**
+   * Actualiza el contador de comentarios en el post principal.
+   * Llamado por (commentAdded)
+   */
   onCommentAdded(): void {
-    if (!this.selectedPostForComments) return;
-    this.updatePostCommentsCount(this.selectedPostForComments.id, 1);
+    if (!this.openCommentPostId) return;
+    this.updatePostCommentsCount(this.openCommentPostId, 1);
   }
 
+  /**
+   * Actualiza el contador de comentarios en el post principal.
+   * Llamado por (commentDeleted)
+   */
   onCommentDeleted(): void {
-    if (!this.selectedPostForComments) return;
-    this.updatePostCommentsCount(this.selectedPostForComments.id, -1);
+    if (!this.openCommentPostId) return;
+    this.updatePostCommentsCount(this.openCommentPostId, -1);
   }
 
+  /**
+   * Helper privado para encontrar y actualizar el contador en el array de posts.
+   */
   private updatePostCommentsCount(postId: number, delta: number): void {
-    let foundPost: Post | null = null;
-
     this.posts = this.posts.map((item) => {
       const post = this.getPostFromItem(item);
       
@@ -617,8 +624,6 @@ export default class Home implements OnInit, OnDestroy {
            comments_count: Math.max(0, (post.comments_count || 0) + delta) 
          };
 
-         foundPost = updatedPost; 
-
          if (isRepost(item)) {
            return { ...item, post: updatedPost };
          }
@@ -626,10 +631,6 @@ export default class Home implements OnInit, OnDestroy {
       }
       return item;
     });
-
-    if (this.selectedPostForComments && this.selectedPostForComments.id === postId && foundPost) {
-      this.selectedPostForComments = foundPost;
-    }
   }
   
 }

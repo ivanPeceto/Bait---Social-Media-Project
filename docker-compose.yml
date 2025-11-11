@@ -8,8 +8,6 @@ services:
     working_dir: /var/www
     volumes:
       - ./backend/bait-api:/var/www
-      #- /var/www/vendor         
-      #- /var/www/bootstrap/cache
     ports:
       - "8001:8000"
     depends_on:
@@ -99,8 +97,6 @@ services:
       - "8081:8080"
     volumes:
       - ./backend/bait-api:/var/www
-      #- /var/www/vendor         
-      #- /var/www/bootstrap/cache
     depends_on:
       - redis 
     env_file:
@@ -116,8 +112,6 @@ services:
     working_dir: /var/www
     volumes:
       - ./backend/bait-api:/var/www
-      #- /var/www/vendor
-      #- /var/www/bootstrap/cache
     depends_on:
       - redis
       - backend
@@ -136,10 +130,6 @@ services:
       PMA_PORT: 3306
     depends_on:
       - mysql
-      
-# To add later: vistualization for de db
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin
 
 volumes:
   mysql_data:
