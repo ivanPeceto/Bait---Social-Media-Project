@@ -1,3 +1,47 @@
+## [refactor/reposts] - 2025-11-12
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Corrige y mejora algunos aspectos del html de comentarios.
+* Deshabilita el botón de reposts en la sección de reposts del propio usuario.
+* Añade chequeo de estados de like a la función `loadPosts` en `home.ts`.
+* Refactoriza el método `toggleRepost` en `interaction.service.ts` para que sea solamente `createRepost` ya que el endpoint al  que apunta no  es un toggle.
+* Añade el método `deleteRepost` en `interaction.service.ts`.
+* Añade función de eliminar reposteos en `profile.component` (ts y html).
+
+### Bugfix
+* Arregla errores de estado de likes en home.ts y profile.component.ts
+* Corrige bugs de apertura de edición de posts en `profile.component`
+
+### Affects
+* `frontend/src/app/features/comments/components/comment-item/comment-item.component.html`
+* `frontend/src/app/features/comments/components/comment-form/comment-form.component.html`
+* `frontend/src/app/features/profile/profile.component.html`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/core/services/interaction.service.ts`
+
+## [refactor/reposts] - 2025-11-11
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Refactor
+* `FeedController` ahora no devuelve los reposts del propio usuario.
+* Implementa los métodos añadidos a home.ts en otras iteraciones a profile.component.ts
+* Corrige bugs de html.
+
+### Bugfix
+* Corrige bug de instalación fresca con swagger.
+* Arregla el bug de cajas de comentarios duplicadas.
+
+### Affects
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `docker-compose.yml`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/features/home/home.html`
+* `frontend/src/app/features/profile/profile.component.ts`
+* `frontend/src/app/features/profile/profile.component.html`
+
 ## [fix/front/comments] - 2025-11-10
 
 _(Cambios realizados por @ivanPeceto)_

@@ -73,23 +73,8 @@ class FeedController extends Controller
         $user = Auth::user();
 
         $followingIds = $user->following()->pluck('users.id');
-
-        $userIds = $followingIds->push($user->id);
-
-        $posts = Post::whereIn('user_id', $userIds)
-                    ->with([
-                        'user.avatar',
-                        'user.banner',
-                        'multimedia_contents',
-                        'reactions',
-                    ])
-                    ->withCount(['reactions', 'comments', 'reposts'])
-                    ->get()
-                    ->map(function ($post) {
-                        $post->type = 'post'; 
-                        return $post;
-                    });
-        $reposts = Repost::whereIn('user_id', $userIds)
+        
+        $reposts = Repost::whereIn('user_id', $followingIds)
             ->with([
                 'user.avatar',
                 'user.banner',
@@ -107,6 +92,20 @@ class FeedController extends Controller
                 return $repost;
             });
 
+        $posts = Post::whereIn('user_id', $followingIds->push($user->id))
+                    ->with([
+                        'user.avatar',
+                        'user.banner',
+                        'multimedia_contents',
+                        'reactions',
+                    ])
+                    ->withCount(['reactions', 'comments', 'reposts'])
+                    ->get()
+                    ->map(function ($post) {
+                        $post->type = 'post'; 
+                        return $post;
+                    });
+        
         $feedItems = $posts->toBase()
             ->merge($reposts)
             ->sortByDesc('created_at');

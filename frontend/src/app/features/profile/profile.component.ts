@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -8,7 +8,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { User } from '../../core/models/user.model';
-import { Post } from '../../core/models/post.model';
+import { Post, Repost } from '../../core/models/post.model';
 import {
   CreateReactionPayload,
   CreateRepostPayload,
@@ -22,18 +22,24 @@ import { PostService } from '../../core/services/post.service';
 import { ImageUploadService } from '../../core/services/image-upload.service';
 import { FollowService } from '../../core/services/follow.service';
 import { InteractionService } from '../../core/services/interaction.service';
+import { PostCommentsSectionComponent } from '../comments/components/post-comments-section/post-comments-section.component';
+import { EchoService } from '../../core/services/echo.service';
 
 import { environment } from '../../../environments/environment';
 import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
 
+function isRepost(item: Post | Repost): item is Repost {
+  return (item as Repost).type === 'repost' || (item as Repost).post !== undefined;
+}
+
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe, ReactiveFormsModule, MediaUrlPipe],
+  imports: [CommonModule, RouterLink, DatePipe, ReactiveFormsModule, MediaUrlPipe, PostCommentsSectionComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private profileService = inject(ProfileService);
@@ -42,6 +48,7 @@ export class ProfileComponent implements OnInit {
   private imageUploadService = inject(ImageUploadService);
   private followService = inject(FollowService);
   private interactionService = inject(InteractionService);
+  private echoService = inject(EchoService);
   private sanitizer = inject(DomSanitizer);
   private fb = inject(FormBuilder);
 
@@ -55,10 +62,7 @@ export class ProfileComponent implements OnInit {
   public isOwnProfile = false;
   public isFollowing = false;
   public userPosts: Post[] = [];
-  public userReposts: Post[] = [];
-  public openPostId: number | null = null;
-  public editingPostId: number | null = null;
-  public editContent: string = '';
+  public userReposts: Repost[] = [];
   public currentUserId: number | null = null;
   public userProfile$: Observable<User | null> = of(null);
   public isAdminOrMod: boolean = false;
@@ -73,13 +77,18 @@ export class ProfileComponent implements OnInit {
   public currentTab: 'posts' | 'reposts' = 'posts';
   public cacheBustTs: number = Date.now();
 
+  public openCommentItemId: string | null = null;
+  public openPostId: number | null = null;
+  public editingPostId: number | null = null;
+  public editContent: string = '';
+
   public profileForm!: FormGroup;
   public passwordForm!: FormGroup;
   public submittingProfile = false;
   public submittingPassword = false;
   public apiErrorsProfile: any = null;
   public apiErrorsPassword: any = null;
-
+  
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
     this.currentUserId = currentUser?.id ?? null;
@@ -118,20 +127,17 @@ export class ProfileComponent implements OnInit {
             } as any)
           : p
       );
-      this.userReposts = this.userReposts.map((p) =>
-        p.user_id === u.id
-          ? ({
-              ...p,
-              user: {
-                ...p.user,
-                avatar: u.avatar,
-                banner: u.banner,
-                name: u.name || p.user?.name,
-                username: u.username || p.user?.username,
-              },
-            } as any)
-          : p
-      );
+      this.userReposts = this.userReposts.map((item) => {
+        const updatedRepost = { ...item };
+        if (updatedRepost.user.id === u.id) { 
+          updatedRepost.user = u;
+        }
+        if (updatedRepost.post.user.id === u.id) { 
+          updatedRepost.post = { ...updatedRepost.post, user: u };
+        }
+        return updatedRepost;
+      });
+
       this.cacheBustTs = Date.now();
     });
 
@@ -234,10 +240,14 @@ export class ProfileComponent implements OnInit {
         })
       )
       .subscribe({
-        next: (postsWithLikeStatus: Post[]) => (this.userPosts = postsWithLikeStatus),
+        next: (postsWithLikeStatus: Post[]) => {
+          this.userPosts = postsWithLikeStatus;
+          this.listenToPostUpdates();
+        },
         error: (err) => {
           console.error('Error al cargar posts o verificar likes:', err);
           this.userPosts = [];
+
         },
       });
   }
@@ -248,40 +258,36 @@ export class ProfileComponent implements OnInit {
       .getUserReposts(userId.toString())
       .pipe(
         map((response: any) => {
-          const reposts = Array.isArray(response) ? response : response?.data || [];
-
-          // --- [FIX DE PERFORMANCE] ---
-          // Simplemente extraemos el objeto 'post' que la API ya nos entrega.
-          // No necesitamos volver a llamar a la API por cada post.
-          return reposts
-            .map((repost: any) => repost.post) // <-- Extraemos el post
-            .filter((post: any) => post); // <-- Filtramos por si alguno vino nulo
-          // --- [FIN FIX DE PERFORMANCE] ---
+          // AHORA DEVOLVEMOS REPOST[] (NO Post[])
+          return (Array.isArray(response) ? response : response?.data || []) as Repost[];
         }),
+        switchMap((reposts: Repost[]) => {
+          if (!reposts || reposts.length === 0) return of([]);
 
-        switchMap((posts: Post[]) => {
-          // Este bloque para verificar los 'likes' está perfecto.
-          if (!posts || posts.length === 0) return of([]);
-
-          const reactionChecks$: Observable<UserReactionStatus>[] = posts.map((post) =>
+          // Verificamos la reacción en el 'post' anidado
+          const reactionChecks$: Observable<UserReactionStatus>[] = reposts.map((repost) =>
             this.interactionService
-              .checkUserReaction(post.id)
+              .checkUserReaction(repost.post.id) // <-- Usar repost.post.id
               .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
           );
           return forkJoin(reactionChecks$).pipe(
             map((statuses: UserReactionStatus[]) =>
-              posts.map((post, i) => {
-                post.is_liked_by_user =
+              reposts.map((repost, i) => {
+                // Asignamos el estado al 'post' anidado
+                repost.post.is_liked_by_user =
                   statuses[i].has_reacted &&
                   statuses[i].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-                return post;
+                return repost;
               })
             )
           );
         })
       )
       .subscribe({
-        next: (hydratedPosts: Post[]) => (this.userReposts = hydratedPosts),
+        next: (hydratedReposts: Repost[]) => {
+          this.userReposts = hydratedReposts;
+          this.listenToPostUpdates(); 
+        },
         error: (err) => {
           console.error('Error al cargar reposts:', err);
           this.userReposts = [];
@@ -291,6 +297,7 @@ export class ProfileComponent implements OnInit {
 
   selectTab(tab: 'posts' | 'reposts'): void {
     this.currentTab = tab;
+    this.openCommentItemId = null;
     if (this.user?.id) {
       if (tab === 'posts') {
         this.loadUserPosts(this.user.id);
@@ -302,6 +309,58 @@ export class ProfileComponent implements OnInit {
       this.userPosts = [];
       this.userReposts = [];
     }
+  }
+  private isRepost(item: Post | Repost): item is Repost {
+    return (item as Repost).type === 'repost' || (item as Repost).post !== undefined;
+  }
+
+  getPostFromItem(item: Post | Repost): Post {
+    return isRepost(item) ? (item as Repost).post : (item as Post);
+  }
+
+  getFeedItemId(item: Post | Repost): string {
+    // Usamos la función helper que ya tienes para saber qué es
+    if (this.isRepost(item)) {
+      return `repost-${item.id}`;
+    }
+      // Si no es un repost, es un post
+    return `post-${item.id}`;
+  }
+  openComments(item: Post | Repost): void {
+    const uniqueId = this.getFeedItemId(item);
+    if (this.openCommentItemId === uniqueId) {
+      this.openCommentItemId = null;
+    } else {
+      this.openCommentItemId = uniqueId;
+    }
+  }
+  onCommentAdded(item: Post | Repost): void {
+    const postId = this.getPostFromItem(item).id;
+    this.updatePostCommentsCount(postId, 1);
+  }
+
+  onCommentDeleted(item: Post | Repost): void {
+    const postId = this.getPostFromItem(item).id;
+    this.updatePostCommentsCount(postId, -1);
+  }
+
+  private updatePostCommentsCount(postId: number, delta: number): void {
+    this.userPosts = this.userPosts.map((post) => {
+      if (post.id === postId) {
+        return { 
+           ...post, 
+           comments_count: Math.max(0, (post.comments_count || 0) + delta) 
+         };
+      }
+      return post;
+    });
+
+    this.userReposts = this.userReposts.map((repost) => {
+      if (repost.post.id === postId) {
+        repost.post.comments_count = Math.max(0, (repost.post.comments_count || 0) + delta);
+      }
+      return repost;
+    });
   }
 
   // --- Métodos de Edición de Perfil ---
@@ -605,7 +664,9 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  onToggleLike(post: Post): void {
+  onToggleLike(item: Post | Repost): void {
+      const post = this.getPostFromItem(item); 
+
       const previousState = {
         is_liked_by_user: post.is_liked_by_user,
         reactions_count: post.reactions_count || 0,
@@ -625,10 +686,10 @@ export class ProfileComponent implements OnInit {
         post.is_liked_by_user = true;
         payload.action = 'create';
       }
+      
       this.interactionService.manageReaction(payload).subscribe({
         next: (response) => {
-          // Éxito. La UI ya se actualizó optimistamente.
-          // El evento WS actualizará a otros usuarios.
+          // La UI optimista ya funciona
         },
         error: (err) => {
           console.error('Error al reaccionar al post (perfil):', err);
@@ -637,15 +698,15 @@ export class ProfileComponent implements OnInit {
           alert('Error al dar Me Gusta.');
         },
       });
-    }
+  }
 
   onToggleRepost(post: Post): void {
     const payload: CreateRepostPayload = { post_id: post.id };
     const previousRepostCount = post.reposts_count || 0;
 
-    this.interactionService.toggleRepost(payload).subscribe({
+    this.interactionService.createRepost(payload).subscribe({
       next: (updatedPost) => {
-        this.updatePostInArray(updatedPost);
+        //this.updatePostInArray(updatedPost);
 
         if (this.isOwnProfile && this.user?.id) {
           this.loadUserReposts(this.user.id);
@@ -664,27 +725,120 @@ export class ProfileComponent implements OnInit {
    */
   private updatePostInArray(updatedPost: Post): void {
     this.userPosts = this.userPosts.map(post => {
+      const local_is_liked_by_user = post.is_liked_by_user;
       if (post.id === updatedPost.id) {
         return {
           ...post,
           ...updatedPost,
-          is_liked_by_user: updatedPost.is_liked_by_user ?? post.is_liked_by_user,
+          is_liked_by_user: local_is_liked_by_user,
           user: post.user 
         };
       }
       return post;
     });
     
-    this.userReposts = this.userReposts.map(post => {
-      if (post.id === updatedPost.id) {
+    this.userReposts = this.userReposts.map(repost => {
+      if (repost.post.id === updatedPost.id) {
+        const local_is_liked_by_user = repost.post.is_liked_by_user;
+        repost.post = {
+          ...repost.post,
+          ...updatedPost,
+          is_liked_by_user: local_is_liked_by_user,
+          user: repost.post.user
+        };
+      }
+      return repost;
+    });
+  }
+
+  private listenToPostUpdates(): void {
+    const echo = this.echoService.echo;
+    if (!echo) return;
+
+    const postIds = new Set<number>();
+    this.userPosts.forEach(post => postIds.add(post.id));
+    this.userReposts.forEach(repost => postIds.add(repost.post.id));
+
+    postIds.forEach(id => {
+      echo.leaveChannel(`post.${id}`);
+    });
+
+    postIds.forEach(id => {
+      echo.channel(`post.${id}`)
+        .listen('.PostReactionUpdated', (data: { post: Post }) => {
+          this.updatePostInArray(data.post);
+        })
+        .listen('.PostRepostUpdated', (data: { post: Post }) => {
+          this.updatePostInArray(data.post);
+        })
+    });
+  }
+  ngOnDestroy(): void {
+    const echo = this.echoService.echo;
+    if (echo) {
+      const postIds = new Set<number>();
+      this.userPosts.forEach(post => postIds.add(post.id));
+      this.userReposts.forEach(repost => postIds.add(repost.post.id));
+      
+      postIds.forEach(id => {
+        echo.leaveChannel(`post.${id}`);
+      });
+    }
+  }
+
+  onDeleteRepost(repost: Repost): void {
+    this.openPostId = null; // Cierra el menú
+    if (!repost) return;
+
+    const isOwner = !!this.currentUserId && this.currentUserId === repost.user.id;
+
+    if (!isOwner && !this.isAdminOrMod) {
+      console.warn('Usuario no autorizado para eliminar este repost.');
+      return;
+    }
+
+    if (confirm('¿Estás seguro de que quieres eliminar este repost?')) {
+      
+      this.interactionService.deleteRepost(repost.id).subscribe({
+        next: () => {
+          // Lo quitamos de la lista local
+          this.userReposts = this.userReposts.filter((r) => r.id !== repost.id);
+          
+          this.updatePostCountersOnDelete(repost.post.id);
+        },
+        error: (err) => {
+          console.error('Error al eliminar el repost', err);
+          alert('No se pudo eliminar el repost.');
+        },
+      });
+    }
+  }
+
+  /**
+   * Helper para decrementar el contador de reposts en un post
+   * cuando un repost es eliminado.
+   */
+  private updatePostCountersOnDelete(deletedPostId: number): void {
+    // Actualiza el contador en la lista de posts
+    this.userPosts = this.userPosts.map(post => {
+      if (post.id === deletedPostId) {
         return {
           ...post,
-          ...updatedPost,
-          is_liked_by_user: updatedPost.is_liked_by_user ?? post.is_liked_by_user,
-          user: post.user 
+          reposts_count: Math.max(0, (post.reposts_count || 1) - 1)
         };
       }
       return post;
+    });
+    
+    // Actualiza el contador en la lista de reposts (para otros reposts del mismo post)
+    this.userReposts = this.userReposts.map(repost => {
+      if (repost.post.id === deletedPostId) {
+        repost.post = {
+          ...repost.post,
+          reposts_count: Math.max(0, (repost.post.reposts_count || 1) - 1)
+        };
+      }
+      return repost;
     });
   }
 }
