@@ -6,9 +6,8 @@ import { MultimediaContent } from '../models/multimedia-content.model';
 
 interface ApiMultimediaContent {
   id: number;
-  url_multimedia_contents?: string;
-  url?: string;
-  type_multimedia_contents?: string;
+  url_content?: string;
+  type?: string; 
   post_id: number;
   created_at?: string;
   updated_at?: string;
@@ -25,17 +24,28 @@ export class MultimediaContentService {
     form.append('post_id', String(postId));
     return this.http.post<ApiMultimediaContent>(`${this.apiUrl}/multimedia-contents`, form).pipe(
       map((resp) => {
-        const rawUrl = (resp.url_multimedia_contents || resp.url || '').trim();
-        let url_content = rawUrl;
+        
+        let rawUrl = (resp.url_content || '').trim();
+        let url_content = '';
+
         if (!rawUrl) {
           url_content = '';
-        } else if (rawUrl.startsWith('multimedia/')) {
-          url_content = `/storage/${rawUrl}`;
-        } else if (rawUrl.startsWith('uploads/')) {
-          url_content = `/${rawUrl}`;
-        } else if (!rawUrl.startsWith('/')) {
-          url_content = `/${rawUrl}`;
+        } else {
+          // Limpiar las barras invertidas 
+          rawUrl = rawUrl.replace(/\\/g, ''); // Transforma '\/storage\/...' en '/storage/...'
+
+          if (rawUrl.startsWith('multimedia/')) {
+            url_content = `/storage/${rawUrl}`;
+          } else if (rawUrl.startsWith('uploads/')) {
+            url_content = `/${rawUrl}`;
+          } else if (rawUrl.startsWith('/')) { 
+            url_content = rawUrl; // Ya es correcta (ej: /storage/...)
+          } else {
+            // Fallback
+            url_content = `/${rawUrl}`;
+          }
         }
+        
         return { id: resp.id, post_id: resp.post_id, url_content } as MultimediaContent;
       })
     );
