@@ -37,7 +37,7 @@ import { PaginatedResponse } from '../../core/models/api-payloads.model';
 import { Post, Repost } from '../../core/models/post.model';
 
 function isRepost(item: Post | Repost): item is Repost {
-  return item.type === 'repost';
+  return (item as Repost).type === 'repost' || (item as Repost).post !== undefined;
 }
 
 @Component({
@@ -80,7 +80,8 @@ export default class Home implements OnInit, OnDestroy {
   public apiErrors: any = null;
   public echo: Echo<'pusher'> | null = null;
 
-  public openCommentPostId: number | null = null;
+  /** Almacena el ID único del ítem del feed (ej: "post-1" o "repost-1") */
+  public openCommentItemId: string | null = null;
 
   public isLoading = false;
   public cacheBustTs = Date.now();
@@ -110,6 +111,19 @@ export default class Home implements OnInit, OnDestroy {
     };
     reader.readAsDataURL(file);
     input.value = '';
+  }
+
+  private isRepost(item: Post | Repost): item is Repost {
+    return (item as Repost).type === 'repost' || (item as Repost).post !== undefined;
+  }
+
+  getFeedItemId(item: Post | Repost): string {
+  // Usamos la función helper que ya tienes para saber qué es
+    if (this.isRepost(item)) {
+      return `repost-${item.id}`;
+    }
+    // Si no es un repost, es un post
+    return `post-${item.id}`;
   }
 
   onRemoveSelectedImage(): void {
@@ -392,11 +406,38 @@ export default class Home implements OnInit, OnDestroy {
           this.currentPage = response.current_page;
           this.lastPage = response.last_page;
           
-          return response.data; 
+          return (response.data || []) as (Post | Repost)[]; 
         }),
         catchError((err) => {
           console.error('Error al cargar el feed:', err);
           return of([]);
+        }),switchMap((feedItems: (Post | Repost)[]) => {
+          if (feedItems.length === 0) {
+            return of([]);
+          }
+
+          const reactionChecks$: Observable<UserReactionStatus>[] = feedItems.map(item => {
+            const post = this.getPostFromItem(item); 
+            
+            return this.interactionService
+              .checkUserReaction(post.id) 
+              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })));
+          });
+
+          return forkJoin(reactionChecks$).pipe(
+            map((reactionStatuses: UserReactionStatus[]) => {
+              
+              return feedItems.map((item, index) => {
+                const post = this.getPostFromItem(item);
+                
+                post.is_liked_by_user =
+                  reactionStatuses[index].has_reacted &&
+                  reactionStatuses[index].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
+                
+                return item;
+              });
+            })
+          );
         })
       )
       .subscribe({
@@ -456,25 +497,25 @@ export default class Home implements OnInit, OnDestroy {
    */
   private updatePostInArray(updatedPost: Post): void {
     this.posts = this.posts.map(item => {
-      
-      if (!isRepost(item) && item.id === updatedPost.id) {
+    const post = this.getPostFromItem(item);
+      if (post.id === updatedPost.id) {
+        const local_is_liked_by_user = post.is_liked_by_user;
+        if (isRepost(item)) {
+          return {
+            ...item,
+            post: {
+              ...post,
+              ...updatedPost,
+              is_liked_by_user: local_is_liked_by_user,
+              user: post.user 
+            }
+          };
+        }
         return {
           ...item,
           ...updatedPost,
-          is_liked_by_user: updatedPost.is_liked_by_user ?? item.is_liked_by_user,
+          is_liked_by_user: local_is_liked_by_user,
           user: item.user 
-        };
-      }
-
-      if (isRepost(item) && item.post.id === updatedPost.id) {
-        return {
-          ...item,
-          post: { 
-            ...item.post,
-            ...updatedPost,
-            is_liked_by_user: updatedPost.is_liked_by_user ?? item.post.is_liked_by_user,
-            user: item.post.user 
-          }
         };
       }
       return item;
@@ -511,7 +552,7 @@ export default class Home implements OnInit, OnDestroy {
 
     this.interactionService.manageReaction(payload).subscribe({
       next: (response) => {
-        this.updatePostInArray(post);
+        //this.updatePostInArray(post);
         // Éxito. La UI ya se actualizó optimistamente.
         // El evento WS actualizará a otros usuarios.
       },
@@ -520,12 +561,13 @@ export default class Home implements OnInit, OnDestroy {
         console.error('Error al reaccionar al post:', err);
         post.is_liked_by_user = previousState.is_liked_by_user;
         post.reactions_count = previousState.reactions_count;
+        this.updatePostInArray(post);
       },
     });
   }
 
   getPostFromItem(item: Post | Repost): Post {
-    return isRepost(item) ? item.post : item;
+    return this.isRepost(item) ? (item as Repost).post : (item as Post);
   }
 
   togglePostMenu(postId: number): void {
@@ -565,7 +607,7 @@ export default class Home implements OnInit, OnDestroy {
     const previousRepostCount = post.reposts_count || 0;
     const payload: CreateRepostPayload = { post_id: post.id };
 
-    this.interactionService.toggleRepost(payload).subscribe({
+    this.interactionService.createRepost(payload).subscribe({
       next: (updatedPost) => {
         this.updatePostInArray(updatedPost);
       },
@@ -583,13 +625,15 @@ export default class Home implements OnInit, OnDestroy {
   /**
    * Alterna la visibilidad de la sección de comentarios para un post.
    */
-  openComments(post: Post): void {
-    if (this.openCommentPostId === post.id) {
+  openComments(item: Post | Repost): void {
+    const uniqueId = this.getFeedItemId(item);
+
+    if (this.openCommentItemId === uniqueId) {
       // Si ya está abierto, ciérralo
-      this.openCommentPostId = null;
+      this.openCommentItemId = null;
     } else {
       // Si está cerrado, ábrelo
-      this.openCommentPostId = post.id;
+      this.openCommentItemId = uniqueId;
     }
   }
 
@@ -598,8 +642,13 @@ export default class Home implements OnInit, OnDestroy {
    * Llamado por (commentAdded)
    */
   onCommentAdded(): void {
-    if (!this.openCommentPostId) return;
-    this.updatePostCommentsCount(this.openCommentPostId, 1);
+    if (!this.openCommentItemId) return;
+    
+    const item = this.posts.find(p => this.getFeedItemId(p) === this.openCommentItemId);
+    if (!item) return;
+    
+    const postId = this.getPostFromItem(item).id;
+    this.updatePostCommentsCount(postId, 1);
   }
 
   /**
@@ -607,8 +656,13 @@ export default class Home implements OnInit, OnDestroy {
    * Llamado por (commentDeleted)
    */
   onCommentDeleted(): void {
-    if (!this.openCommentPostId) return;
-    this.updatePostCommentsCount(this.openCommentPostId, -1);
+    if (!this.openCommentItemId) return;
+
+    const item = this.posts.find(p => this.getFeedItemId(p) === this.openCommentItemId);
+    if (!item) return;
+
+    const postId = this.getPostFromItem(item).id;
+    this.updatePostCommentsCount(postId, -1);
   }
 
   /**

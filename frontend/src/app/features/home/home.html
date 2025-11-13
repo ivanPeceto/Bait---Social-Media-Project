@@ -167,7 +167,7 @@
     </button>
   </div>
     <app-post-comments-section
-    *ngIf="openCommentPostId === post.id"
+    *ngIf="openCommentItemId === getFeedItemId(post)"
     [post]="post"
     (commentAdded)="onCommentAdded()"
     (commentDeleted)="onCommentDeleted()"
