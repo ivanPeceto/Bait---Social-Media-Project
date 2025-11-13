@@ -1,3 +1,17 @@
+## [fix/searchBar] - 2025-11-12
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Bugfix
+* Arregla el espacio vacío en el sticky top del search bar.
+* Arregla error 500 del backend al fallar la búsqueda de usuario en `ProfileController`.
+* Corrige inconsistencias en la lógica de búsquedas en `home.ts`
+
+### Affects
+* `frontend/src/app/features/home/home.html`
+* `frontend/src/app/features/home/home.ts`
+* `backend/bait-api/app/Modules/UserData/Http/Controllers/ProfileController.php`
+
 ## [fix/multimediacontent] - 2025-11-12
 
 _(Cambios realizados por @ivanPeceto)_
