@@ -1,3 +1,19 @@
+## [fix/multimediacontent] - 2025-11-12
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Bugfix
+* Corrige el bug de la mediacontent asociada a un posteo recien creado no siendo mostradas y mostranod en su lugar el placeholder
+
+### Changed
+* Refactoriza `media-url.pipe.ts` y `onSubmitPost` en `home.ts` para que maneje correctamente las url_contents nuevas.
+* Corrige inconsistencia de nombre de campos en `multimedia-content.service.ts`.
+
+### Affects
+* `frontend/src/app/core/pipes/media-url.pipe.ts`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/core/services/multimedia-content.service.ts`
+
 ## [refactor/reposts] - 2025-11-12
 
 _(Cambios realizados por @ivanPeceto)_

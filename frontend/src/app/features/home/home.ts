@@ -337,43 +337,76 @@ export default class Home implements OnInit, OnDestroy {
     }
 
     this.authService.currentUserChanges$.pipe(take(1)).subscribe((freshUser) => {
+      
+      // Llama al primer endpoint para crear el post
       this.postService.createPost(content).subscribe({
         next: (createdPost: Post) => {
-          const hydratedPost: Post = {
-            ...createdPost,
-            user: freshUser || createdPost.user,
-            user_id: freshUser?.id || createdPost.user_id,
-            multimedia_contents: createdPost.multimedia_contents || [],
-            type: 'post'
-          };
-
+          
+          // Comprueba si hay un archivo seleccionado
           if (this.selectedFile) {
             this.isUploadingMedia = true;
+            
+            // Llama al segundo endpoint para subir la imagen
             this.multimediaService.uploadToPost(createdPost.id, this.selectedFile).subscribe({
+              
+              // ÉXITO (con imagen)
               next: (media: MultimediaContent) => {
-                hydratedPost.multimedia_contents = [media];
+                
+                // CREA el objeto final aquí, AHORA que tienes la 'media'
+                const hydratedPost: Post = {
+                  ...createdPost,
+                  user: freshUser || createdPost.user,
+                  user_id: freshUser?.id || createdPost.user_id,
+                  multimedia_contents: [media], 
+                  type: 'post'
+                };
+
+                this.cacheBustTs = Date.now();
                 this.posts = [hydratedPost, ...this.posts];
+
+                // Resetea todo
                 this.isUploadingMedia = false;
                 this.onRemoveSelectedImage();
                 this.postForm.reset();
-                this.cacheBustTs = Date.now();
               },
+              
+              // ERROR (al subir imagen)
               error: (err) => {
                 console.error('Error al subir imagen del post:', err);
+                // El post se creó, pero la imagen falló.
+                // Lo añadimos sin 'multimedia_contents'.
+                const hydratedPost: Post = {
+                  ...createdPost,
+                  user: freshUser || createdPost.user,
+                  user_id: freshUser?.id || createdPost.user_id,
+                  multimedia_contents: [], 
+                  type: 'post'
+                };
+                this.cacheBustTs = Date.now();
                 this.posts = [hydratedPost, ...this.posts];
                 this.isUploadingMedia = false;
                 this.onRemoveSelectedImage();
                 this.postForm.reset();
                 alert('El post se creó, pero la imagen no pudo subirse.');
-                this.cacheBustTs = Date.now(); 
               },
             });
+
           } else {
+            // ÉXITO (sin imagen)
+            // No hay archivo, así que creamos el post hidratado inmediatamente
+            const hydratedPost: Post = {
+              ...createdPost,
+              user: freshUser || createdPost.user,
+              user_id: freshUser?.id || createdPost.user_id,
+              multimedia_contents: [], 
+              type: 'post'
+            };
+            this.cacheBustTs = Date.now();
             this.posts = [hydratedPost, ...this.posts];
             this.postForm.reset();
-            this.cacheBustTs = Date.now();
           }
         },
+        // ERROR (al crear el post)
         error: (err: HttpErrorResponse) => {
           if (err?.error) {
             this.apiErrors = err.error;
