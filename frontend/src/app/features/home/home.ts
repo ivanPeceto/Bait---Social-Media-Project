@@ -263,7 +263,7 @@ export default class Home implements OnInit, OnDestroy {
           if (!query || query.trim() === '') {
             this.searchResults = [];
             this.showResults = false;
-            return [];
+            return of([]);
           }
           this.isSearching = true;
           this.showResults = true;
@@ -273,32 +273,12 @@ export default class Home implements OnInit, OnDestroy {
             if (!username) {
               this.isSearching = false;
               this.searchResults = [];
-              return [];
+              return of([]);
             }
-            return forkJoin([
-              this.searchService.searchByUsername(username).pipe(catchError(() => of([]))),
-              this.searchService.searchByName(username).pipe(catchError(() => of([]))),
-            ]).pipe(
-              map(([byUsername, byName]) => {
-                const seen = new Set<number>();
-                const merged = [] as any[];
-                for (const u of byUsername || []) {
-                  if (!seen.has(u.id)) {
-                    seen.add(u.id);
-                    merged.push(u);
-                  }
-                }
-                for (const u of byName || []) {
-                  if (!seen.has(u.id)) {
-                    seen.add(u.id);
-                    merged.push(u);
-                  }
-                }
-                return merged;
-              })
-            );
+            return this.searchService.searchByUsername(username);
+          } else {
+            return this.searchService.searchByName(q);
           }
-          return this.searchService.searchByName(q);
         })
       )
       .subscribe({

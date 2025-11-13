@@ -11,6 +11,7 @@ use App\Modules\Multimedia\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ProfileController extends Controller
 {
@@ -394,7 +395,7 @@ class ProfileController extends Controller
      * )
      * )
      */
-    public function showPublicProfile(User $user): UserResource
+    public function showPublicProfile(User $user): UserResource | JsonResponse
     {
         $user->load(['role', 'state', 'avatar', 'banner']);
 
@@ -441,7 +442,7 @@ class ProfileController extends Controller
      *     )
      * )
      */
-    public function getUserByUsername(string $username): UserResource
+    public function getUserByUsername(string $username): UserResource | JsonResponse
     {
         $user = User::where('username', $username)->first();
 
