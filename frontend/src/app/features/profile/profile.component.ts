@@ -24,7 +24,8 @@ import { FollowService } from '../../core/services/follow.service';
 import { InteractionService } from '../../core/services/interaction.service';
 import { PostCommentsSectionComponent } from '../comments/components/post-comments-section/post-comments-section.component';
 import { EchoService } from '../../core/services/echo.service';
-
+import { ReactionTypeService } from '../../core/services/reaction-type.service';
+import { ReactionType } from '../../core/models/reaction-type.model';
 import { environment } from '../../../environments/environment';
 import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
 
@@ -220,24 +221,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .getUserPosts(userId.toString())
       .pipe(
         map((response: any) => (response ? (response.data as Post[]) : [])),
-        switchMap((initialPosts: Post[]) => {
-          if (initialPosts.length === 0) return of([]);
-          const reactionChecks$: Observable<UserReactionStatus>[] = initialPosts.map((post) =>
-            this.interactionService
-              .checkUserReaction(post.id)
-              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
-          );
-          return forkJoin(reactionChecks$).pipe(
-            map((reactionStatuses: UserReactionStatus[]) =>
-              initialPosts.map((post, index) => {
-                post.is_liked_by_user =
-                  reactionStatuses[index].has_reacted &&
-                  reactionStatuses[index].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-                return post;
-              })
-            )
-          );
-        })
       )
       .subscribe({
         next: (postsWithLikeStatus: Post[]) => {
@@ -258,30 +241,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .getUserReposts(userId.toString())
       .pipe(
         map((response: any) => {
-          // AHORA DEVOLVEMOS REPOST[] (NO Post[])
           return (Array.isArray(response) ? response : response?.data || []) as Repost[];
         }),
-        switchMap((reposts: Repost[]) => {
-          if (!reposts || reposts.length === 0) return of([]);
-
-          // Verificamos la reacción en el 'post' anidado
-          const reactionChecks$: Observable<UserReactionStatus>[] = reposts.map((repost) =>
-            this.interactionService
-              .checkUserReaction(repost.post.id) // <-- Usar repost.post.id
-              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
-          );
-          return forkJoin(reactionChecks$).pipe(
-            map((statuses: UserReactionStatus[]) =>
-              reposts.map((repost, i) => {
-                // Asignamos el estado al 'post' anidado
-                repost.post.is_liked_by_user =
-                  statuses[i].has_reacted &&
-                  statuses[i].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-                return repost;
-              })
-            )
-          );
-        })
       )
       .subscribe({
         next: (hydratedReposts: Repost[]) => {
@@ -660,6 +621,69 @@ export class ProfileComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Error al actualizar el post (perfil):', err);
         alert('No se pudo actualizar el post.');
+      },
+    });
+  }
+  
+  /**
+   * Gestiona una reacción a un post (crear, actualizar o borrar).
+   * @param item El Post o Repost del feed.
+   * @param reactionTypeId El ID del tipo de reacción que el usuario clickeó (ej: 1 para 'like', 2 para 'love').
+   */
+  onReact(item: Post | Repost, reactionTypeId: number): void {
+    const post = this.getPostFromItem(item);
+
+    const currentState = post.user_reaction_status;
+    const currentReactionId = currentState?.reaction_type_id;
+
+    const payload: CreateReactionPayload = {
+      post_id: post.id,
+      reaction_type_id: reactionTypeId,
+    };
+
+    // Guardamos el estado anterior para revertir si falla
+    const previousState = {
+      status: post.user_reaction_status,
+      count: post.reactions_count || 0,
+    };
+
+    // Lógica de UI Optimista
+    if (currentReactionId === reactionTypeId) {
+      // 1. Clickeó la misma reacción: BORRAR
+      payload.action = 'delete';
+      post.user_reaction_status = { has_reacted: false, reaction_type_id: null };
+      post.reactions_count = (post.reactions_count || 1) - 1;
+      post.is_liked_by_user = false; // (por compatibilidad)
+
+    } else if (currentReactionId) {
+      // 2. Clickeó una reacción diferente: ACTUALIZAR
+      payload.action = 'update';
+      post.user_reaction_status = { has_reacted: true, reaction_type_id: reactionTypeId };
+      // El contador de reacciones totales no cambia
+      post.is_liked_by_user = reactionTypeId === 1; // (por compatibilidad)
+
+    } else {
+      // 3. No tenía reacción: CREAR
+      payload.action = 'create';
+      post.user_reaction_status = { has_reacted: true, reaction_type_id: reactionTypeId };
+      post.reactions_count = (post.reactions_count || 0) + 1;
+      post.is_liked_by_user = reactionTypeId === 1; // (por compatibilidad)
+    }
+
+    // Llamada al servicio
+    this.interactionService.manageReaction(payload).subscribe({
+      next: (response) => {
+        // Éxito. La UI ya está actualizada.
+        // El WS actualizará a otros, pero NO al usuario actual
+        // (por eso el 'updatePostInArray' sigue siendo necesario
+        // para los contadores que vienen del WS)
+      },
+      error: (err) => {
+        // ¡Error! Revertimos la UI
+        console.error('Error al reaccionar al post:', err);
+        post.user_reaction_status = previousState.status;
+        post.reactions_count = previousState.count;
+        post.is_liked_by_user = previousState.status?.reaction_type_id === 1;
       },
     });
   }

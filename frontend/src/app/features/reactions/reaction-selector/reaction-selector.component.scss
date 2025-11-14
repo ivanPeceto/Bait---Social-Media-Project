@@ -1,0 +1,55 @@
+:host {
+  position: relative;
+}
+
+.reaction-menu-container {
+  position: absolute;
+  bottom: 100%; 
+  left: -8px; 
+  margin-bottom: 8px; 
+  
+  background-color: white;
+  border-radius: 9999px; 
+  padding: 4px 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+  z-index: 10;
+  
+  opacity: 0;
+  transform: translateY(10px);
+  animation: pop-up 0.15s ease-out forwards;
+}
+
+.reaction-menu {
+  display: flex;
+  gap: 8px;
+}
+
+.reaction-button {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.1s ease-out, background-color 0.1s ease;
+  
+  color: #6b7280;
+
+  &:hover {
+    transform: scale(1.2); 
+    background-color: #f3f4f6; 
+  }
+  &:hover[title="like"]  { color: #007bff; }
+  &:hover[title="love"]  { color: #e0245e; }
+  &:hover[title="haha"]  { color: #f4b400; }
+  &:hover[title="wow"]   { color: #1da1f2; }
+  &:hover[title="sad"]   { color: #ffad1f; }
+  &:hover[title="angry"] { color: #d93a00; }
+}
+
+@keyframes pop-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -359,7 +359,7 @@ class ProfileController extends Controller
         // 'latest()' los ordena del más nuevo al más viejo.
         // 'paginate(15)' divide los resultados en páginas para un mejor rendimiento.
         $posts = $user->posts()
-                    ->with('user.avatar', 'multimedia_contents')
+                    ->with('user.avatar', 'multimedia_contents', 'userReaction')
                     ->withCount(['reactions', 'comments', 'reposts'])
                     ->latest()
                     ->paginate(15);
@@ -561,7 +561,8 @@ class ProfileController extends Controller
                         ->with([
                             'user', // El usuario que hizo el repost
                             'post.user.avatar', // El post original con su autor y avatar
-                            'post.multimedia_contents', // Contenidos multimedia del post original
+                            'post.multimedia_contents',
+                            'post.userReaction',
                             'post' => function ($query) { // Cargar contadores del post original
                                 $query->withCount(['reactions', 'comments', 'reposts']);
                             }

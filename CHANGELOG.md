@@ -1,4 +1,50 @@
-## [fix/searchBar] - 2025-11-12
+## [feat/front/reactions] - 2025-11-13
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Adds
+* `frontend/src/app/core/models/reaction-type.model.ts`
+* `frontend/src/app/core/services/reaction-type.service.ts`
+* Estos 2 archivos nuevos manejan las llamadas al backend.
+* `frontend/src/app/core/pipes/reaction-id-to-name.pipe.ts`
+* Relaciona reacciones a sus id's en base a lo descrito en el seeder de reacciones del backend.
+* `frontend/src/app/features/reactions/reaction-icon/reaction-icon.component.ts`
+* Componente dummy para mostrar el SVG correspondiente a cada reaccion de manera dinámica.
+* `frontend/src/app/features/reactions/reaction-selector/reaction-selector.component.ts`
+* `frontend/src/app/features/reactions/reaction-selector/reaction-selector.component.ts`
+* `frontend/src/app/features/reactions/reaction-selector/reaction-selector.component.scss`
+* Componente destinado a mostrar un selector de reacciones.
+
+### Changed
+* Añade el nuevo campo de `PostResource` en la interfaz `Post` de `post.model.ts`.
+
+### Affects
+* `frontend/src/app/core/models/post.model.ts`
+* `frontend/src/app/features/home/home.ts`
+
+## [feat/front/reactions] - 2025-11-13
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Corrige pequeño typo en `SendNewReactionNotification`
+
+### Refactor
+* Añade una nueva relación para recolectar las reacciones de un usuario en los posteos desde el back. Afecta el modelo `Post.php`.
+* Impacta los cambios de Post.php en `ProfileController`, `FeedController` y `PostResource`.
+* Añade campos extra a `PostResource` para recoger más información sobre las reacciones.
+* Crea un nuevo endpoint para recoger  los tipos de reacciones desde el back.
+
+### Affects
+* `backend/bait-api/app/Listeners/SendNewReactionNotification.php`
+* `backend/bait-api/app/Modules/Multimedia/Domain/Models/Post.php`
+* `backend/bait-api/app/Modules/UserData/Http/Controllers/ProfileController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/PostResource.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/ReactionTypeResource.php`
+* `backend/bait-api/routes/api.php`
+
+## [fix/searchBar] - 2025-11-13
 
 _(Cambios realizados por @ivanPeceto)_
 

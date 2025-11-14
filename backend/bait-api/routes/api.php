@@ -161,6 +161,7 @@ Route::middleware('auth:api')->prefix('multimedia-contents')->group(function () 
 });
 
 Route::middleware('auth:api')->prefix('post-reactions')->group(function () {
+    Route::get('/reaction-types', [ReactionTypeController::class, 'index']);
     Route::post('/', [PostReactionController::class, 'store']);
 });
 

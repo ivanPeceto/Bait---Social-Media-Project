@@ -28,6 +28,13 @@ class PostResource extends JsonResource
             'is_liked_by_user' => (bool) $this->liked_by_user,
             'multimedia_contents' => MultimediaContentResource::collection($this->whenLoaded('multimedia_contents')),
             'type' => 'post',
-        ];
+            'user_reaction_status' => $userReaction ? [
+                'has_reacted' => true,
+                'reaction_type_id' => $userReaction->reaction_type_id
+            ] : [
+                'has_reacted' => false,
+                'reaction_type_id' => null
+            ]
+                ];
     }
 }

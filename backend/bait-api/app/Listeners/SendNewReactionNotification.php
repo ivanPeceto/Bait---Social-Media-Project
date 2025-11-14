@@ -31,7 +31,7 @@ class SendNewReactionNotification implements ShouldQueue
 
         // Sends notification only if another user reacts to the post
         if ($postOwner->id !== $reactingUser->id) {
-            $postOwner->notify(new NewReactionNotification($reactingUser, $event->post));
+            $postOwner->notify(new NewReactionNotification($reactingUser, $event->reaction->post));
         }
     }
 }

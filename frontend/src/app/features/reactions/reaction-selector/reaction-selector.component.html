@@ -1,0 +1,25 @@
+<div 
+  class="reaction-menu-container"
+  *ngIf="visible && !isLoading">
+  
+  <div class="reaction-menu" *ngIf="(reactionTypes$ | async) as types">
+    
+    <button 
+      *ngFor="let reaction of types" 
+      (click)="onSelect(reaction)" 
+      class="reaction-button"
+      [title]="reaction.name">
+      
+      <app-reaction-icon 
+        [reactionName]="reaction.name" 
+        size="32"
+        fill="currentColor"
+        stroke="none">
+      </app-reaction-icon>
+
+    </button>
+  </div>
+</div>
+
+<div class="reaction-menu-loader" *ngIf="visible && isLoading">
+  </div>

@@ -102,4 +102,12 @@ class PostReactionController extends Controller
 
         return response()->json(new PostReactionResource($reaction->load('user', 'reactionType')), 201);
     }
+
+    public function index()
+    {
+        $types = Cache::remember('reaction_types', 3600, function () {
+            return ReactionType::all();
+        });
+        return ReactionTypeResource::collection($types);
+    }
 }
