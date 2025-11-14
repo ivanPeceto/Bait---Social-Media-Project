@@ -3,6 +3,27 @@
 _(Cambios realizados por @ivanPeceto)_
 
 ### Changed
+* Añade en PostReactionController un nuevo  endpoint para recoger todas las  reacciones de un posteo separadas por tipo.
+* Añade una nueva interfaz a `reaction-type.model.ts` para manejar los datos del nuevo endpoint.
+* Añade un nuevo método a post.service para manejar el nuevo  endpoint.
+
+### Affects
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/PostReactionController.php`
+* `backend/bait-api/routes/api.php`
+* `frontend/src/app/core/models/reaction-type.model.ts`
+* `frontend/src/app/core/services/post.service.ts`
+
+### Adds
+* `frontend/src/app/features/reactions/reaction-summary-modal/reaction-summary-modal.component.ts`
+* `frontend/src/app/features/reactions/reaction-summary-modal/reaction-summary-modal.component.html`
+* `frontend/src/app/features/reactions/reaction-summary-modal/reaction-summary-modal.component.scss`
+* Nuevo componente para mostrar la lista de reacciones de un posteo.
+
+## [feat/front/reactions] - 2025-11-14
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
 * Integra todos los cambios  anteriormente integrados en  home.ts  a profile.component.
 
 ### Affects

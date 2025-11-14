@@ -1,0 +1,110 @@
+:host {
+  display: contents; 
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0; 
+  background-color: rgba(0, 0, 0, 0.6); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #1a202c;
+  border: 1px solid #4a5568;
+  border-radius: 0.5rem;
+  padding: 1.5rem; 
+  width: 90%;
+  max-width: 400px;
+  
+  // Animación de entrada
+  animation: popIn 0.2s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #4a5568;
+}
+
+.modal-title {
+  font-size: 1.25rem; 
+  font-weight: 600;
+  color: #fff;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: #a0aec0; 
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.modal-body {
+  margin-top: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  color: #e2e8f0;
+}
+
+// Estados
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 2rem 0;
+  color: #a0aec0;
+}
+
+.reaction-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; 
+}
+
+.reaction-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; 
+  font-size: 1rem; 
+}
+
+.reaction-count {
+  font-weight: 600;
+  color: #fff;
+  flex-grow: 1; 
+}
+
+.reaction-name {
+  color: #a0aec0;
+}
+
+// Animaciones
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}

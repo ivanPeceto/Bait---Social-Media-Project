@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use App\Modules\Multimedia\Domain\Models\ReactionType;
 use App\Modules\Multimedia\Http\Resources\ReactionTypeResource;
+use Illuminate\Support\Facades\DB;
 
 class PostReactionController extends Controller
 {
@@ -131,5 +132,62 @@ class PostReactionController extends Controller
             return ReactionType::all();
         });
         return ReactionTypeResource::collection($types);
+    }
+
+    /**
+     * @OA\Get(
+     * path="/api/posts/{post}/reaction-summary",
+     * summary="Get a summary of reactions for a post, grouped by type",
+     * description="Returns a list of reaction types and the count for each on a specific post.",
+     * tags={"Post Reactions"},
+     * security={{"bearerAuth":{}}},
+     *
+     * @OA\Parameter(
+     * name="post",
+     * in="path",
+     * required=true,
+     * description="The ID of the post to get the reaction summary for.",
+     * @OA\Schema(type="integer", example=12)
+     * ),
+     *
+     * @OA\Response(
+     * response=200,
+     * description="Reaction summary retrieved successfully",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(
+     * type="object",
+     * @OA\Property(property="reaction_type_id", type="integer", example=1),
+     * @OA\Property(property="name", type="string", example="like"),
+     * @OA\Property(property="count", type="integer", example=10)
+     * ),
+     * example={
+     * {"reaction_type_id": 1, "name": "like", "count": 10},
+     * {"reaction_type_id": 2, "name": "love", "count": 5},
+     * {"reaction_type_id": 3, "name": "haha", "count": 3}
+     * }
+     * )
+     * ),
+     *
+     * @OA\Response(
+     * response=404,
+     * description="Post not found"
+     * )
+     * )
+     */
+    public function getReactionCountsByPost(Post $post): JsonResponse
+    {
+        $reactionCounts = PostReaction::where('post_id', $post->id)
+            ->join('reaction_types', 'post_reactions.reaction_type_id', '=', 'reaction_types.id')
+            ->select(
+                'reaction_type_id',
+                'reaction_types.name_reaction_types as name',
+                DB::raw('COUNT(*) as count') 
+            )
+            ->groupBy('reaction_type_id', 'reaction_types.name_reaction_types')
+            ->orderBy('count', 'desc') // Ordenamos por las más populares
+            ->get();
+
+        return response()->json($reactionCounts);
     }
 }
