@@ -218,7 +218,7 @@ export default class Home implements OnInit, OnDestroy {
     this.loadPosts();
     this.setupSearch();
     this.setupWebSocketListeners();
-    //this.loadReactionTypes();
+    this.loadReactionTypes();
   }
 
   /**

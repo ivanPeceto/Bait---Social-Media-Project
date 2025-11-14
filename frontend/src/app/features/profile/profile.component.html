@@ -232,10 +232,31 @@
         <div class="p-2 rounded-full group-hover:bg-green-500/10 transition-colors"><svg class="w-5 h-5 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></div>
         <span class="text-xs group-hover:text-green-500">{{ post.reposts_count || 0 }}</span>
       </button>
-      <button (click)="onToggleLike(post)" class="flex items-center ...">
-        <div class="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors"><svg class="w-5 h-5" [class.fill-blue-500]="post.is_liked_by_user" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
-        <span class="text-xs">{{ post.reactions_count || 0 }}</span>
-      </button>
+      <div class="relative group">
+        <app-reaction-selector
+          [reactionTypes]="reactionTypes"
+          [visible]="openReactionMenuForItemId === getFeedItemId(post)"
+          (reactionSelected)="onReact(post, $event.id); closeReactionMenu()">
+        </app-reaction-selector>
+
+        <button 
+          type="button"
+          (click)="toggleReactionMenu(post)"
+          class="flex items-center space-x-1 group focus:outline-none"
+          [style.color]="getReactionColor(post)">
+
+          <div class="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors">
+            <app-reaction-icon
+              [reactionName]="post.user_reaction_status?.reaction_type_id | reactionIdToName"
+              class="w-5 h-5">
+            </app-reaction-icon>
+          </div>
+
+          <span class="text-xs" [class.group-hover:text-blue-500]="!post.user_reaction_status?.has_reacted">
+            {{ post.reactions_count || 0 }}
+          </span>
+        </button>
+      </div>
     </div>
 
     <app-post-comments-section
@@ -302,10 +323,32 @@
         <div class="p-2 rounded-full group-hover:bg-green-500/10 transition-colors"><svg class="w-5 h-5 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></div>
         <span class="text-xs group-hover:text-green-500">{{ repost.post.reposts_count || 0 }}</span>
       </button>
-      <button (click)="onToggleLike(repost)" class="flex items-center ..." [class.text-blue-500]="repost.post.is_liked_by_user">
-        <div class="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors"><svg class="w-5 h-5" [class.fill-blue-500]="repost.post.is_liked_by_user" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
-        <span class->{{ repost.post.reactions_count || 0 }}</span>
-      </button>
+      <div class="relative group">
+
+        <app-reaction-selector
+          [reactionTypes]="reactionTypes"
+          [visible]="openReactionMenuForItemId === getFeedItemId(repost)"
+          (reactionSelected)="onReact(repost, $event.id); closeReactionMenu()">
+        </app-reaction-selector>
+
+        <button 
+          type="button"
+          (click)="toggleReactionMenu(repost)"
+          class="flex items-center space-x-1 group focus:outline-none"
+          [style.color]="getReactionColor(getPostFromItem(repost))">
+
+          <div class="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors">
+            <app-reaction-icon
+              [reactionName]="repost.post.user_reaction_status?.reaction_type_id | reactionIdToName"
+              class="w-5 h-5">
+            </app-reaction-icon>
+          </div>
+
+          <span class.text-xs="text-xs" [class.group-hover:text-blue-500]="!repost.post.user_reaction_status?.has_reacted">
+            {{ repost.post.reactions_count || 0 }}
+          </span>
+        </button>
+      </div>
     </div>
 
     <app-post-comments-section

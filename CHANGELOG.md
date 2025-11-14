@@ -1,3 +1,14 @@
+## [feat/front/reactions] - 2025-11-14
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Integra todos los cambios  anteriormente integrados en  home.ts  a profile.component.
+
+### Affects
+* `frontend/src/app/features/profile/profile.component.ts`
+* `frontend/src/app/features/profile/profile.component.html`
+
 ## [feat/front/reactions] - 2025-11-13
 
 _(Cambios realizados por @ivanPeceto)_

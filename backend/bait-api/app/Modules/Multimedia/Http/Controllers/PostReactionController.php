@@ -90,6 +90,7 @@ class PostReactionController extends Controller
                                   ->where('post_id', $post_id)
                                   ->first();
             $reaction->update(['reaction_type_id' => $reaction_type_id]);
+            event(new NewReactionEvent($reaction));
             return response()->json(new PostReactionResource($reaction->load('reactionType')), 200);
         }
 
