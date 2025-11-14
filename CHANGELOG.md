@@ -9,6 +9,8 @@ _(Cambios realizados por @ivanPeceto)_
 * `frontend/src/app/core/pipes/reaction-id-to-name.pipe.ts`
 * Relaciona reacciones a sus id's en base a lo descrito en el seeder de reacciones del backend.
 * `frontend/src/app/features/reactions/reaction-icon/reaction-icon.component.ts`
+* `frontend/src/app/features/reactions/reaction-icon/reaction-icon.component.html`
+* `frontend/src/app/features/reactions/reaction-icon/reaction-icon.component.scss`
 * Componente dummy para mostrar el SVG correspondiente a cada reaccion de manera dinámica.
 * `frontend/src/app/features/reactions/reaction-selector/reaction-selector.component.ts`
 * `frontend/src/app/features/reactions/reaction-selector/reaction-selector.component.ts`

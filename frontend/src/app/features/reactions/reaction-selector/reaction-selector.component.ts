@@ -13,29 +13,14 @@ import { ReactionIconComponent } from '../reaction-icon/reaction-icon.component'
   templateUrl: './reaction-selector.component.html',
   styleUrls: ['./reaction-selector.component.scss']
 })
-export class ReactionSelectorComponent implements OnInit {
+export class ReactionSelectorComponent {
   /** Controla si el menú es visible o no */
   @Input() visible: boolean = false;
   
   /** Emite la reacción seleccionada cuando el usuario hace clic */
   @Output() reactionSelected = new EventEmitter<ReactionType>();
 
-  private reactionTypeService = inject(ReactionTypeService);
-  
-  public reactionTypes$: Observable<ReactionType[]>;
-  public isLoading = true;
-
-  ngOnInit(): void {
-    // Carga los tipos de reacción desde el servicio que creamos
-    this.reactionTypes$ = this.reactionTypeService.getReactionTypes().pipe(
-      tap(() => this.isLoading = false),
-      catchError((error: any) => {
-        this.isLoading = false;
-        console.error('Error al cargar los tipos de reacción:', error);
-        return of([]); 
-      })
-    );
-  }
+  @Input() reactionTypes: ReactionType[] = [];
 
   /**
    * Se llama cuando el usuario hace clic en un ícono

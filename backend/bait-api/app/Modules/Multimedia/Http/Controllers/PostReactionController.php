@@ -10,6 +10,9 @@ use App\Modules\Multimedia\Http\Requests\Reaction\CreatePostReactionRequest;
 use App\Modules\Multimedia\Http\Resources\PostReactionResource;
 use App\Notifications\NewReactionNotification;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
+use App\Modules\Multimedia\Domain\Models\ReactionType;
+use App\Modules\Multimedia\Http\Resources\ReactionTypeResource;
 
 class PostReactionController extends Controller
 {
@@ -103,6 +106,24 @@ class PostReactionController extends Controller
         return response()->json(new PostReactionResource($reaction->load('user', 'reactionType')), 201);
     }
 
+    /**
+     * @OA\Get(
+     * path="/api/reaction-types",
+     * summary="Get all available reaction types",
+     * description="Returns a list of all reaction types (like, love, etc.) that can be used on posts.",
+     * tags={"Reactions"},
+     * security={{"bearerAuth":{}}},
+     *
+     * @OA\Response(
+     * response=200,
+     * description="List of reaction types retrieved successfully",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/ReactionTypeResource")
+     * )
+     * )
+     * )
+     */
     public function index()
     {
         $types = Cache::remember('reaction_types', 3600, function () {

@@ -160,8 +160,9 @@ Route::middleware('auth:api')->prefix('multimedia-contents')->group(function () 
     Route::delete('/{multimediaContent}', [MultimediaContentController::class, 'destroy']);
 });
 
+Route::get('post-reactions/reaction-types', [PostReactionController::class, 'index']);
+
 Route::middleware('auth:api')->prefix('post-reactions')->group(function () {
-    Route::get('/reaction-types', [ReactionTypeController::class, 'index']);
     Route::post('/', [PostReactionController::class, 'store']);
 });
 

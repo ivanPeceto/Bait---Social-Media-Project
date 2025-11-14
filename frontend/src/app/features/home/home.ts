@@ -69,6 +69,7 @@ export default class Home implements OnInit, OnDestroy {
   private router = inject(Router);
   private multimediaService = inject(MultimediaContentService);
   private echoService = inject(EchoService);
+  private reactionTypeService = inject(ReactionTypeService);
 
   private readonly LIKE_REACTION_TYPE_ID = 1;
   public readonly apiUrlForImages = environment.baseUrl;
@@ -78,6 +79,7 @@ export default class Home implements OnInit, OnDestroy {
   showResults = false;
   public currentUser: any;
   public posts: (Post | Repost)[] = [];
+  public reactionTypes: ReactionType[] = [];
   public currentPage = 1;
   public lastPage = 1;
   public isLoadingMore = false;
@@ -216,6 +218,7 @@ export default class Home implements OnInit, OnDestroy {
     this.loadPosts();
     this.setupSearch();
     this.setupWebSocketListeners();
+    //this.loadReactionTypes();
   }
 
   /**
@@ -239,6 +242,17 @@ export default class Home implements OnInit, OnDestroy {
     }
   }
 
+  private loadReactionTypes(): void {
+    this.reactionTypeService.getReactionTypes().subscribe({
+      next: (types) => {
+        this.reactionTypes = types;
+        console.log('Tipos de reacción cargados en Home:', this.reactionTypes); 
+      },
+      error: (err) => {
+        console.error('Error al cargar los tipos de reacción en Home:', err);
+      }
+    });
+  }
   /**
    * Configures ws listeners for posts feed.
   */
@@ -413,6 +427,8 @@ export default class Home implements OnInit, OnDestroy {
    * del usuario actual para cada post mediante llamadas adicionales.
    */
   loadPosts(): void {
+    this.loadReactionTypes();
+    
     // Evitar cargas múltiples si ya se está cargando
     if (this.isLoading || this.isLoadingMore) return;
 
