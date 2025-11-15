@@ -18,6 +18,7 @@ export interface UpdateCommentPayload {
 export interface CreateReactionPayload {
   post_id: number;
   reaction_type_id: number;
+  action?: 'create' | 'update' | 'delete';
 }
 
 export interface CreateRepostPayload {
@@ -37,3 +38,27 @@ export interface FollowUserInfo {
   created_at: string;
   updated_at: string;
 } 
+
+export interface PaginatedLinks {
+  first: string | null;
+  last: string | null;
+  prev: string | null;
+  next: string | null;
+}
+
+export interface PaginatedMeta {
+  current_page: number;
+  from: number;
+  last_page: number;
+  links: { url: string | null; label: string; active: boolean }[];
+  path: string;
+  per_page: number;
+  to: number;
+  total: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  links: PaginatedLinks;
+  meta: PaginatedMeta;
+}

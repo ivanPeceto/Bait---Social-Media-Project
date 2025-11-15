@@ -1,0 +1,20 @@
+<div 
+  class="reaction-menu-container"
+  *ngIf="visible">
+  
+  <div class="reaction-menu" *ngIf="reactionTypes.length > 0">
+    
+    <button 
+      *ngFor="let reaction of reactionTypes" 
+      (click)="onSelect(reaction)" 
+      class="reaction-button"
+      [title]="reaction.name">
+      
+      <app-reaction-icon 
+        [reactionName]="reaction.name" 
+        class="w-5 h-5">
+      </app-reaction-icon>
+
+    </button>
+  </div>
+</div>

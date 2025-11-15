@@ -1,4 +1,498 @@
+## [feat/front/repostsbug] - 2025-11-14
+
+### Fixed
+- **Reposts Feed Bug:** Se corrigió un error que impedía que los nuevos reposts aparecieran en el feed principal en tiempo real y, a veces, mostraba contenido vacío, en otras ocaciones se rompía y no figuraba el repost correctamente.
+  - `RepostController.php`: Se agregó el disparo del evento `NewRepost` al crear un repost para habilitar las actualizaciones en tiempo real.
+  - `frontend/src/app/core/services/interaction.service.ts`: Se corrigió el tipo de retorno en `createRepost` de `Observable<Post>` a `Observable<Repost>` para coincidir con la respuesta de la API.
+  - `home.ts`:
+    - Se actualizó `onToggleRepost` para agregar el nuevo `Repost` al array del feed, en lugar de intentar actualizar un post existente.
+    - Se añadió un listener para el evento `.NewRepost` en `setupWebSocketListeners` para recibir actualizaciones.
+
+- **Reposts Content Bug:** Se solucionó un problema por el cual los reposts en la página de perfil no mostraban el contenido del post original (texto, imágenes, etc.).
+  - `backend/bait-api/app/Modules/UserData/Http/Controllers/ProfileController.php`: Se implementó *Eager Loading* (`.with([...])`) en el método `getUserReposts` para cargar las relaciones anidadas (`post`, `post.user`, `post.multimedia_contents`, etc.).
+
+## [feat/front/reactions] - 2025-11-14
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Integra el modal de reactions summary a profile y home
+
+### Affects
+* `frontend/src/app/features/home/home.html`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/features/profile/profile.component.html`
+* `frontend/src/app/features/profile/profile.component.ts`
+
+## [feat/front/reactions] - 2025-11-14
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Añade en PostReactionController un nuevo  endpoint para recoger todas las  reacciones de un posteo separadas por tipo.
+* Añade una nueva interfaz a `reaction-type.model.ts` para manejar los datos del nuevo endpoint.
+* Añade un nuevo método a post.service para manejar el nuevo  endpoint.
+
+### Affects
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/PostReactionController.php`
+* `backend/bait-api/routes/api.php`
+* `frontend/src/app/core/models/reaction-type.model.ts`
+* `frontend/src/app/core/services/post.service.ts`
+
+### Adds
+* `frontend/src/app/features/reactions/reaction-summary-modal/reaction-summary-modal.component.ts`
+* `frontend/src/app/features/reactions/reaction-summary-modal/reaction-summary-modal.component.html`
+* `frontend/src/app/features/reactions/reaction-summary-modal/reaction-summary-modal.component.scss`
+* Nuevo componente para mostrar la lista de reacciones de un posteo.
+
+## [feat/front/reactions] - 2025-11-14
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Integra todos los cambios  anteriormente integrados en  home.ts  a profile.component.
+
+### Affects
+* `frontend/src/app/features/profile/profile.component.ts`
+* `frontend/src/app/features/profile/profile.component.html`
+
+## [feat/front/reactions] - 2025-11-13
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Adds
+* `frontend/src/app/core/models/reaction-type.model.ts`
+* `frontend/src/app/core/services/reaction-type.service.ts`
+* Estos 2 archivos nuevos manejan las llamadas al backend.
+* `frontend/src/app/core/pipes/reaction-id-to-name.pipe.ts`
+* Relaciona reacciones a sus id's en base a lo descrito en el seeder de reacciones del backend.
+* `frontend/src/app/features/reactions/reaction-icon/reaction-icon.component.ts`
+* `frontend/src/app/features/reactions/reaction-icon/reaction-icon.component.html`
+* `frontend/src/app/features/reactions/reaction-icon/reaction-icon.component.scss`
+* Componente dummy para mostrar el SVG correspondiente a cada reaccion de manera dinámica.
+* `frontend/src/app/features/reactions/reaction-selector/reaction-selector.component.ts`
+* `frontend/src/app/features/reactions/reaction-selector/reaction-selector.component.ts`
+* `frontend/src/app/features/reactions/reaction-selector/reaction-selector.component.scss`
+* Componente destinado a mostrar un selector de reacciones.
+
+### Changed
+* Añade el nuevo campo de `PostResource` en la interfaz `Post` de `post.model.ts`.
+
+### Affects
+* `frontend/src/app/core/models/post.model.ts`
+* `frontend/src/app/features/home/home.ts`
+
+## [feat/front/reactions] - 2025-11-13
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Corrige pequeño typo en `SendNewReactionNotification`
+
+### Refactor
+* Añade una nueva relación para recolectar las reacciones de un usuario en los posteos desde el back. Afecta el modelo `Post.php`.
+* Impacta los cambios de Post.php en `ProfileController`, `FeedController` y `PostResource`.
+* Añade campos extra a `PostResource` para recoger más información sobre las reacciones.
+* Crea un nuevo endpoint para recoger  los tipos de reacciones desde el back.
+
+### Affects
+* `backend/bait-api/app/Listeners/SendNewReactionNotification.php`
+* `backend/bait-api/app/Modules/Multimedia/Domain/Models/Post.php`
+* `backend/bait-api/app/Modules/UserData/Http/Controllers/ProfileController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/PostResource.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/ReactionTypeResource.php`
+* `backend/bait-api/routes/api.php`
+
+## [fix/searchBar] - 2025-11-13
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Bugfix
+* Arregla el espacio vacío en el sticky top del search bar.
+* Arregla error 500 del backend al fallar la búsqueda de usuario en `ProfileController`.
+* Corrige inconsistencias en la lógica de búsquedas en `home.ts`
+
+### Affects
+* `frontend/src/app/features/home/home.html`
+* `frontend/src/app/features/home/home.ts`
+* `backend/bait-api/app/Modules/UserData/Http/Controllers/ProfileController.php`
+
+## [fix/multimediacontent] - 2025-11-12
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Bugfix
+* Corrige el bug de la mediacontent asociada a un posteo recien creado no siendo mostradas y mostranod en su lugar el placeholder
+
+### Changed
+* Refactoriza `media-url.pipe.ts` y `onSubmitPost` en `home.ts` para que maneje correctamente las url_contents nuevas.
+* Corrige inconsistencia de nombre de campos en `multimedia-content.service.ts`.
+
+### Affects
+* `frontend/src/app/core/pipes/media-url.pipe.ts`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/core/services/multimedia-content.service.ts`
+
+## [refactor/reposts] - 2025-11-12
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Corrige y mejora algunos aspectos del html de comentarios.
+* Deshabilita el botón de reposts en la sección de reposts del propio usuario.
+* Añade chequeo de estados de like a la función `loadPosts` en `home.ts`.
+* Refactoriza el método `toggleRepost` en `interaction.service.ts` para que sea solamente `createRepost` ya que el endpoint al  que apunta no  es un toggle.
+* Añade el método `deleteRepost` en `interaction.service.ts`.
+* Añade función de eliminar reposteos en `profile.component` (ts y html).
+
+### Bugfix
+* Arregla errores de estado de likes en home.ts y profile.component.ts
+* Corrige bugs de apertura de edición de posts en `profile.component`
+
+### Affects
+* `frontend/src/app/features/comments/components/comment-item/comment-item.component.html`
+* `frontend/src/app/features/comments/components/comment-form/comment-form.component.html`
+* `frontend/src/app/features/profile/profile.component.html`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/core/services/interaction.service.ts`
+
+## [refactor/reposts] - 2025-11-11
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Refactor
+* `FeedController` ahora no devuelve los reposts del propio usuario.
+* Implementa los métodos añadidos a home.ts en otras iteraciones a profile.component.ts
+* Corrige bugs de html.
+
+### Bugfix
+* Corrige bug de instalación fresca con swagger.
+* Arregla el bug de cajas de comentarios duplicadas.
+
+### Affects
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `docker-compose.yml`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/features/home/home.html`
+* `frontend/src/app/features/profile/profile.component.ts`
+* `frontend/src/app/features/profile/profile.component.html`
+
+## [fix/front/comments] - 2025-11-10
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Elimina lineas comentadas en `start_server.sh` y `docker-compose.yml`.
+* Refactoriza el modal de comentarios para transformarlo en una sección desplegable de los posteos. 
+
+### Eliminates
+* `frontend/src/app/features/comments/components/post-comments-modal/post-comments-modal.component.html`
+* `frontend/src/app/features/comments/components/post-comments-modal/post-comments-modal.component.ts`
+
+### Affects
+* `start_server.sh`
+* `docker-compose.yml`
+* `frontend/src/app/features/home/home.ts`
+
+### Adds
+* `frontend/src/app/features/comments/components/post-comments-section/post-comments-section.html`
+* `frontend/src/app/features/comments/components/post-comments-section/post-comments-section.ts`
+
+## [feat/websockets] - 2025-11-10
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Crea un nuevo endpoint que devuelve todos los usuarios con los que podemos iniciar un chat.
+* Añade los métodos y documentación necesarios en `ChatController`.
+* Añade a `chats.controller` el método que utiliza el nuevo endpoint.
+* Corrige llamado a función eloquent incorrecta en `ChatController`.
+* Corrige campo erroneo `users`, el cual  debía ser `participants`, en `chats.model.ts`.
+* Corrige acceso incorrecto a propiedades de usuario en `chat-window.component.html`.
+
+### Affects
+* `backend/bait-api/app/Modules/UserInteractions/Http/Controllers/ChatController.php`
+* `backend/bait-api/routes/api.php`
+* `frontend/src/app/core/services/chats.service.ts`
+* `backend/bait-api/app/Modules/UserInteractions/Http/Controllers/ChatController.php`
+* `frontend/src/app/core/models/chats.model.ts`
+* `frontend/src/app/features/chat/chat-sidebar/chat-sidebar.component.ts`
+* `frontend/src/app/features/chat/chat-sidebar/chat-window.component.ts`
+* `frontend/src/app/features/chat/chat-window/chat-window.component.html`
+
+## [feat/websockets] - 2025-11-10
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Adds
+* `frontend/src/app/core/services/chats.service.ts`
+* `frontend/src/app/core/models/chats.model.ts`
+* `frontend/src/app/features/chat/chat-sidebar/chat-sidebar.component.html`
+* `frontend/src/app/features/chat/chat-sidebar/chat-sidebar.component.ts`
+* `frontend/src/app/features/chat/chat-window/chat-window.component.html`
+* `frontend/src/app/features/chat/chat-window/chat-window.component.ts`
+* `frontend/src/app/features/chat/chat.component.ts`
+
+### Changed
+* Implementa los nuevos módulos de chat en `main.component.ts`
+
+### Affects
+* `frontend/src/app/core/models/api-payloads.model.ts`
+* `frontend/src/app/layout/main/main.component.ts`
+
+## [feat/websockets] - 2025-11-09
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed 
+* Corrige llamado a relación incorrecta en `SendNewRepostNotification`
+* Añade implementacion de Queue's a `SendNewReactionNotification` 
+* Añade atributo "action" a `CreateReactionPayload` en `api-payloads.model.ts`.
+* Refactoriza el método `toggleReaction` ahora llamado `manageReaction` en `interaction.service.ts`
+* Añade verificación en el backend para evitar que un usuario repostee su propio posteo. Afecta `RepostController`.
+* Añade el helper `updatePostInArray` en `profile.component.ts`.
+
+## Bufix
+* Corrige inconsistencias en el código de `PostReactionController` que impedían el funcionamiento de las notificaciones.
+
+### Affects
+* `backend/bait-api/app/Listeners/SendNewRepostNotification.php`
+* `backend/bait-api/app/Listeners/SendNewReactionNotification.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/PostReactionController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/RepostController.php`
+* `frontend/src/app/core/models/api-payloads.model.ts`
+* `frontend/src/app/core/services/interaction.service.ts`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/features/profile/profile.component.ts`
+
+## [fix/front/ws] - 2025-11-08
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
+* Añade el nombre "NewPost" con `broadcastAs` para que el frontend lo pueda interpretar el frontend.
+* Corrige nombre de canal "App.Models.User{id}" al nombre correcto "users.{id}" en `home.ts`
+* Corrige error de tipeo en el FeedController
+
+### Affects
+* `backend/bait-api/app/Events/NewPost.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `frontend/src/app/features/home/home.ts`
+
+## [feature/frontend/websocket] - 2025-11-07
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Fixed
+
+* Adaptación final del componente principal `MainComponent` para reflejar la nueva estructura y funcionamiento.
+* Adaptación del `NotificationService` para manejar notificaciones en tiempo real vía WebSocket.
+
+### Added
+
+* Adaptación del `MainComponent` para manejar eventos WebSocket en vivo y carga desde backend.
+* Nuevo servicio `NotificationListenerService` para manejar notificaciones de usuario en tiempo real.
+* Nuevo servicio `EchoService` para gestionar canales privados y eventos en WebSocket.
+* Obtención del token JWT y user_id desde `localStorage` para autenticación en tiempo real.
+* Middleware agregado para rutas de broadcasting en backend.
+* Correcciones y mejoras en el driver Reverb para conexión con Pusher.
+* Refactorización e implementación de transmisión en canales privados para notificaciones en backend.
+* Nuevas notificaciones para acciones específicas (seguidores, reposts, reacciones) que reemplazan el evento genérico.
+* Servicio backend para manejar trabajos en cola vía Redis.
+* Agregado soporte para notificaciones WebSocket, configuración de Nginx y phpMyAdmin, assets de Swagger y generación de claves/JWT en Laravel.
+* Notificaciones WebSocket integradas en el layout principal de la aplicación.
+
+---
+
+### Archivos afectados
+
+* `frontend/src/app/layout/main/main.component.html`
+* `frontend/src/app/core/services/notification.service.ts`
+* `frontend/src/app/layout/main/main.component.ts`
+* `frontend/src/app/core/services/notification.listener.service.ts`
+* `frontend/src/app/core/services/echo.service.ts`
+* `frontend/src/app/core/services/auth.service.ts`
+* `backend/bait-api/routes/channels.php`
+* `backend/bait-api/config/broadcasting.php`
+* `backend/bait-api/app/Notifications/NewFollowNotification.php`
+* `backend/bait-api/app/Notifications/NewReactionNotification.php`
+* `backend/bait-api/app/Notifications/NewRepostNotification.php`
+* `backend/bait-api/app/Modules/UserInteractions/Http/Controllers/FollowController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/RepostController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/PostReactionController.php`
+* `docker-compose.yml`
+
+## [fix/front/ws] - 2025-11-06
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Bugfix
+* Corrige redirección incorrecta a storage en `nginx.conf` arreglando el bug de imagenes default inexistentes.
+* Sube al repositorio de manera forsoza las imagenes default de avatars y banners.
+
+### Changed
+* Refactoriza el endpoint `/feed` en el backend para devolver:
+  1. Todos los posteos del mismo usuario.
+  2. Todos los reposteos del mismo usuario.
+  3. Todos los posteos de los usuarios a los que sigue.
+  4. Todos los reposteos de los usuarios a los que sigue
+* Añade campo "type" a `RepostResource.php` y `PostResource.php`
+* Integra el nuevo campo "type" en `post.model.ts`
+* Añade a `api-payloads.model.ts` nuevos tipos para manejar payloads paginados.
+* Añade método `getFeed` a `post.service.ts`
+
+### Affects 
+* `nginx/nginx.conf.template`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/RepostResource.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Resources/PostResource.php`
+* `backend/bait-api/app/Modules/Multimedia/Http/Controllers/FeedController.php`
+* `frontend/src/app/core/models/api-payloads.model.ts`
+* `frontend/src/app/core/models/post.model.ts`
+* `frontend/src/app/core/services/post.service.ts`
+
+## [fix/front/ws] - 2025-11-05
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Added
+
+* Añade nueva variable `VITE_APP_URL_BASE` en `.env.example`.
+* Añade nueva variable `IP_ADDRESS` en `.env.example`.
+* Añade actualización automática de la nueva variable `L5_SWAGGER_CONST_HOST` en el `.env`.
+* Añade actualización automática de la nueva variable `VITE_APP_URL_BASE` en el `.env`.
+* Añade actualización automática de la nueva variable `IP_ADDRESS` en el `.env`.
+
+### Changed
+
+* Pasa el `.env` en `docker-compose.yml` al frontend.
+* En `frontend/vite.config.ts` añade la extracción de variables de entorno para objetener la ip del host y reverb_app_key en manera dinámica. 
+* Corrige direcciones IP hardcodeadas en `frontend/src/environments/environment.ts` y `frontend/src/app/core/services/echo.service.ts`.
+* Corrige reverb_app_key hardcodeada en `frontend/src/app/core/services/echo.service.ts`.
+
+### Affects 
+
+* `start_server.sh`
+* `backend/bait-api/app/Events/NewReactionEvent.php`
+* `backend/bait-api/app/Events/NewRepost.php`
+* `frontend/src/app/features/home/home.ts`
+* `.env.example`
+* `docker-compose.yml`
+* `frontend/vite.config.ts`
+* `frontend/src/environments/environment.ts`
+* `frontend/src/app/core/services/echo.service.ts`
+
+## [feature/frontend/websocket] - 2025-11-04
+
+_(Cambios realizados por @jmrodriguezspinker)_
+
+### Added
+
+* Añadida la línea 92 a `.env.example` para nuevas configuraciones de entorno.
+* Agregados los servicios `nginx` y `phpMyAdmin` al setup de Docker (`docker-compose.yml`).
+* Añadidas dependencias `laravel-echo` y `pusher-js` para eventos en tiempo real (`frontend/package.json`, `frontend/package-lock.json`).
+* Añadidos los assets de Swagger UI a `public/vendor` (`backend/bait-api/public/vendor/`).
+* Nuevos servicios de notificaciones en tiempo real usando Echo y Pusher:
+
+  * `frontend/src/app/core/services/echo.service.ts`
+  * `frontend/src/app/core/services/notification.listener.service.ts`
+  * `frontend/src/app/core/services/notification.service.ts`
+* Agregado `Nginx Dockerfile` y configuración por defecto (`nginx/Dockerfile`).
+* Configuración de Nginx para:
+
+  * Servir archivos estáticos con caching (`/vendor/` y `/storage/`)
+  * Proxy para conexiones WebSocket (`/ws/`)
+  * Proxy para API broadcasting con cabeceras CORS (`/broadcasting/`)
+
+### Changed
+
+* Actualizado `.gitignore` con nuevas reglas (`.gitignore`).
+* Configurados permisos y assets de L5Swagger (`backend/bait-api/Dockerfile`).
+* Actualizados tags para documentación (`backend/bait-api/app/Http/Controllers/Controller.php`).
+* Configurada la conexión a Reverb usando variables de entorno y TLS (`backend/bait-api/config/broadcasting.php`).
+* Ajustadas rutas de L5 Swagger para compatibilidad con NGINX (`backend/bait-api/config/l5-swagger.php`).
+* Modificada plantilla de Swagger UI para mostrar correctamente la documentación y expandir los docs con NGINX (`backend/bait-api/resources/views/vendor/l5-swagger/index.blade.php`).
+* Configurado Vite dev server con host personalizado y HMR (`frontend/vite.config.ts`).
+* Integradas notificaciones WebSocket en el layout principal (`frontend/src/app/layout/main/main.component.html`, `main.component.ts`).
+ 
+### Chore
+
+* Generación de Laravel key y JWT secret con limpieza de cache (`start_server.sh`).
+
+### Docs
+
+* Actualizada la documentación generada de la API Swagger (`backend/bait-api/storage/api-docs/api-docs.json`).
+
+### Affects
+
+* `.env.example`
+* `.gitignore`
+* `docker-compose.yml`
+* `backend/bait-api/Dockerfile`
+* `backend/bait-api/app/Http/Controllers/Controller.php`
+* `backend/bait-api/config/broadcasting.php`
+* `backend/bait-api/config/l5-swagger.php`
+* `backend/bait-api/resources/views/vendor/l5-swagger/index.blade.php`
+* `backend/bait-api/storage/api-docs/api-docs.json`
+* `frontend/package.json`
+* `frontend/package-lock.json`
+* `frontend/vite.config.ts`
+* `frontend/src/app/core/services/echo.service.ts`
+* `frontend/src/app/core/services/notification.listener.service.ts`
+* `frontend/src/app/core/services/notification.service.ts`
+* `frontend/src/app/layout/main/main.component.html`
+* `frontend/src/app/layout/main/main.component.ts`
+* `start_server.sh`
+* `nginx/Dockerfile`
+* `nginx/nginx.conf.template`
+
 # Changelog
+## [fix/back/ws] - 2025 - 11 - 01
+
+## Fixes
+* Corrige variables del env file para ser consistentes con el nuevo contenedor de reverb y hacer uso del contenedor de redis.
+* Añade tiempo de espera al inicio del contenedor reverb para asegurar que todas las dependencias esten activas.
+
+## Affects
+* `.env.example`
+* `docker-compose-yml`
+
+## [fix/frontend/integrations-to-main] - 2025-10-31
+
+_(Cambios realizados por @juancruzct)_
+
+### Changed
+* Refactorizado el manejo de estado del usuario (`auth.service.ts`, `main.component.ts`, `profile.component.ts`) para eliminar "race conditions" y asegurar que el avatar actualizado se muestre en toda la aplicación.
+* Corregida la lógica de `onPostSubmit` (`home.component.ts`) para mostrar el avatar y las imágenes del post instantáneamente, solucionando el bug de `src=""` que requería refrescar (F5).
+* Optimizada la función `loadUserReposts` (`profile.component.ts`) para usar la data del `Resource` y eliminar llamadas N+1 a la API.
+* Actualizado `app/Modules/Multimedia/Http/Resources/MultimediaContentResource.php` para que la clave `url_content` devuelva una URL absoluta y completa (usando `Storage::url()`).
+* Arreglada la carga de imágenes en el feed y perfiles (el bug del F5):**
+    * Añadida la relación `multimedia_contents()` al modelo `app/Modules/Multimedia/Domain/Models/Post.php`.
+    * Actualizado `app/Modules/Multimedia/Http/Controllers/PostController.php` (método `index`) para cargar la relación `multimedia_contents` (Eager Loading).
+    * Actualizado `app/Modules/UserData/Http/Controllers/ProfileController.php` (métodos `getUserPosts` y `getUserReposts`) para cargar las relaciones anidadas (`multimedia_contents` y `post.multimedia_contents`).
+
+
+### Affects
+* `auth.service.ts`
+* `home.component.ts`
+* `profile.component.ts`
+* `main.component.ts`
+* `ProfileController.php`
+* `Post.php`
+* `PostController.php`
+* `MultimediaContentResource.php`
+
+
+## [feat/frontend/edit-profile] - 2025-10-30
+
+_(Cambios realizados por @facu24fm)_
+
+### Changed
+*Se añadio la vista para editar perfil de usuario.
+*Se implemento la integracion de notificaciones de la rama feature/frontend/notifications-ui
+*Se implemento sistema de reposts.
+
 
 ## [feat/nginx] - 2025-10-30
 

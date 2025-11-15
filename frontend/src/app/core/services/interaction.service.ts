@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Post } from '../models/post.model';
+import { Post, Repost } from '../models/post.model';
 import { CreateReactionPayload, CreateRepostPayload } from '../models/api-payloads.model';
 import { UserReactionStatus } from '../models/user-reaction-status.model';
 
@@ -16,12 +16,11 @@ export class InteractionService {
   /**
    * Envía una reacción (like) o la quita a un post.
    * Llama a POST /api/post-reactions.
-   * El backend maneja la lógica de 'toggle' y devuelve el Post actualizado.
-   *
+   * El backend maneja la lógica según la 'action' (create, delete, update).   *
    * @param payload Objeto con { post_id, reaction_type_id }
    * @returns Observable que emite el objeto Post actualizado.
    */
-  toggleReaction(payload: CreateReactionPayload): Observable<Post> {
+  manageReaction(payload: CreateReactionPayload): Observable<Post> {
     return this.http.post<Post>(`${this.apiUrl}/post-reactions`, payload);
   }
 
@@ -37,14 +36,23 @@ export class InteractionService {
   }
 
   /**
-   * Crea o elimina un repost para un post específico.
-   * Llama a POST /api/reposts.
-   * El backend maneja la lógica de 'toggle' y devuelve el Post actualizado.
-   *
+   * Crea un repost.
+   * Llama a POST /api/reposts.   *
    * @param payload Objeto con { post_id }
    * @returns Observable que emite el objeto Post actualizado.
    */
-  toggleRepost(payload: CreateRepostPayload): Observable<Post> {
-    return this.http.post<Post>(`${this.apiUrl}/reposts`, payload);
+  createRepost(payload: CreateRepostPayload): Observable<Repost> {
+    return this.http.post<Repost>(`${this.apiUrl}/reposts`, payload);
+  }
+
+  /**
+   * Elimina un repost.
+   * Llama a DELETE /api/reposts/{repost_id}.
+   *
+   * @param repostId El ID del repost a eliminar.
+   * @returns Observable<void> (Respuesta 204 No Content).
+   */
+  deleteRepost(repostId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/reposts/${repostId}`);
   }
 }

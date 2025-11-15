@@ -8,6 +8,8 @@ use App\Modules\UserInteractions\Http\Requests\Chat\CreateChatRequest;
 use App\Modules\UserInteractions\Http\Resources\ChatResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Modules\UserData\Domain\Models\User; 
+use App\Modules\UserData\Http\Resources\UserResource;
 
 class ChatController extends Controller
 {
@@ -43,7 +45,7 @@ class ChatController extends Controller
      * operationId="createChat",
      * tags={"Chats"},
      * summary="Create a new chat",
-     * description="Creates a new chat and adds the authenticated user and specified participants.",
+     * description="Creates a new chat and adds the authenticated user and specified participants. Rejects if a chat with the exact same participants already exists.",
      * security={{"bearerAuth":{}}},
      * @OA\RequestBody(
      * required=true,
@@ -63,26 +65,53 @@ class ChatController extends Controller
      * description="Chat created successfully",
      * @OA\JsonContent(ref="#/components/schemas/ChatSchema")
      * ),
+     * @OA\Response(
+     * response=409,
+     * description="Conflict - Chat already created"
+     * ),
      * @OA\Response(response=401, description="Unauthenticated"),
      * @OA\Response(response=422, description="Validation Error")
      * )
      */
     public function store(CreateChatRequest $request): ChatResource|JsonResponse
     {
+        /** @var User $user */
+        $user = auth()->user();
         $participants = $request->validated('participants');
-        $allParticipants = array_merge($participants, [auth()->id()]);
+        $allParticipants = array_merge($participants, [$user->id]);
         $uniqueParticipants = array_unique($allParticipants);
+        sort($uniqueParticipants);
+        $participantCount = count($uniqueParticipants);
+
+        // Buscamos chats potenciales: aquellos donde el usuario actual participa
+        //    Y que tienen el MISMO NÚMERO de participantes.
+        $potentialChats = $user->chats()
+                               ->with('users:id') 
+                               ->withCount('users')
+                               ->having('users_count', '=', $participantCount)
+                               ->get();
         
+        // Filtramos los chats para encontrar una coincidencia
+        foreach ($potentialChats as $chat) {
+            $chatUserIds = $chat->users->pluck('id')->all();
+            sort($chatUserIds);
+            
+            if ($chatUserIds === $uniqueParticipants) {
+                // Encontramos un chat existente con los mismos participantes
+                return response()->json(['message' => 'Chat already created.'], 409);
+            }
+        }
+
+        // Si no se encontró ningún chat, creamos uno nuevo
         $chat = Chat::create();
         
-        // Attach other participants
+        // Attach all participants
         $chat->users()->attach($uniqueParticipants);
 
         $chat->load(['users.avatar', 'messages']);
 
         return new ChatResource($chat);
     }
-
     /**
      * @OA\Get(
      * path="/api/chats/{chat}",
@@ -116,5 +145,39 @@ class ChatController extends Controller
 
         $chat->load(['users.avatar', 'messages']);
         return new ChatResource($chat);
+    }
+
+    /**
+     * @OA\Get(
+     * path="/api/chats/chattable-users",
+     * operationId="getChattableUsers",
+     * tags={"Chats"},
+     * summary="List users available to chat",
+     * description="Retrieves a list of users that the authenticated user mutually follows (follows and is followed by).",
+     * security={{"bearerAuth":{}}},
+     * @OA\Response(
+     * response=200,
+     * description="Successful operation",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/UserSchema")
+     * )
+     * ),
+     * @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
+    public function getChattableUsers(): AnonymousResourceCollection|JsonResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $followingIds = $user->following()->pluck('users.id');
+
+        $mutuals = $user->followers()
+                         ->whereIn('users.id', $followingIds)
+                         ->with('avatar') 
+                         ->get();
+
+        return UserResource::collection($mutuals);
     }
 }

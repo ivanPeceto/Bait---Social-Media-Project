@@ -14,7 +14,7 @@ class PostResource extends JsonResource
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
-    {
+    {   
         return [
             'id' => $this->id,
             'content_posts' => $this->content_posts,
@@ -26,6 +26,23 @@ class PostResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'is_liked_by_user' => (bool) $this->liked_by_user,
-        ];
+            'multimedia_contents' => MultimediaContentResource::collection($this->whenLoaded('multimedia_contents')),
+            'type' => 'post',
+            'user_reaction_status' => $this->whenLoaded(
+                'userReaction', 
+                
+                function () {
+                    return [
+                        'has_reacted' => $this->userReaction !== null,
+                        'reaction_type_id' => $this->userReaction ? $this->userReaction->reaction_type_id : null
+                    ];
+                }, 
+                
+                [
+                    'has_reacted' => false,
+                    'reaction_type_id' => null
+                ]
+            )
+                ];
     }
 }

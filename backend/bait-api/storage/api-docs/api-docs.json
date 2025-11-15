@@ -9,6 +9,9 @@
         {
             "url": "http://127.0.0.1:8001",
             "description": "Local server"
+        },
+        {
+            "url": ""
         }
     ],
     "paths": {
@@ -4174,25 +4177,43 @@
             "name": "Profile"
         },
         {
+            "name": "Users"
+        },
+        {
             "name": "User Roles"
         },
         {
             "name": "User States"
         },
         {
-            "name": "Comments"
-        },
-        {
-            "name": "Multimedia Content"
-        },
-        {
             "name": "Posts"
+        },
+        {
+            "name": "Reposts"
         },
         {
             "name": "Post Reactions"
         },
         {
-            "name": "Reposts"
+            "name": "Comments"
+        },
+        {
+            "name": "Chats"
+        },
+        {
+            "name": "Follows"
+        },
+        {
+            "name": "Multimedia Content"
+        },
+        {
+            "name": "Messages"
+        },
+        {
+            "name": "Notifications"
+        },
+        {
+            "name": "Feed"
         },
         {
             "name": "Multimedia Management",
@@ -4201,30 +4222,6 @@
         {
             "name": "User Management",
             "description": "Privileged"
-        },
-        {
-            "name": "Feed",
-            "description": "Feed"
-        },
-        {
-            "name": "Users",
-            "description": "Users"
-        },
-        {
-            "name": "Chats",
-            "description": "Chats"
-        },
-        {
-            "name": "Follows",
-            "description": "Follows"
-        },
-        {
-            "name": "Messages",
-            "description": "Messages"
-        },
-        {
-            "name": "Notifications",
-            "description": "Notifications"
         }
     ]
 }

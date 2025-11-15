@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\UserData\Domain\Models\User;
 use App\Modules\UserData\Http\Resources\UserResource;
 use App\Modules\UserInteractions\Domain\Models\Follow;
+use App\Notifications\NewFollowNotification;
 use App\Modules\UserInteractions\Http\Requests\Follow\CreateFollowRequest;
 use Illuminate\Http\JsonResponse;
 use App\Modules\UserInteractions\Http\Requests\Follow\DestroyFollowRequest;
@@ -66,7 +67,9 @@ class FollowController extends Controller
 
         $followedUser = User::find($followingId);
         
-        event(new UserFollowed($follower, $followedUser));
+        $followedUser->notify(new NewFollowNotification($follower, $followedUser));
+        
+        //event(new UserFollowed($follower, $followedUser));
 
         return response()->json(['message' => 'User followed successfully.'], 201);
     }

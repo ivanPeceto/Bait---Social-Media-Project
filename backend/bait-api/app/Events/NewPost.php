@@ -56,4 +56,12 @@ class NewPost implements ShouldBroadcast
     {
         return (new PostResource($this->post->load('user.avatar')))->resolve();
     }
+
+    /**
+     * Name of the event to broadcast.
+     */
+    public function broadcastAs(): string
+    {
+        return 'NewPost';
+    }
 }

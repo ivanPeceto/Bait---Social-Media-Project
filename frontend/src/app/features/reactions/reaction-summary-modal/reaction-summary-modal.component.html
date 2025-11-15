@@ -1,0 +1,52 @@
+<div 
+  class="modal-overlay" 
+  *ngIf="visible" 
+  (click)="onClose()">
+
+  <div class="modal-content" (click)="stopPropagation($event)">
+    
+    <div class="modal-header">
+      <h3 class="modal-title">Reacciones</h3>
+      <button (click)="onClose()" class="modal-close-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      
+      <div *ngIf="isLoading" class="loading-state">
+        <p>Cargando...</p>
+        </div>
+
+      <ng-container *ngIf="!isLoading && summary">
+        
+        <div *ngIf="summary.length === 0" class="empty-state">
+          <p>Este post aún no tiene reacciones.</p>
+        </div>
+
+        <ul *ngIf="summary.length > 0" class="reaction-list">
+          <li *ngFor="let reaction of summary" class="reaction-row">
+            
+            <app-reaction-icon 
+              [reactionName]="reaction.name" 
+              class="w-6 h-6"
+              [style.color]="getReactionColor(reaction.name)">
+            </app-reaction-icon>
+
+            <span class="reaction-count">
+              {{ reaction.count }}
+            </span>
+
+            <span class="reaction-name">
+              {{ reaction.name | titlecase }}
+            </span>
+          </li>
+        </ul>
+
+      </ng-container>
+    </div>
+
+  </div>
+</div>

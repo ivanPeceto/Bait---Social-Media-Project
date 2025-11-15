@@ -10,7 +10,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment'; 
+import { environment } from '../../../environments/environment';
 interface AuthResponse {
   access_token: string;
   refresh_token?: string;
@@ -27,7 +27,6 @@ interface Credentials {
   password: string;
 }
 
-
 const API_URL = `${environment.apiUrl}/auth`;
 
 /**
@@ -36,10 +35,9 @@ const API_URL = `${environment.apiUrl}/auth`;
  * It centralizes all state management and storage logic.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
   private readonly JWT_TOKEN_KEY = 'accessToken';
   private readonly REFRESH_TOKEN_KEY = 'refreshToken';
   private platformId = inject(PLATFORM_ID);
@@ -54,19 +52,20 @@ export class AuthService {
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
-        this.isLoggedIn.next(this.isAuthenticated());
-        // Initialize currentUser$ from localStorage on app start
-        const existing = localStorage.getItem('currentUser');
-        if (existing) {
-          try { this.currentUser$.next(JSON.parse(existing)); } catch {}
-        }
+      this.isLoggedIn.next(this.isAuthenticated());
+      // Initialize currentUser$ from localStorage on app start
+      const existing = localStorage.getItem('currentUser');
+      if (existing) {
+        try {
+          this.currentUser$.next(JSON.parse(existing));
+        } catch { }
+      }
     }
   }
 
-
   public login(credentials: Credentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${API_URL}/login`, credentials).pipe(
-      tap(response => {
+      tap((response) => {
         this.saveSessionData(response);
         this.isLoggedIn.next(true);
         this.currentUser$.next(response.user);
@@ -76,7 +75,7 @@ export class AuthService {
 
   public register(userData: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${API_URL}/register`, userData).pipe(
-      tap(response => {
+      tap((response) => {
         this.saveSessionData(response);
         this.isLoggedIn.next(true);
         this.currentUser$.next(response.user);
@@ -108,21 +107,22 @@ export class AuthService {
   }
 
   public getCurrentUser(): any | null {
-
-    if (!isPlatformBrowser(this.platformId)) return null;
-    const user = localStorage.getItem('currentUser');
-    return user ? JSON.parse(user) : null;
-}
-
+    return this.currentUser$.getValue();
+  }
 
   private saveSessionData(authData: AuthResponse): void {
     if (!isPlatformBrowser(this.platformId)) return;
+
     localStorage.setItem(this.JWT_TOKEN_KEY, authData.access_token);
     if (authData.refresh_token) {
-        localStorage.setItem(this.REFRESH_TOKEN_KEY, authData.refresh_token);
+      localStorage.setItem(this.REFRESH_TOKEN_KEY, authData.refresh_token);
     }
+
     localStorage.setItem('currentUser', JSON.stringify(authData.user));
     this.currentUser$.next(authData.user);
+
+    localStorage.setItem('jwt', authData.access_token);
+    localStorage.setItem('user_id', authData.user.id.toString());
   }
 
   private removeSessionData(): void {

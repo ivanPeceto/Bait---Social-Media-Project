@@ -31,8 +31,8 @@ export class SearchService {
       return of([]);
     }
     return this.http.get<SearchByNameResponse>(`${this.apiUrl}/name/${term}`).pipe(
-      map(response => response.data), // Extraemos el array 'data'
-      catchError(() => of([])) // Si hay un error 404 (no encontrado), devolvemos un array vacío
+      map(response => response.data), 
+      catchError(() => of([])) 
     );
   }
 

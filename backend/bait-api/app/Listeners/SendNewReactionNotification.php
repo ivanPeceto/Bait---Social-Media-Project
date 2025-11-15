@@ -7,8 +7,10 @@ use App\Notifications\NewReactionNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class SendNewReactionNotification
+class SendNewReactionNotification implements ShouldQueue
 {
+    use InteractsWithQueue;
+
     /**
      * Create the event listener.
      */
@@ -22,12 +24,14 @@ class SendNewReactionNotification
      */
     public function handle(NewReactionEvent $event): void
     {
-        $postOwner = $event->post->user;
-        $reactingUser = $event->user;
+        $event->reaction->load('post.user', 'user');
+
+        $postOwner = $event->reaction->post->user;
+        $reactingUser = $event->reaction->user;
 
         // Sends notification only if another user reacts to the post
         if ($postOwner->id !== $reactingUser->id) {
-            $postOwner->notify(new NewReactionNotification($reactingUser, $event->post));
+            $postOwner->notify(new NewReactionNotification($reactingUser, $event->reaction->post));
         }
     }
 }

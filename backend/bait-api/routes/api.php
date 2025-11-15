@@ -137,6 +137,7 @@ Route::middleware('auth:api')->prefix('posts')->group(function () {
     Route::post('/',        [PostController::class, 'store']);
     Route::get('/{post}',   [PostController::class, 'show']);
     Route::get('/{post}/user-reaction', [PostController::class, 'checkUserReaction']);
+    Route::get('/{post}/reaction-summary', [PostReactionController::class, 'getReactionCountsByPost']);
     Route::put('/{post}', [PostController::class, 'update']);
     Route::delete('/{post}',[PostController::class, 'destroy']);
 });
@@ -159,6 +160,8 @@ Route::middleware('auth:api')->prefix('multimedia-contents')->group(function () 
     Route::post('/',                      [MultimediaContentController::class, 'store']);
     Route::delete('/{multimediaContent}', [MultimediaContentController::class, 'destroy']);
 });
+
+Route::get('post-reactions/reaction-types', [PostReactionController::class, 'index']);
 
 Route::middleware('auth:api')->prefix('post-reactions')->group(function () {
     Route::post('/', [PostReactionController::class, 'store']);
@@ -189,6 +192,7 @@ Route::middleware('auth:api')->prefix('follows')->group(function () {
 });
 
 Route::middleware('auth:api')->prefix('chats')->group(function () {
+    Route::get('/chattable-users', [ChatController::class, 'getChattableUsers']);
     Route::get('/',         [ChatController::class, 'index']);
     Route::post('/',        [ChatController::class, 'store']);
     Route::get('/{chat}',   [ChatController::class, 'show']);

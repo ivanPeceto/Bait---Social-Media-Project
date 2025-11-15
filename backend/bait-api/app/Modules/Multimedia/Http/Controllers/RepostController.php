@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Multimedia\Domain\Models\Post;
 use App\Modules\Multimedia\Domain\Models\Repost;
 use App\Modules\Multimedia\Http\Requests\Repost\CreateRepostRequest;
+use App\Notifications\NewRepostNotification;
 use Illuminate\Http\JsonResponse;
 use App\Modules\Multimedia\Http\Resources\RepostResource;
 
@@ -48,13 +49,29 @@ class RepostController extends Controller
     public function store(CreateRepostRequest $request): JsonResponse
     {
         $post_id = $request->validated('post_id');
+
+        // Cargar multimedia y usuario del post original
+        $post = Post::with(['multimedia_contents', 'user'])->findOrFail($post_id);
+
+        if (auth()->id() === $post->user->id) {
+            return response()->json(['message' => 'Can not repost your own posts.'], 422);
+        }
+
         $repost = Repost::create([
             'user_id' => auth()->id(),
             'post_id' => $post_id,
         ]);
 
-        $post = Post::findOrFail($post_id);
-        event(new NewRepost(auth()->user(), $post));
+        // Cargar relaciones completas antes de enviarlo al frontend
+        $repost->load([
+            'user',
+            'post.user',
+            'post.multimedia_contents'
+        ]);
+
+        $post->user->notify(new NewRepostNotification(auth()->user(), $post));
+        // Esto enviará el evento por Reverb/WebSockets
+        event(new NewRepost($repost));
 
         return response()->json(new RepostResource($repost), 201);
     }

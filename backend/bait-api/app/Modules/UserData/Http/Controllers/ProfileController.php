@@ -11,6 +11,7 @@ use App\Modules\Multimedia\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\UserData\Domain\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ProfileController extends Controller
 {
@@ -358,7 +359,7 @@ class ProfileController extends Controller
         // 'latest()' los ordena del más nuevo al más viejo.
         // 'paginate(15)' divide los resultados en páginas para un mejor rendimiento.
         $posts = $user->posts()
-                    ->with('user.avatar')
+                    ->with('user.avatar', 'multimedia_contents', 'userReaction')
                     ->withCount(['reactions', 'comments', 'reposts'])
                     ->latest()
                     ->paginate(15);
@@ -394,7 +395,7 @@ class ProfileController extends Controller
      * )
      * )
      */
-    public function showPublicProfile(User $user): UserResource
+    public function showPublicProfile(User $user): UserResource | JsonResponse
     {
         $user->load(['role', 'state', 'avatar', 'banner']);
 
@@ -441,7 +442,7 @@ class ProfileController extends Controller
      *     )
      * )
      */
-    public function getUserByUsername(string $username): UserResource
+    public function getUserByUsername(string $username): UserResource | JsonResponse
     {
         $user = User::where('username', $username)->first();
 
@@ -560,6 +561,8 @@ class ProfileController extends Controller
                         ->with([
                             'user', // El usuario que hizo el repost
                             'post.user.avatar', // El post original con su autor y avatar
+                            'post.multimedia_contents',
+                            'post.userReaction',
                             'post' => function ($query) { // Cargar contadores del post original
                                 $query->withCount(['reactions', 'comments', 'reposts']);
                             }
