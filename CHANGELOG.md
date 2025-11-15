@@ -3,6 +3,19 @@
 _(Cambios realizados por @ivanPeceto)_
 
 ### Changed
+* Integra el modal de reactions summary a profile y home
+
+### Affects
+* `frontend/src/app/features/home/home.html`
+* `frontend/src/app/features/home/home.ts`
+* `frontend/src/app/features/profile/profile.component.html`
+* `frontend/src/app/features/profile/profile.component.ts`
+
+## [feat/front/reactions] - 2025-11-14
+
+_(Cambios realizados por @ivanPeceto)_
+
+### Changed
 * Añade en PostReactionController un nuevo  endpoint para recoger todas las  reacciones de un posteo separadas por tipo.
 * Añade una nueva interfaz a `reaction-type.model.ts` para manejar los datos del nuevo endpoint.
 * Añade un nuevo método a post.service para manejar el nuevo  endpoint.

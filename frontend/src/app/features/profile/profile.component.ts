@@ -34,6 +34,9 @@ import { ReactionIdToNamePipe } from '../../core/pipes/reaction-id-to-name.pipe'
 import { environment } from '../../../environments/environment';
 import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
 
+import { ReactionSummaryModalComponent } from '../reactions/reaction-summary-modal/reaction-summary-modal.component';
+import { ReactionSummary } from '../../core/models/reaction-type.model';
+
 function isRepost(item: Post | Repost): item is Repost {
   return (item as Repost).type === 'repost' || (item as Repost).post !== undefined;
 }
@@ -49,7 +52,8 @@ function isRepost(item: Post | Repost): item is Repost {
             PostCommentsSectionComponent,
             ReactionSelectorComponent,
             ReactionIconComponent,
-            ReactionIdToNamePipe],
+            ReactionIdToNamePipe,
+            ReactionSummaryModalComponent],
             
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
@@ -85,6 +89,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   public reactionTypes: ReactionType[] = [];
   public openReactionMenuForItemId: string | null = null;
+
+  public showReactionSummaryModal = false;
+  public modalIsLoading = false;
+  public modalSummary: ReactionSummary[] | null = null;
 
   public isEditingProfile = false;
   public selectedAvatarFile: File | null = null;
@@ -929,5 +937,29 @@ export class ProfileComponent implements OnInit, OnDestroy {
       case 6: return '#d93a00'; // angry
       default: return '#6b7280';
     }
+  }
+
+  openReactionSummary(post: Post): void {
+    this.showReactionSummaryModal = true;
+    this.modalIsLoading = true;
+    this.modalSummary = null; 
+
+    this.postService.getReactionSummary(post.id).subscribe({
+      next: (summary) => {
+        this.modalSummary = summary;
+        this.modalIsLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar el sumario de reacciones:', err);
+        this.modalIsLoading = false;
+        // (Opcional) puedes cerrar el modal si falla
+        // this.showReactionSummaryModal = false; 
+      }
+    });
+  }
+  
+  closeReactionSummary(): void {
+    this.showReactionSummaryModal = false;
+    this.modalSummary = null;
   }
 }

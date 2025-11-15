@@ -40,6 +40,8 @@ import { ReactionType } from '../../core/models/reaction-type.model';
 import { ReactionIconComponent } from '../reactions/reaction-icon/reaction-icon.component';
 import { ReactionSelectorComponent } from '../reactions/reaction-selector/reaction-selector.component';
 import { ReactionIdToNamePipe } from '../../core/pipes/reaction-id-to-name.pipe';
+import { ReactionSummary } from '../../core/models/reaction-type.model';
+import { ReactionSummaryModalComponent } from '../reactions/reaction-summary-modal/reaction-summary-modal.component';
 
 function isRepost(item: Post | Repost): item is Repost {
   return (item as Repost).type === 'repost' || (item as Repost).post !== undefined;
@@ -58,6 +60,7 @@ function isRepost(item: Post | Repost): item is Repost {
     ReactionSelectorComponent,
     ReactionIconComponent,   
     ReactionIdToNamePipe,
+    ReactionSummaryModalComponent,
   ],
   templateUrl: './home.html',
 })
@@ -89,6 +92,10 @@ export default class Home implements OnInit, OnDestroy {
   public editContent: string = '';
   public apiErrors: any = null;
   public echo: Echo<'pusher'> | null = null;
+
+  public showReactionSummaryModal = false;
+  public modalIsLoading = false;
+  public modalSummary: ReactionSummary[] | null = null;
 
   public openReactionMenuForItemId: string | null = null;
   /** Almacena el ID único del ítem del feed (ej: "post-1" o "repost-1") */
@@ -797,5 +804,28 @@ export default class Home implements OnInit, OnDestroy {
       return item;
     });
   }
-  
+ 
+  openReactionSummary(post: Post): void {
+    this.showReactionSummaryModal = true;
+    this.modalIsLoading = true;
+    this.modalSummary = null; 
+
+    this.postService.getReactionSummary(post.id).subscribe({
+      next: (summary) => {
+        this.modalSummary = summary;
+        this.modalIsLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar el sumario de reacciones:', err);
+        this.modalIsLoading = false;
+        // (Opcional) puedes cerrar el modal si falla
+        // this.showReactionSummaryModal = false; 
+      }
+    });
+  }
+
+  closeReactionSummary(): void {
+    this.showReactionSummaryModal = false;
+    this.modalSummary = null;
+  }
 }

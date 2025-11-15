@@ -232,7 +232,7 @@
         <div class="p-2 rounded-full group-hover:bg-green-500/10 transition-colors"><svg class="w-5 h-5 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></div>
         <span class="text-xs group-hover:text-green-500">{{ post.reposts_count || 0 }}</span>
       </button>
-      <div class="relative group">
+      <div class="relative group" style="display: flex; flex-direction: row;">
         <app-reaction-selector
           [reactionTypes]="reactionTypes"
           [visible]="openReactionMenuForItemId === getFeedItemId(post)"
@@ -251,10 +251,13 @@
               class="w-5 h-5">
             </app-reaction-icon>
           </div>
-
-          <span class="text-xs" [class.group-hover:text-blue-500]="!post.user_reaction_status?.has_reacted">
-            {{ post.reactions_count || 0 }}
-          </span>
+        </button>
+        <button 
+          type="button"
+          class="text-xs w-8"
+          [class.group-hover:text-blue-500]="!post.user_reaction_status?.has_reacted"
+          (click)="openReactionSummary(post)">
+          {{ post.reactions_count || 0 }}
         </button>
       </div>
     </div>
@@ -323,7 +326,7 @@
         <div class="p-2 rounded-full group-hover:bg-green-500/10 transition-colors"><svg class="w-5 h-5 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></div>
         <span class="text-xs group-hover:text-green-500">{{ repost.post.reposts_count || 0 }}</span>
       </button>
-      <div class="relative group">
+      <div class="relative group" style="display: flex; flex-direction: row;">
 
         <app-reaction-selector
           [reactionTypes]="reactionTypes"
@@ -343,10 +346,13 @@
               class="w-5 h-5">
             </app-reaction-icon>
           </div>
-
-          <span class.text-xs="text-xs" [class.group-hover:text-blue-500]="!repost.post.user_reaction_status?.has_reacted">
-            {{ repost.post.reactions_count || 0 }}
-          </span>
+        </button>
+        <button 
+          type="button"
+          class="text-xs w-8"
+          [class.group-hover:text-blue-500]="!repost.post.user_reaction_status?.has_reacted"
+          (click)="openReactionSummary(getPostFromItem(repost))">
+          {{ repost.post.reactions_count || 0 }}
         </button>
       </div>
     </div>
@@ -360,7 +366,14 @@
   </div>
 
   <div *ngIf="!userReposts || userReposts.length === 0" class="p-4 text-center text-gray-500"> <p>Este usuario aún no tiene reposts.</p> </div>
+
 </div>
+<app-reaction-summary-modal
+    [visible]="showReactionSummaryModal"
+    [summary]="modalSummary"
+    [isLoading]="modalIsLoading"
+    (close)="closeReactionSummary()">
+</app-reaction-summary-modal>
 
 <ng-template #loadingTpl>
   <p class="p-4 text-center">Cargando perfil...</p>
