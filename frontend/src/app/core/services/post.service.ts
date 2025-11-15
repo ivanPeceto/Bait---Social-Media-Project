@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Post, Repost } from '../models/post.model';
 import { PaginatedResponse } from '../models/api-payloads.model';
+import { ReactionSummary } from '../models/reaction-type.model';
 
 @Injectable({
   providedIn: 'root'
@@ -52,4 +53,12 @@ export class PostService {
     return this.http.put<Post>(`${this.API_URL}/${postId}`, { content_posts: content });
   }
 
+  /**
+   * Obtiene el resumen de reacciones (conteo por tipo) para un post específico.
+   * Llama a: GET /api/posts/{postId}/reaction-summary
+   * @param postId El ID del post.
+   */
+  getReactionSummary(postId: number): Observable<ReactionSummary[]> {
+    return this.http.get<ReactionSummary[]>(`${this.API_URL}/${postId}/reaction-summary`);
+  }
 }

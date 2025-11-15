@@ -49,6 +49,14 @@ class Post extends Model
         return $this->hasMany(PostReaction::class);
     }
 
+    /**
+     * Obtiene la reacción del usuario autenticado para este post.
+     */
+    public function userReaction()
+    {
+        return $this->hasOne(PostReaction::class)->where('user_id', auth()->id());
+    }
+
     public function reposts(): HasMany
     {
         return $this->hasMany(Repost::class);

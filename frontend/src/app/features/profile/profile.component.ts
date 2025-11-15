@@ -25,8 +25,17 @@ import { InteractionService } from '../../core/services/interaction.service';
 import { PostCommentsSectionComponent } from '../comments/components/post-comments-section/post-comments-section.component';
 import { EchoService } from '../../core/services/echo.service';
 
+import { ReactionTypeService } from '../../core/services/reaction-type.service';
+import { ReactionType } from '../../core/models/reaction-type.model';
+import { ReactionIconComponent } from '../reactions/reaction-icon/reaction-icon.component';
+import { ReactionSelectorComponent } from '../reactions/reaction-selector/reaction-selector.component';
+import { ReactionIdToNamePipe } from '../../core/pipes/reaction-id-to-name.pipe';
+
 import { environment } from '../../../environments/environment';
 import { MediaUrlPipe } from '../../core/pipes/media-url.pipe';
+
+import { ReactionSummaryModalComponent } from '../reactions/reaction-summary-modal/reaction-summary-modal.component';
+import { ReactionSummary } from '../../core/models/reaction-type.model';
 
 function isRepost(item: Post | Repost): item is Repost {
   return (item as Repost).type === 'repost' || (item as Repost).post !== undefined;
@@ -35,7 +44,17 @@ function isRepost(item: Post | Repost): item is Repost {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe, ReactiveFormsModule, MediaUrlPipe, PostCommentsSectionComponent],
+  imports: [CommonModule, 
+            RouterLink, 
+            DatePipe, 
+            ReactiveFormsModule, 
+            MediaUrlPipe, 
+            PostCommentsSectionComponent,
+            ReactionSelectorComponent,
+            ReactionIconComponent,
+            ReactionIdToNamePipe,
+            ReactionSummaryModalComponent],
+            
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
@@ -51,6 +70,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private echoService = inject(EchoService);
   private sanitizer = inject(DomSanitizer);
   private fb = inject(FormBuilder);
+  private reactionTypeService = inject(ReactionTypeService);
 
   public apiUrlForImages = environment.apiUrl.replace('/api', '');
   private readonly LIKE_REACTION_TYPE_ID = 1;
@@ -66,6 +86,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public currentUserId: number | null = null;
   public userProfile$: Observable<User | null> = of(null);
   public isAdminOrMod: boolean = false;
+
+  public reactionTypes: ReactionType[] = [];
+  public openReactionMenuForItemId: string | null = null;
+
+  public showReactionSummaryModal = false;
+  public modalIsLoading = false;
+  public modalSummary: ReactionSummary[] | null = null;
 
   public isEditingProfile = false;
   public selectedAvatarFile: File | null = null;
@@ -90,6 +117,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public apiErrorsPassword: any = null;
   
   ngOnInit(): void {
+    this.loadReactionTypes();
     const currentUser = this.authService.getCurrentUser();
     this.currentUserId = currentUser?.id ?? null;
     const role =
@@ -220,23 +248,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .getUserPosts(userId.toString())
       .pipe(
         map((response: any) => (response ? (response.data as Post[]) : [])),
-        switchMap((initialPosts: Post[]) => {
-          if (initialPosts.length === 0) return of([]);
-          const reactionChecks$: Observable<UserReactionStatus>[] = initialPosts.map((post) =>
-            this.interactionService
-              .checkUserReaction(post.id)
-              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
-          );
-          return forkJoin(reactionChecks$).pipe(
-            map((reactionStatuses: UserReactionStatus[]) =>
-              initialPosts.map((post, index) => {
-                post.is_liked_by_user =
-                  reactionStatuses[index].has_reacted &&
-                  reactionStatuses[index].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-                return post;
-              })
-            )
-          );
+        tap((posts: Post[]) => {
+          posts.forEach(post => {
+            post.is_liked_by_user = post.user_reaction_status?.reaction_type_id === 1;
+          });
         })
       )
       .subscribe({
@@ -245,9 +260,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.listenToPostUpdates();
         },
         error: (err) => {
-          console.error('Error al cargar posts o verificar likes:', err);
+          console.error('Error al cargar posts:', err);
           this.userPosts = [];
-
         },
       });
   }
@@ -258,29 +272,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .getUserReposts(userId.toString())
       .pipe(
         map((response: any) => {
-          // AHORA DEVOLVEMOS REPOST[] (NO Post[])
           return (Array.isArray(response) ? response : response?.data || []) as Repost[];
         }),
-        switchMap((reposts: Repost[]) => {
-          if (!reposts || reposts.length === 0) return of([]);
-
-          // Verificamos la reacción en el 'post' anidado
-          const reactionChecks$: Observable<UserReactionStatus>[] = reposts.map((repost) =>
-            this.interactionService
-              .checkUserReaction(repost.post.id) // <-- Usar repost.post.id
-              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })))
-          );
-          return forkJoin(reactionChecks$).pipe(
-            map((statuses: UserReactionStatus[]) =>
-              reposts.map((repost, i) => {
-                // Asignamos el estado al 'post' anidado
-                repost.post.is_liked_by_user =
-                  statuses[i].has_reacted &&
-                  statuses[i].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-                return repost;
-              })
-            )
-          );
+        tap((reposts: Repost[]) => {
+          reposts.forEach(repost => {
+            repost.post.is_liked_by_user = repost.post.user_reaction_status?.reaction_type_id === 1;
+          });
         })
       )
       .subscribe({
@@ -840,5 +837,129 @@ export class ProfileComponent implements OnInit, OnDestroy {
       }
       return repost;
     });
+  }
+
+  private loadReactionTypes(): void {
+    this.reactionTypeService.getReactionTypes().subscribe({
+      next: (types) => {
+        this.reactionTypes = types;
+      },
+      error: (err) => {
+        console.error('Error al cargar los tipos de reacción en Perfil:', err);
+      }
+    });
+  }
+
+  /**
+   * Gestiona una reacción a un post (crear, actualizar o borrar).
+   */
+  onReact(item: Post | Repost, reactionTypeId: number): void {
+    const post = this.getPostFromItem(item);
+
+    const currentState = post.user_reaction_status;
+    const currentReactionId = currentState?.reaction_type_id;
+
+    const payload: CreateReactionPayload = {
+      post_id: post.id,
+      reaction_type_id: reactionTypeId,
+    };
+
+    const previousState = {
+      status: post.user_reaction_status,
+      count: post.reactions_count || 0,
+      is_liked: post.is_liked_by_user 
+    };
+
+    if (currentReactionId === reactionTypeId) {
+      payload.action = 'delete';
+      post.user_reaction_status = { has_reacted: false, reaction_type_id: null };
+      post.reactions_count = (post.reactions_count || 1) - 1;
+      post.is_liked_by_user = false;
+
+    } else if (currentReactionId) {
+      payload.action = 'update';
+      post.user_reaction_status = { has_reacted: true, reaction_type_id: reactionTypeId };
+      post.is_liked_by_user = reactionTypeId === 1;
+
+    } else {
+      payload.action = 'create';
+      post.user_reaction_status = { has_reacted: true, reaction_type_id: reactionTypeId };
+      post.reactions_count = (post.reactions_count || 0) + 1;
+      post.is_liked_by_user = reactionTypeId === 1;
+    }
+
+    this.interactionService.manageReaction(payload).subscribe({
+      next: (response) => {
+        // UI actualizada optimistamente
+      },
+      error: (err) => {
+        console.error('Error al reaccionar al post (perfil):', err);
+        // Revertir
+        post.user_reaction_status = previousState.status;
+        post.reactions_count = previousState.count;
+        post.is_liked_by_user = previousState.is_liked;
+      },
+    });
+  }
+
+  /**
+   * Abre el menú de reacciones para un ítem específico.
+   */
+  toggleReactionMenu(item: Post | Repost): void {
+    const uniqueId = this.getFeedItemId(item);
+    if (this.openReactionMenuForItemId === uniqueId) {
+      this.openReactionMenuForItemId = null;
+    } else {
+      this.openReactionMenuForItemId = uniqueId;
+    }
+  }
+
+  /**
+   * Cierra el menú de reacciones.
+   */
+  closeReactionMenu(): void {
+    this.openReactionMenuForItemId = null;
+  }
+
+  /**
+   * Da el color correcto al botón de "Reaccionar".
+   */
+  getReactionColor(post: Post): string {
+    const id = post.user_reaction_status?.reaction_type_id;
+    if (!id) return '#6b7280'; // gris
+
+    switch(id) {
+      case 1: return '#007bff'; // like
+      case 2: return '#e0245e'; // love
+      case 3: return '#f4b400'; // haha
+      case 4: return '#1da1f2'; // wow
+      case 5: return '#ffad1f'; // sad
+      case 6: return '#d93a00'; // angry
+      default: return '#6b7280';
+    }
+  }
+
+  openReactionSummary(post: Post): void {
+    this.showReactionSummaryModal = true;
+    this.modalIsLoading = true;
+    this.modalSummary = null; 
+
+    this.postService.getReactionSummary(post.id).subscribe({
+      next: (summary) => {
+        this.modalSummary = summary;
+        this.modalIsLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar el sumario de reacciones:', err);
+        this.modalIsLoading = false;
+        // (Opcional) puedes cerrar el modal si falla
+        // this.showReactionSummaryModal = false; 
+      }
+    });
+  }
+  
+  closeReactionSummary(): void {
+    this.showReactionSummaryModal = false;
+    this.modalSummary = null;
   }
 }

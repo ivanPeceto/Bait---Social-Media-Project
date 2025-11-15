@@ -35,6 +35,13 @@ import { EchoService } from '../../core/services/echo.service';
 import { User } from '../../core/models/user.model';
 import { PaginatedResponse } from '../../core/models/api-payloads.model';
 import { Post, Repost } from '../../core/models/post.model';
+import { ReactionTypeService } from '../../core/services/reaction-type.service';
+import { ReactionType } from '../../core/models/reaction-type.model';
+import { ReactionIconComponent } from '../reactions/reaction-icon/reaction-icon.component';
+import { ReactionSelectorComponent } from '../reactions/reaction-selector/reaction-selector.component';
+import { ReactionIdToNamePipe } from '../../core/pipes/reaction-id-to-name.pipe';
+import { ReactionSummary } from '../../core/models/reaction-type.model';
+import { ReactionSummaryModalComponent } from '../reactions/reaction-summary-modal/reaction-summary-modal.component';
 
 function isRepost(item: Post | Repost): item is Repost {
   return (item as Repost).type === 'repost' || (item as Repost).post !== undefined;
@@ -50,6 +57,10 @@ function isRepost(item: Post | Repost): item is Repost {
     RouterLink,
     MediaUrlPipe,
     PostCommentsSectionComponent,
+    ReactionSelectorComponent,
+    ReactionIconComponent,   
+    ReactionIdToNamePipe,
+    ReactionSummaryModalComponent,
   ],
   templateUrl: './home.html',
 })
@@ -61,6 +72,7 @@ export default class Home implements OnInit, OnDestroy {
   private router = inject(Router);
   private multimediaService = inject(MultimediaContentService);
   private echoService = inject(EchoService);
+  private reactionTypeService = inject(ReactionTypeService);
 
   private readonly LIKE_REACTION_TYPE_ID = 1;
   public readonly apiUrlForImages = environment.baseUrl;
@@ -70,6 +82,7 @@ export default class Home implements OnInit, OnDestroy {
   showResults = false;
   public currentUser: any;
   public posts: (Post | Repost)[] = [];
+  public reactionTypes: ReactionType[] = [];
   public currentPage = 1;
   public lastPage = 1;
   public isLoadingMore = false;
@@ -80,6 +93,11 @@ export default class Home implements OnInit, OnDestroy {
   public apiErrors: any = null;
   public echo: Echo<'pusher'> | null = null;
 
+  public showReactionSummaryModal = false;
+  public modalIsLoading = false;
+  public modalSummary: ReactionSummary[] | null = null;
+
+  public openReactionMenuForItemId: string | null = null;
   /** Almacena el ID único del ítem del feed (ej: "post-1" o "repost-1") */
   public openCommentItemId: string | null = null;
 
@@ -207,6 +225,7 @@ export default class Home implements OnInit, OnDestroy {
     this.loadPosts();
     this.setupSearch();
     this.setupWebSocketListeners();
+    this.loadReactionTypes();
   }
 
   /**
@@ -230,6 +249,17 @@ export default class Home implements OnInit, OnDestroy {
     }
   }
 
+  private loadReactionTypes(): void {
+    this.reactionTypeService.getReactionTypes().subscribe({
+      next: (types) => {
+        this.reactionTypes = types;
+        console.log('Tipos de reacción cargados en Home:', this.reactionTypes); 
+      },
+      error: (err) => {
+        console.error('Error al cargar los tipos de reacción en Home:', err);
+      }
+    });
+  }
   /**
    * Configures ws listeners for posts feed.
   */
@@ -404,6 +434,8 @@ export default class Home implements OnInit, OnDestroy {
    * del usuario actual para cada post mediante llamadas adicionales.
    */
   loadPosts(): void {
+    this.loadReactionTypes();
+    
     // Evitar cargas múltiples si ya se está cargando
     if (this.isLoading || this.isLoadingMore) return;
 
@@ -424,34 +456,7 @@ export default class Home implements OnInit, OnDestroy {
         catchError((err) => {
           console.error('Error al cargar el feed:', err);
           return of([]);
-        }),switchMap((feedItems: (Post | Repost)[]) => {
-          if (feedItems.length === 0) {
-            return of([]);
-          }
-
-          const reactionChecks$: Observable<UserReactionStatus>[] = feedItems.map(item => {
-            const post = this.getPostFromItem(item); 
-            
-            return this.interactionService
-              .checkUserReaction(post.id) 
-              .pipe(catchError(() => of({ has_reacted: false, reaction_type_id: null })));
-          });
-
-          return forkJoin(reactionChecks$).pipe(
-            map((reactionStatuses: UserReactionStatus[]) => {
-              
-              return feedItems.map((item, index) => {
-                const post = this.getPostFromItem(item);
-                
-                post.is_liked_by_user =
-                  reactionStatuses[index].has_reacted &&
-                  reactionStatuses[index].reaction_type_id === this.LIKE_REACTION_TYPE_ID;
-                
-                return item;
-              });
-            })
-          );
-        })
+        }),
       )
       .subscribe({
         next: (feedItems: (Post | Repost)[]) => {
@@ -534,7 +539,107 @@ export default class Home implements OnInit, OnDestroy {
       return item;
     });
   }
+  /**
+   * Gestiona una reacción a un post (crear, actualizar o borrar).
+   * @param item El Post o Repost del feed.
+   * @param reactionTypeId El ID del tipo de reacción que el usuario clickeó (ej: 1 para 'like', 2 para 'love').
+   */
+  onReact(item: Post | Repost, reactionTypeId: number): void {
+    const post = this.getPostFromItem(item);
 
+    const currentState = post.user_reaction_status;
+    const currentReactionId = currentState?.reaction_type_id;
+
+    const payload: CreateReactionPayload = {
+      post_id: post.id,
+      reaction_type_id: reactionTypeId,
+    };
+
+    // Guardamos el estado anterior para revertir si falla
+    const previousState = {
+      status: post.user_reaction_status,
+      count: post.reactions_count || 0,
+    };
+
+    // Lógica de UI Optimista
+    if (currentReactionId === reactionTypeId) {
+      // 1. Clickeó la misma reacción: BORRAR
+      payload.action = 'delete';
+      post.user_reaction_status = { has_reacted: false, reaction_type_id: null };
+      post.reactions_count = (post.reactions_count || 1) - 1;
+      post.is_liked_by_user = false; // (por compatibilidad)
+
+    } else if (currentReactionId) {
+      // 2. Clickeó una reacción diferente: ACTUALIZAR
+      payload.action = 'update';
+      post.user_reaction_status = { has_reacted: true, reaction_type_id: reactionTypeId };
+      // El contador de reacciones totales no cambia
+      post.is_liked_by_user = reactionTypeId === 1; // (por compatibilidad)
+
+    } else {
+      // 3. No tenía reacción: CREAR
+      payload.action = 'create';
+      post.user_reaction_status = { has_reacted: true, reaction_type_id: reactionTypeId };
+      post.reactions_count = (post.reactions_count || 0) + 1;
+      post.is_liked_by_user = reactionTypeId === 1; // (por compatibilidad)
+    }
+
+    // Llamada al servicio
+    this.interactionService.manageReaction(payload).subscribe({
+      next: (response) => {
+        // Éxito. La UI ya está actualizada.
+        // El WS actualizará a otros, pero NO al usuario actual
+        // (por eso el 'updatePostInArray' sigue siendo necesario
+        // para los contadores que vienen del WS)
+      },
+      error: (err) => {
+        // ¡Error! Revertimos la UI
+        console.error('Error al reaccionar al post:', err);
+        post.user_reaction_status = previousState.status;
+        post.reactions_count = previousState.count;
+        post.is_liked_by_user = previousState.status?.reaction_type_id === 1;
+      },
+    });
+  }
+
+  /**
+   * Abre el menú de reacciones para un ítem específico.
+   * Si ya está abierto, lo cierra.
+   */
+  toggleReactionMenu(item: Post | Repost): void {
+    const uniqueId = this.getFeedItemId(item);
+    if (this.openReactionMenuForItemId === uniqueId) {
+      this.openReactionMenuForItemId = null;
+    } else {
+      this.openReactionMenuForItemId = uniqueId;
+    }
+  }
+
+  /**
+   * Cierra el menú de reacciones. Útil para (mouseleave).
+   */
+  closeReactionMenu(): void {
+    this.openReactionMenuForItemId = null;
+  }
+
+  /**
+   * Función helper para darle el color correcto al botón de "Reaccionar"
+   * basado en la reacción actual.
+   */
+  getReactionColor(post: Post): string {
+    const id = post.user_reaction_status?.reaction_type_id;
+    if (!id) return '#6b7280';
+
+    switch(id) {
+      case 1: return '#007bff'; // like
+      case 2: return '#e0245e'; // love
+      case 3: return '#f4b400'; // haha
+      case 4: return '#1da1f2'; // wow
+      case 5: return '#ffad1f'; // sad
+      case 6: return '#d93a00'; // angry
+      default: return '#6b7280';
+    }
+  }
   /**
    * Gestiona el click en el botón de 'Like'. Actualiza la UI de forma optimista
    * y luego llama al servicio para crear/eliminar la reacción en el backend.
@@ -699,5 +804,28 @@ export default class Home implements OnInit, OnDestroy {
       return item;
     });
   }
-  
+ 
+  openReactionSummary(post: Post): void {
+    this.showReactionSummaryModal = true;
+    this.modalIsLoading = true;
+    this.modalSummary = null; 
+
+    this.postService.getReactionSummary(post.id).subscribe({
+      next: (summary) => {
+        this.modalSummary = summary;
+        this.modalIsLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar el sumario de reacciones:', err);
+        this.modalIsLoading = false;
+        // (Opcional) puedes cerrar el modal si falla
+        // this.showReactionSummaryModal = false; 
+      }
+    });
+  }
+
+  closeReactionSummary(): void {
+    this.showReactionSummaryModal = false;
+    this.modalSummary = null;
+  }
 }

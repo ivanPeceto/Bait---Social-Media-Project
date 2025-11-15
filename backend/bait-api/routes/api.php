@@ -137,6 +137,7 @@ Route::middleware('auth:api')->prefix('posts')->group(function () {
     Route::post('/',        [PostController::class, 'store']);
     Route::get('/{post}',   [PostController::class, 'show']);
     Route::get('/{post}/user-reaction', [PostController::class, 'checkUserReaction']);
+    Route::get('/{post}/reaction-summary', [PostReactionController::class, 'getReactionCountsByPost']);
     Route::put('/{post}', [PostController::class, 'update']);
     Route::delete('/{post}',[PostController::class, 'destroy']);
 });
@@ -159,6 +160,8 @@ Route::middleware('auth:api')->prefix('multimedia-contents')->group(function () 
     Route::post('/',                      [MultimediaContentController::class, 'store']);
     Route::delete('/{multimediaContent}', [MultimediaContentController::class, 'destroy']);
 });
+
+Route::get('post-reactions/reaction-types', [PostReactionController::class, 'index']);
 
 Route::middleware('auth:api')->prefix('post-reactions')->group(function () {
     Route::post('/', [PostReactionController::class, 'store']);
