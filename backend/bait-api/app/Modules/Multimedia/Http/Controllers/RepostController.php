@@ -50,7 +50,8 @@ class RepostController extends Controller
     {
         $post_id = $request->validated('post_id');
 
-        $post = Post::findOrFail($post_id);
+        // Cargar multimedia y usuario del post original
+        $post = Post::with(['multimedia_contents', 'user'])->findOrFail($post_id);
 
         if (auth()->id() === $post->user->id) {
             return response()->json(['message' => 'Can not repost your own posts.'], 422);
@@ -61,11 +62,16 @@ class RepostController extends Controller
             'post_id' => $post_id,
         ]);
 
-        
-
-        //event(new NewRepost(auth()->user(), $post));
+        // Cargar relaciones completas antes de enviarlo al frontend
+        $repost->load([
+            'user',
+            'post.user',
+            'post.multimedia_contents'
+        ]);
 
         $post->user->notify(new NewRepostNotification(auth()->user(), $post));
+        // Esto enviará el evento por Reverb/WebSockets
+        event(new NewRepost($repost));
 
         return response()->json(new RepostResource($repost), 201);
     }

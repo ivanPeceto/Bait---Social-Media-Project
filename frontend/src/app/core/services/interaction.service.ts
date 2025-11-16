@@ -41,8 +41,8 @@ export class InteractionService {
    * @param payload Objeto con { post_id }
    * @returns Observable que emite el objeto Post actualizado.
    */
-  createRepost(payload: CreateRepostPayload): Observable<Post> {
-    return this.http.post<Post>(`${this.apiUrl}/reposts`, payload);
+  createRepost(payload: CreateRepostPayload): Observable<Repost> {
+    return this.http.post<Repost>(`${this.apiUrl}/reposts`, payload);
   }
 
   /**

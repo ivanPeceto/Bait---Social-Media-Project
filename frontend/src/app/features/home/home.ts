@@ -65,7 +65,6 @@ function isRepost(item: Post | Repost): item is Repost {
   templateUrl: './home.html',
 })
 export default class Home implements OnInit, OnDestroy {
-
   private interactionService = inject(InteractionService);
   private authService = inject(AuthService);
   private searchService = inject(SearchService);
@@ -136,7 +135,7 @@ export default class Home implements OnInit, OnDestroy {
   }
 
   getFeedItemId(item: Post | Repost): string {
-  // Usamos la función helper que ya tienes para saber qué es
+    // Usamos la función helper que ya tienes para saber qué es
     if (this.isRepost(item)) {
       return `repost-${item.id}`;
     }
@@ -200,9 +199,7 @@ export default class Home implements OnInit, OnDestroy {
       this.currentUser = user;
       this.cacheBustTs = Date.now();
       if (user && this.posts && this.posts.length > 0) {
-
         this.posts = this.posts.map((item) => {
-          
           if (isRepost(item)) {
             const updatedRepost = { ...item };
             if (updatedRepost.user.id === user.id) {
@@ -212,9 +209,8 @@ export default class Home implements OnInit, OnDestroy {
               updatedRepost.post = { ...updatedRepost.post, user: user }; // Actualiza el autor original
             }
             return updatedRepost;
-
           } else {
-             if (item.user_id === user.id) {
+            if (item.user_id === user.id) {
               return { ...item, user: user };
             }
             return item;
@@ -240,10 +236,10 @@ export default class Home implements OnInit, OnDestroy {
       }
       // Salir de todos los canales de posts (directos o anidados)
       const postIds = new Set<number>();
-      this.posts.forEach(item => {
+      this.posts.forEach((item) => {
         postIds.add(this.getPostFromItem(item).id);
       });
-      postIds.forEach(id => {
+      postIds.forEach((id) => {
         echo.leaveChannel(`post.${id}`);
       });
     }
@@ -253,35 +249,34 @@ export default class Home implements OnInit, OnDestroy {
     this.reactionTypeService.getReactionTypes().subscribe({
       next: (types) => {
         this.reactionTypes = types;
-        console.log('Tipos de reacción cargados en Home:', this.reactionTypes); 
+        console.log('Tipos de reacción cargados en Home:', this.reactionTypes);
       },
       error: (err) => {
         console.error('Error al cargar los tipos de reacción en Home:', err);
-      }
+      },
     });
   }
   /**
    * Configures ws listeners for posts feed.
-  */
+   */
   private setupWebSocketListeners(): void {
     if (!this.currentUser) return;
-    
+
     const echo = this.echoService.echo;
     if (!echo) {
       console.warn('Echo instance not available. Real-time updates disabled.');
-      return; 
+      return;
     }
 
-    echo.private(`users.${this.currentUser.id}`)
-      .listen('.NewPost', (data: { post: Post }) => {
-        const newPost: Post = { ...data.post, type: 'post' };
-        
-        if (newPost && !this.posts.find(p => p.id === newPost.id && p.type === 'post')) {
-          setTimeout(() => {
-            this.posts = [newPost, ...this.posts];
-          }, 100);
-        }
-      });
+    echo.private(`users.${this.currentUser.id}`).listen('.NewPost', (data: { post: Post }) => {
+      const newPost: Post = { ...data.post, type: 'post' };
+
+      if (newPost && !this.posts.find((p) => p.id === newPost.id && p.type === 'post')) {
+        setTimeout(() => {
+          this.posts = [newPost, ...this.posts];
+        }, 100);
+      }
+    });
   }
 
   private setupSearch(): void {
@@ -347,28 +342,24 @@ export default class Home implements OnInit, OnDestroy {
     }
 
     this.authService.currentUserChanges$.pipe(take(1)).subscribe((freshUser) => {
-      
       // Llama al primer endpoint para crear el post
       this.postService.createPost(content).subscribe({
         next: (createdPost: Post) => {
-          
           // Comprueba si hay un archivo seleccionado
           if (this.selectedFile) {
             this.isUploadingMedia = true;
-            
+
             // Llama al segundo endpoint para subir la imagen
             this.multimediaService.uploadToPost(createdPost.id, this.selectedFile).subscribe({
-              
               // ÉXITO (con imagen)
               next: (media: MultimediaContent) => {
-                
                 // CREA el objeto final aquí, AHORA que tienes la 'media'
                 const hydratedPost: Post = {
                   ...createdPost,
                   user: freshUser || createdPost.user,
                   user_id: freshUser?.id || createdPost.user_id,
-                  multimedia_contents: [media], 
-                  type: 'post'
+                  multimedia_contents: [media],
+                  type: 'post',
                 };
 
                 this.cacheBustTs = Date.now();
@@ -379,7 +370,6 @@ export default class Home implements OnInit, OnDestroy {
                 this.onRemoveSelectedImage();
                 this.postForm.reset();
               },
-              
               // ERROR (al subir imagen)
               error: (err) => {
                 console.error('Error al subir imagen del post:', err);
@@ -389,8 +379,8 @@ export default class Home implements OnInit, OnDestroy {
                   ...createdPost,
                   user: freshUser || createdPost.user,
                   user_id: freshUser?.id || createdPost.user_id,
-                  multimedia_contents: [], 
-                  type: 'post'
+                  multimedia_contents: [],
+                  type: 'post',
                 };
                 this.cacheBustTs = Date.now();
                 this.posts = [hydratedPost, ...this.posts];
@@ -400,7 +390,6 @@ export default class Home implements OnInit, OnDestroy {
                 alert('El post se creó, pero la imagen no pudo subirse.');
               },
             });
-
           } else {
             // ÉXITO (sin imagen)
             // No hay archivo, así que creamos el post hidratado inmediatamente
@@ -408,8 +397,8 @@ export default class Home implements OnInit, OnDestroy {
               ...createdPost,
               user: freshUser || createdPost.user,
               user_id: freshUser?.id || createdPost.user_id,
-              multimedia_contents: [], 
-              type: 'post'
+              multimedia_contents: [],
+              type: 'post',
             };
             this.cacheBustTs = Date.now();
             this.posts = [hydratedPost, ...this.posts];
@@ -435,7 +424,7 @@ export default class Home implements OnInit, OnDestroy {
    */
   loadPosts(): void {
     this.loadReactionTypes();
-    
+
     // Evitar cargas múltiples si ya se está cargando
     if (this.isLoading || this.isLoadingMore) return;
 
@@ -445,13 +434,14 @@ export default class Home implements OnInit, OnDestroy {
       this.isLoadingMore = true;
     }
 
-    this.postService.getFeed(this.currentPage)
+    this.postService
+      .getFeed(this.currentPage)
       .pipe(
         map((response: any) => {
           this.currentPage = response.current_page;
           this.lastPage = response.last_page;
-          
-          return (response.data || []) as (Post | Repost)[]; 
+
+          return (response.data || []) as (Post | Repost)[];
         }),
         catchError((err) => {
           console.error('Error al cargar el feed:', err);
@@ -467,10 +457,10 @@ export default class Home implements OnInit, OnDestroy {
             // Si son páginas siguientes, las añadimos (para scroll infinito)
             this.posts = [...this.posts, ...feedItems];
           }
-          
+
           this.isLoading = false;
           this.isLoadingMore = false;
-          this.listenToPostUpdates(); 
+          this.listenToPostUpdates();
         },
         error: (err) => {
           console.error('Error en la suscripción de loadPosts:', err);
@@ -489,16 +479,17 @@ export default class Home implements OnInit, OnDestroy {
     if (!echo) return;
 
     const postIds = new Set<number>();
-    this.posts.forEach(item => {
+    this.posts.forEach((item) => {
       postIds.add(this.getPostFromItem(item).id);
     });
 
-    postIds.forEach(id => {
+    postIds.forEach((id) => {
       echo.leaveChannel(`post.${id}`);
     });
 
-    postIds.forEach(id => {
-      echo.channel(`post.${id}`)
+    postIds.forEach((id) => {
+      echo
+        .channel(`post.${id}`)
         .listen('.PostReactionUpdated', (data: { post: Post }) => {
           this.updatePostInArray(data.post);
         })
@@ -514,8 +505,8 @@ export default class Home implements OnInit, OnDestroy {
    * como si es un Post anidado dentro de un Repost.
    */
   private updatePostInArray(updatedPost: Post): void {
-    this.posts = this.posts.map(item => {
-    const post = this.getPostFromItem(item);
+    this.posts = this.posts.map((item) => {
+      const post = this.getPostFromItem(item);
       if (post.id === updatedPost.id) {
         const local_is_liked_by_user = post.is_liked_by_user;
         if (isRepost(item)) {
@@ -525,15 +516,15 @@ export default class Home implements OnInit, OnDestroy {
               ...post,
               ...updatedPost,
               is_liked_by_user: local_is_liked_by_user,
-              user: post.user 
-            }
+              user: post.user,
+            },
           };
         }
         return {
           ...item,
           ...updatedPost,
           is_liked_by_user: local_is_liked_by_user,
-          user: item.user 
+          user: item.user,
         };
       }
       return item;
@@ -568,14 +559,12 @@ export default class Home implements OnInit, OnDestroy {
       post.user_reaction_status = { has_reacted: false, reaction_type_id: null };
       post.reactions_count = (post.reactions_count || 1) - 1;
       post.is_liked_by_user = false; // (por compatibilidad)
-
     } else if (currentReactionId) {
       // 2. Clickeó una reacción diferente: ACTUALIZAR
       payload.action = 'update';
       post.user_reaction_status = { has_reacted: true, reaction_type_id: reactionTypeId };
       // El contador de reacciones totales no cambia
       post.is_liked_by_user = reactionTypeId === 1; // (por compatibilidad)
-
     } else {
       // 3. No tenía reacción: CREAR
       payload.action = 'create';
@@ -665,7 +654,7 @@ export default class Home implements OnInit, OnDestroy {
     } else {
       post.reactions_count = (post.reactions_count || 0) + 1;
       post.is_liked_by_user = true;
-      payload.action = 'create'; 
+      payload.action = 'create';
     }
 
     this.interactionService.manageReaction(payload).subscribe({
@@ -710,7 +699,7 @@ export default class Home implements OnInit, OnDestroy {
 
       request$.subscribe({
         next: () => {
-          this.posts = this.posts.filter(item => {
+          this.posts = this.posts.filter((item) => {
             return this.getPostFromItem(item).id !== post.id;
           });
         },
@@ -726,8 +715,17 @@ export default class Home implements OnInit, OnDestroy {
     const payload: CreateRepostPayload = { post_id: post.id };
 
     this.interactionService.createRepost(payload).subscribe({
-      next: (updatedPost) => {
-        this.updatePostInArray(updatedPost);
+      next: (newRepost: Repost) => {
+        // 1. Actualiza el contador del post original (que sigue en el feed)
+        post.reposts_count = (post.reposts_count || 0) + 1;
+
+        // (Opcional) Actualiza el post en el array si es necesario
+        // Esto asegura que el contador en el post original se vea actualizado
+        this.updatePostInArray(post);
+
+        // 2. Añade el NUEVO repost al inicio del feed
+        const feedItem: Repost = { ...newRepost, type: 'repost' };
+        this.posts = [feedItem, ...this.posts];
       },
       error: (err) => {
         console.error('Error al repostear:', err);
@@ -761,10 +759,10 @@ export default class Home implements OnInit, OnDestroy {
    */
   onCommentAdded(): void {
     if (!this.openCommentItemId) return;
-    
-    const item = this.posts.find(p => this.getFeedItemId(p) === this.openCommentItemId);
+
+    const item = this.posts.find((p) => this.getFeedItemId(p) === this.openCommentItemId);
     if (!item) return;
-    
+
     const postId = this.getPostFromItem(item).id;
     this.updatePostCommentsCount(postId, 1);
   }
@@ -776,7 +774,7 @@ export default class Home implements OnInit, OnDestroy {
   onCommentDeleted(): void {
     if (!this.openCommentItemId) return;
 
-    const item = this.posts.find(p => this.getFeedItemId(p) === this.openCommentItemId);
+    const item = this.posts.find((p) => this.getFeedItemId(p) === this.openCommentItemId);
     if (!item) return;
 
     const postId = this.getPostFromItem(item).id;
@@ -789,26 +787,26 @@ export default class Home implements OnInit, OnDestroy {
   private updatePostCommentsCount(postId: number, delta: number): void {
     this.posts = this.posts.map((item) => {
       const post = this.getPostFromItem(item);
-      
-      if (post.id === postId) {
-         const updatedPost: Post = { 
-           ...post, 
-           comments_count: Math.max(0, (post.comments_count || 0) + delta) 
-         };
 
-         if (isRepost(item)) {
-           return { ...item, post: updatedPost };
-         }
-         return updatedPost;
+      if (post.id === postId) {
+        const updatedPost: Post = {
+          ...post,
+          comments_count: Math.max(0, (post.comments_count || 0) + delta),
+        };
+
+        if (isRepost(item)) {
+          return { ...item, post: updatedPost };
+        }
+        return updatedPost;
       }
       return item;
     });
   }
- 
+
   openReactionSummary(post: Post): void {
     this.showReactionSummaryModal = true;
     this.modalIsLoading = true;
-    this.modalSummary = null; 
+    this.modalSummary = null;
 
     this.postService.getReactionSummary(post.id).subscribe({
       next: (summary) => {
@@ -819,8 +817,8 @@ export default class Home implements OnInit, OnDestroy {
         console.error('Error al cargar el sumario de reacciones:', err);
         this.modalIsLoading = false;
         // (Opcional) puedes cerrar el modal si falla
-        // this.showReactionSummaryModal = false; 
-      }
+        // this.showReactionSummaryModal = false;
+      },
     });
   }
 

@@ -1,3 +1,16 @@
+## [feat/front/repostsbug] - 2025-11-14
+
+### Fixed
+- **Reposts Feed Bug:** Se corrigió un error que impedía que los nuevos reposts aparecieran en el feed principal en tiempo real y, a veces, mostraba contenido vacío, en otras ocaciones se rompía y no figuraba el repost correctamente.
+  - `RepostController.php`: Se agregó el disparo del evento `NewRepost` al crear un repost para habilitar las actualizaciones en tiempo real.
+  - `frontend/src/app/core/services/interaction.service.ts`: Se corrigió el tipo de retorno en `createRepost` de `Observable<Post>` a `Observable<Repost>` para coincidir con la respuesta de la API.
+  - `home.ts`:
+    - Se actualizó `onToggleRepost` para agregar el nuevo `Repost` al array del feed, en lugar de intentar actualizar un post existente.
+    - Se añadió un listener para el evento `.NewRepost` en `setupWebSocketListeners` para recibir actualizaciones.
+
+- **Reposts Content Bug:** Se solucionó un problema por el cual los reposts en la página de perfil no mostraban el contenido del post original (texto, imágenes, etc.).
+  - `backend/bait-api/app/Modules/UserData/Http/Controllers/ProfileController.php`: Se implementó *Eager Loading* (`.with([...])`) en el método `getUserReposts` para cargar las relaciones anidadas (`post`, `post.user`, `post.multimedia_contents`, etc.).
+
 ## [feat/front/reactions] - 2025-11-14
 
 _(Cambios realizados por @ivanPeceto)_
