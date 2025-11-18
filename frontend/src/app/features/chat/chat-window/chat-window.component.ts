@@ -53,7 +53,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   }
 
   listenForMessages(): void {
-    this.echoService.echo?.private(`chat.${this.chat.id}`)
+    this.echoService.echo?.private(`chats.${this.chat.id}`)
       .listen('.NewMessage', (e: { message: Message }) => {
         this.messages.push(e.message);
       });
@@ -80,6 +80,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.echoService.echo?.leaveChannel(`chat.${this.chat.id}`);
+    this.echoService.echo?.leaveChannel(`chats.${this.chat.id}`);
   }
 }
