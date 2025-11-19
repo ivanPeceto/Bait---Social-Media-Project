@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
       mainFields: ['module'],
     },
     server: {
-      host: 'https://temporary-complement-harris-utility.trycloudflare.com/',
+      host: '0.0.0.0',
       port: 4200,
       hmr: {
         host: env.VITE_HOST_IP || 'localhost',

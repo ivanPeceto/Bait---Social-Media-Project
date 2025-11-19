@@ -46,7 +46,7 @@
   </div>
 </div>
 
-<div class="p-6 bg-gray-800 rounded-lg shadow-lg">
+<div class="p-6 bg-gray-800 rounded-lg shadow-lg ">
   <header class="flex items-center justify-between mb-5">
     <h2 class="text-2xl font-bold text-white">Gestión de Usuarios</h2>
   </header>
@@ -54,7 +54,7 @@
   <div *ngIf="isLoading" class="py-10 text-center text-gray-400"><p>Cargando...</p></div>
   <div *ngIf="error" class="p-3 text-red-300 rounded-md bg-red-900/50">{{ error }}</div>
 
-  <div *ngIf="!isLoading && !error && users.length > 0" class="overflow-x-auto">
+  <div *ngIf="!isLoading && !error && users.length > 0" class="">
     <table class="w-full text-sm text-left text-gray-400">
       <thead class="text-xs text-gray-300 uppercase bg-gray-700/50">
         <tr>
@@ -105,7 +105,7 @@
               <button (click)="toggleActionMenu(user.id)" type="button" class="p-1.5 rounded-full bg-gray-700 hover:bg-gray-600">
                 <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" /></svg>
               </button>
-              <div *ngIf="activeMenuUserId === user.id" class="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md shadow-lg bg-gray-700 ring-1 ring-black ring-opacity-5">
+              <div *ngIf="activeMenuUserId === user.id" style="z-index: 999;" class="absolute right-0 mt-2 w-56 origin-top-right rounded-md shadow-lg bg-gray-700 ring-1 ring-black ring-opacity-5">
                 <div class="py-1">
                   <a href="#" (click)="openEditModal(user); $event.preventDefault()" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600">Editar Perfil</a>
                   <a href="#" *ngIf="isCurrentUserAdmin"
